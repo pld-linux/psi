@@ -2,7 +2,7 @@
 # Conditional build:
 %bcond_with	square_timestamps	# this is how they used to be
 #
-%define		snap 20040701
+%define		snap 20040710
 #
 Summary:	PSI - Jabber client
 Summary(pl):	PSI - klient Jabbera
@@ -12,7 +12,7 @@ Release:	0.%{snap}.1
 License:	GPL
 Group:		Applications/Communications
 Source0:	%{name}-snap-%{snap}.tar.bz2
-# Source0-md5:	2211e2f9fd098dbdaa90c5423afa8451
+# Source0-md5:	35def1b278e5ce3f26f81dad80bcc1c0
 Source1:	%{name}-richlistview.cpp
 Source2:	%{name}-richlistview.h
 Source3:	%{name}-roster-rich.README
