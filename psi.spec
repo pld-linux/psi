@@ -1,32 +1,26 @@
-#
+# 
 # Conditional build:
-# _with_addons		- enables additional GUI features
-# _with_customos	- enables OS identification changing ~/.psi/custom-os
-# _with_pld		- enables PLD Linux identification
+%bcond_with	customos	# enables OS identification changing ~/.psi/custom-os
 #
 Summary:	PSI - Jabber client
 Summary(pl):	PSI - klient Jabbera
 Name:		psi
 Version:	0.9.1
-Release:	0.1
+Release:	0.99
 License:	GPL
 Group:		Applications/Communications
 Source0:	http://dl.sourceforge.net/%{name}/%{name}-%{version}.tar.bz2
 # Source0-md5:	7057b61518e1b1ebd732a95c265a3b76
-Source1:	http://beta.jabberpl.org/komunikatory/psi/psi_pl.qm
-# Source1-md5:	4ffe9c032a4ebf35cb6943187b560f9c
+Source1:	%{name}-langpack-%{version}.tar.bz2
+# Source1-md5:	77f5d5544758c846839932fc9b5e9996
 Source2:	%{name}.desktop
-#Patch0:		%{name}-paths.patch
-#Patch1:		%{name}-certs.patch
-#Patch2:		%{name}-additional_features.patch
-#Patch3:		%{name}-pld.patch
-#Patch4:		%{name}-home_etc.patch
-#Patch5:		%{name}-customos.patch
 Patch0:		%{name}-certs.patch
 Patch1:		%{name}-desktop.patch
+Patch2:		%{name}-home_etc.patch
+Patch3:		%{name}-customos.patch
 URL:		http://psi.affinix.com/
 BuildRequires:	qt-devel >= 3.1.2
-Requires:	qt-plugin-qca-tls >= 20031208
+Requires:	qt-plugin-qca-tls >= 1:1.0
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 Conflicts:	qt-plugin-ssl = 1.0
 
@@ -44,27 +38,21 @@ wprowadzona zmiana, która powoduje ¿e certyfikaty SSL s± poszukiwane w
 katalogu $DATADIR/certs lub ~/.psi/certs.
 
 %prep
-%setup  -q
+%setup  -q -a1
 %patch0 -p1
 %patch1 -p1
-#%{?_with_addons:%patch2 -p1}
-#%if %{undefined _with_pld} && %{defined _with_customos}
-#%patch5 -p1
-#%else
-#%patch3 -p1
-#%endif
-#%patch4 -p1
+%patch2 -p1
+%{?with_customos:%patch3 -p1}
+
 %{__perl} -pi -e "s/QString PROG_VERSION = \"0.9.1\";/QString PROG_VERSION = \"0.9.1-%{release}\";/g" src/common.cpp
 %{__perl} -pi -e "s,/usr/local/share/psi,%{_datadir}/psi,g" src/common.cpp
 %{__perl} -pi -e 's/CONFIG \+= debug//g' src/src.pro
 
 %build
-QTDIR=%{_prefix}
-export QTDIR
-
+export QTDIR=%{_prefix}
 ./configure \
 	--prefix=%{_prefix} \
-	--qtdir=$QTDIR
+	--qtdir=%{_prefix}
 
 qmake psi.pro \
 	QMAKE_CXX="%{__cxx}" \
@@ -74,23 +62,16 @@ qmake psi.pro \
 
 %{__make}
 
-# lrelease psi.pro
-
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT{%{_desktopdir},%{_libdir}/psi,%{_datadir}/psi/translations,%{_pixmapsdir}}
-
-# ugly workaround: they ignore INSTALL_ROOT!
-perl -pi -e 's#(\.\./)+#/#g' Makefile
+install -d $RPM_BUILD_ROOT{%{_desktopdir},%{_pixmapsdir}}
 
 QTDIR=%{_prefix} %{__make} install \
 	INSTALL_ROOT=$RPM_BUILD_ROOT
 
-install %{SOURCE1} $RPM_BUILD_ROOT%{_datadir}/%{name}/
-install %{SOURCE2} $RPM_BUILD_ROOT%{_desktopdir}
-# cp lang/*.qm $RPM_BUILD_ROOT%{_datadir}/psi/translations
-
-rm -f $RPM_BUILD_ROOT%{_datadir}/psi/certs/*.pem
+install -c %{SOURCE2} $RPM_BUILD_ROOT%{_desktopdir}
+install -c iconsets/system/default/icon_48.png $RPM_BUILD_ROOT%{_pixmapsdir}/psi.png
+install -c lang/*.qm $RPM_BUILD_ROOT%{_datadir}/psi
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -100,32 +81,23 @@ rm -rf $RPM_BUILD_ROOT
 %doc README TODO
 %attr(755,root,root) %{_bindir}/*
 %dir %{_datadir}/psi
-%dir %{_datadir}/psi/translations
-%{_datadir}/psi/README
 %{_datadir}/psi/COPYING
+%{_datadir}/psi/README
 %{_datadir}/psi/certs
 %{_datadir}/psi/iconsets
-#%{_datadir}/psi/image
 %{_datadir}/psi/sound
-#%lang(ar) %{_datadir}/psi/translations/psi_ar.qm
-#%lang(da) %{_datadir}/psi/translations/psi_da.qm
-#%lang(cs) %{_datadir}/psi/translations/psi_cs.qm
-#%lang(de) %{_datadir}/psi/translations/psi_de.qm
-#%lang(es) %{_datadir}/psi/translations/psi_es.qm
-#%lang(fi) %{_datadir}/psi/translations/psi_fi.qm
-#%lang(fr) %{_datadir}/psi/translations/psi_fr.qm
-#%lang(ja) %{_datadir}/psi/translations/psi_jp.qm
-#%lang(mk) %{_datadir}/psi/translations/psi_mk.qm
-#%lang(nl) %{_datadir}/psi/translations/psi_nl.qm
-#%lang(pl) %{_datadir}/psi/translations/psi_pl.qm
-#%lang(ru) %{_datadir}/psi/translations/psi_ru.qm
-#%lang(sr) %{_datadir}/psi/translations/psi_sr.qm
-#%lang(it) %{_datadir}/psi/translations/psi_it.qm
-#%lang(pt) %{_datadir}/psi/translations/psi_pt.qm
-#%lang(pt_BR) %{_datadir}/psi/translations/psi_ptbr.qm
-#%lang(sv) %{_datadir}/psi/translations/psi_se.qm
-#%lang(zh) %{_datadir}/psi/translations/psi_zh.qm
-#
-%{_libdir}/psi
-%{_desktopdir}/psi.desktop
-#%{_pixmapsdir}/*.png
+%lang(ca) %{_datadir}/psi/psi_ca.qm
+%lang(cs) %{_datadir}/psi/psi_cs.qm
+%lang(de) %{_datadir}/psi/psi_de.qm
+%lang(es) %{_datadir}/psi/psi_es.qm
+%lang(el) %{_datadir}/psi/psi_el.qm
+%lang(fr) %{_datadir}/psi/psi_fr.qm
+%lang(it) %{_datadir}/psi/psi_it.qm
+%lang(mk) %{_datadir}/psi/psi_mk.qm
+%lang(nl) %{_datadir}/psi/psi_nl.qm
+%lang(pl) %{_datadir}/psi/psi_pl.qm
+%lang(se) %{_datadir}/psi/psi_se.qm
+%lang(sk) %{_datadir}/psi/psi_sk.qm
+%lang(zh) %{_datadir}/psi/psi_zh.qm
+%{_desktopdir}/*.desktop
+%{_pixmapsdir}/*.png
