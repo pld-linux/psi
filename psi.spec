@@ -76,7 +76,7 @@ QTDIR=%{_prefix} %{__make} install INSTALL_ROOT=$RPM_BUILD_ROOT
 install %{SOURCE2} $RPM_BUILD_ROOT%{_desktopdir}
 cp lang/*.qm $RPM_BUILD_ROOT%{_datadir}/psi/translations
 
-rm -f $RPM_BUILD_ROOT%{_datadir}/psi/{certs/*.pem,{README,COPYING}}
+rm -f $RPM_BUILD_ROOT%{_datadir}/psi/certs/*.pem
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -87,6 +87,8 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/*
 %dir %{_datadir}/psi
 %dir %{_datadir}/psi/translations
+%{_datadir}/psi/README
+%{_datadir}/psi/COPYING
 %{_datadir}/psi/certs
 %{_datadir}/psi/iconsets
 %{_datadir}/psi/image
