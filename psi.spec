@@ -26,8 +26,6 @@ BuildRequires:	qt-devel >= 3.0.5
 %{!?_without_qssl:BuildRequires:	qt-plugin-ssl-devel >= 1.0-2}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
-%define		_prefix		/usr/X11R6
-%define		_mandir		%{_prefix}/man
 
 %description
 PSI is communicator for Jabber open messaging system. It is based on
