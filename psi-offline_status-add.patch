@@ -1,0 +1,236 @@
+diff -ru -X exclude psi-clean/src/common.h psi/src/common.h
+--- psi-clean/src/common.h	Tue Jan 27 18:09:30 2004
++++ psi/src/common.h	Sun Feb 15 20:29:30 2004
+@@ -84,7 +84,7 @@
+ 	QMap<QString, QString> serviceRosterIconset;
+ 	QMap<QString, QString> customRosterIconset;
+ 
+-	bool useleft, singleclick, askOnline, popupMsgs, popupChats, popupHeadlines, raise;
++	bool useleft, singleclick, askOnline, askOffline, popupMsgs, popupChats, popupHeadlines, raise;
+ 	bool alwaysOnTop, noAwaySound, noAwayPopup, noUnlistedPopup, rosterAnim, autoVersion, autoVCardOnLogin, xmlConsoleOnLogin;
+ 	bool useDock, dockDCstyle, dockHideMW, dockToolMW, isWMDock;
+ 	bool smallChats;
+diff -ru -X exclude psi-clean/src/options/opt_status-ui.ui psi/src/options/opt_status-ui.ui
+--- psi-clean/src/options/opt_status-ui.ui	Fri Dec 05 16:44:28 2003
++++ psi/src/options/opt_status-ui.ui	Sun Feb 15 20:33:28 2004
+@@ -8,8 +8,8 @@
+         <rect>
+             <x>0</x>
+             <y>0</y>
+-            <width>330</width>
+-            <height>367</height>
++            <width>221</width>
++            <height>402</height>
+         </rect>
+     </property>
+     <property name="caption">
+@@ -25,13 +25,34 @@
+         <property name="spacing">
+             <number>2</number>
+         </property>
+-        <widget class="QCheckBox">
++        <widget class="QGroupBox">
+             <property name="name">
+-                <cstring>ck_askOnline</cstring>
++                <cstring>groupBox1</cstring>
+             </property>
+-            <property name="text">
+-                <string>Prompt for status message when choosing "Online"</string>
++            <property name="title">
++                <string>Prompt for status message when choosing</string>
+             </property>
++            <vbox>
++                <property name="name">
++                    <cstring>unnamed</cstring>
++                </property>
++                <widget class="QCheckBox">
++                    <property name="name">
++                        <cstring>ck_askOnline</cstring>
++                    </property>
++                    <property name="text">
++                        <string>Online</string>
++                    </property>
++                </widget>
++                <widget class="QCheckBox">
++                    <property name="name">
++                        <cstring>ck_askOffline</cstring>
++                    </property>
++                    <property name="text">
++                        <string>Offline</string>
++                    </property>
++                </widget>
++            </vbox>
+         </widget>
+         <widget class="QLayoutWidget">
+             <property name="name">
+@@ -295,7 +316,6 @@
+     </connection>
+ </connections>
+ <tabstops>
+-    <tabstop>ck_askOnline</tabstop>
+     <tabstop>ck_asAway</tabstop>
+     <tabstop>sb_asAway</tabstop>
+     <tabstop>ck_asXa</tabstop>
+diff -ru -X exclude psi-clean/src/options/opt_status.cpp psi/src/options/opt_status.cpp
+--- psi-clean/src/options/opt_status.cpp	Sat Jan 17 15:48:14 2004
++++ psi/src/options/opt_status.cpp	Sun Feb 15 20:29:38 2004
+@@ -102,6 +102,7 @@
+ 	opt->sp = o->sp;
+ 
+ 	opt->askOnline = d->ck_askOnline->isChecked();
++	opt->askOffline = d->ck_askOffline->isChecked();
+ }
+ 
+ void OptionsTabStatus::restoreOptions(const Options *opt)
+@@ -135,6 +136,7 @@
+ 		d->lb_sp->setSelected(0, TRUE);
+ 
+ 	d->ck_askOnline->setChecked( opt->askOnline );
++	d->ck_askOffline->setChecked( opt->askOffline );
+ }
+ 
+ void OptionsTabStatus::setData(PsiCon *, QWidget *parentDialog)
+diff -ru -X exclude psi-clean/src/psiaccount.cpp psi/src/psiaccount.cpp
+--- psi-clean/src/psiaccount.cpp	Tue Jan 27 18:09:36 2004
++++ psi/src/psiaccount.cpp	Sun Feb 15 21:15:12 2004
+@@ -801,7 +801,7 @@
+ }
+ 
+ // disconnect or stop reconnecting
+-void PsiAccount::logout(bool fast)
++void PsiAccount::logout(bool fast, const Status &s)
+ {
+ 	if(!isActive())
+ 		return;
+@@ -811,7 +811,6 @@
+ 
+ 	if(loggedIn()) {
+ 		// send logout status
+-		Status s("", "Logged out", 0, false);
+ 		d->client->setPresence(s);
+ 	}
+ 
+@@ -822,6 +821,13 @@
+ 	v_isActive = false;
+ 	stateChanged();
+ 
++	QTimer::singleShot(0, this, SLOT(disconnect()));
++}
++
++// skz note: I had to split logout() because server seem to need some time to store status
++// before stream is closed (weird, I know)
++void PsiAccount::disconnect()
++{
+ 	// disconnect
+ 	d->client->close();
+ 	cleanupStream();
+@@ -1546,7 +1552,7 @@
+ 	}
+ 	else {
+ 		if(isActive())
+-			logout();
++			logout(false, s);
+ 	}
+ }
+ 
+@@ -2070,7 +2076,7 @@
+ 
+ void PsiAccount::changeStatus(int x)
+ {
+-	if(x == STATUS_OFFLINE) {
+-		setStatus(Status("","",0,false));
++	if(x == STATUS_OFFLINE && (!option.askOffline || !isConnected())) {
++		setStatus(Status("","Logged out",0,false));
+ 	}
+ 	else {
+diff -ru -X exclude psi-clean/src/psiaccount.h psi/src/psiaccount.h
+--- psi-clean/src/psiaccount.h	Tue Jan 27 18:09:36 2004
++++ psi/src/psiaccount.h	Sun Feb 15 21:10:44 2004
+@@ -149,7 +149,7 @@
+ 	void setStatusDirect(const Status &);
+ 	void setStatusActual(const Status &);
+ 	void login();
+-	void logout(bool fast=false);
++	void logout(bool fast=false, const Status &s = Status("", "Logged out", 0, false));
+ 	bool loggedIn() const;
+ 	void setNick(const QString &);
+ 	QString nick() const;
+@@ -289,6 +289,7 @@
+ 	void client_incomingJidLink();
+ 
+ 	void reconnect();
++	void disconnect();
+ 	void enableNotifyOnline();
+ 
+ 	void slotClientVersionFinished();
+diff -ru -X exclude psi-clean/src/psicon.cpp psi/src/psicon.cpp
+--- psi-clean/src/psicon.cpp	Thu Feb 12 22:47:38 2004
++++ psi/src/psicon.cpp	Sun Feb 15 20:30:02 2004
+@@ -751,8 +794,14 @@
+ 
+ void PsiCon::statusMenuChanged(int x)
+ {
+-	if(x == STATUS_OFFLINE) {
+-		setGlobalStatus(Status("","",0,false));
++	bool anyConnected = false;
++
++	PsiAccountListIt it(d->listEnabled);
++	for(PsiAccount *pa; !anyConnected && (pa = it.current()); ++it)
++		anyConnected = pa->isConnected();
++
++	if(x == STATUS_OFFLINE && (!option.askOffline || !anyConnected)) {
++		setGlobalStatus(Status("","Logged out",0,false));
+ 		if(option.useDock == true)
+ 			d->mainwin->setTrayToolTip(Status("","",0,false));
+ 	}
+diff -ru -X exclude psi-clean/src/psi_profiles.cpp psi/src/psi_profiles.cpp
+--- psi-clean/src/psi_profiles.cpp	Tue Jan 27 18:09:32 2004
++++ psi/src/psi_profiles.cpp	Sun Feb 15 20:29:48 2004
+@@ -363,6 +363,7 @@
+ 	prefs.raise = FALSE;
+ 	prefs.incomingAs = 0;
+ 	prefs.askOnline = FALSE;
++	prefs.askOffline = FALSE;
+ 	prefs.rosterAnim = TRUE;
+ 	prefs.autoVersion = false;
+ 	prefs.autoVCardOnLogin = true;
+@@ -724,6 +725,7 @@
+ 			p_pres.appendChild(tag);
+ 
+ 			tag.appendChild(textTag(doc, "askOnline", prefs.askOnline));
++			tag.appendChild(textTag(doc, "askOffline", prefs.askOffline));
+ 			tag.appendChild(textTag(doc, "rosterAnim", prefs.rosterAnim));
+ 			tag.appendChild(textTag(doc, "autoVersion", prefs.autoVersion));
+ 			tag.appendChild(textTag(doc, "autoVCardOnLogin", prefs.autoVCardOnLogin));
+@@ -1186,6 +1188,7 @@
+ 			QDomElement tag = findSubTag(p_pres, "misc", &found);
+ 			if(found) {
+ 				readBoolEntry(tag, "askOnline", &prefs.askOnline);
++				readBoolEntry(tag, "askOffline", &prefs.askOffline);
+ 				readBoolEntry(tag, "rosterAnim", &prefs.rosterAnim);
+ 				readBoolEntry(tag, "autoVersion", &prefs.autoVersion);
+ 				readBoolEntry(tag, "autoVCardOnLogin", &prefs.autoVCardOnLogin);
+diff -ru -X exclude psi-clean/src/statusdlg.cpp psi/src/statusdlg.cpp
+--- psi-clean/src/statusdlg.cpp	Sun Jan 04 20:30:30 2004
++++ psi/src/statusdlg.cpp	Sun Feb 15 20:38:54 2004
+@@ -65,7 +65,7 @@
+ //----------------------------------------------------------------------------
+ // StatusSetDlg
+ //----------------------------------------------------------------------------
+-static int combomap[6] = { STATUS_CHAT, STATUS_ONLINE, STATUS_AWAY, STATUS_XA, STATUS_DND, STATUS_INVISIBLE };
++static int combomap[7] = { STATUS_CHAT, STATUS_ONLINE, STATUS_AWAY, STATUS_XA, STATUS_DND, STATUS_INVISIBLE, STATUS_OFFLINE };
+ 
+ class StatusSetDlg::Private
+ {
+@@ -119,9 +119,9 @@
+ 	hb1->addWidget(l);
+ 	d->cb_type = new QComboBox(this);
+ 	int n;
+-	for(n = 0; n < 6; ++n)
++	for(n = 0; n < 7; ++n)
+ 		d->cb_type->insertItem(status2txt(combomap[n]));
+-	for(n = 0; n < 6; ++n) {
++	for(n = 0; n < 7; ++n) {
+ 		if(type == combomap[n]) {
+ 			d->cb_type->setCurrentItem(n);
+ 			break;
