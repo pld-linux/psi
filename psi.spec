@@ -37,6 +37,7 @@ Patch24:	%{name}-icon_buttons_big_return-mod.patch
 Patch25:	%{name}-nicechats-mod.patch
 Patch26:	%{name}-roster-rich.patch
 Patch27:	%{name}-icondef.xml_status_indicator.patch
+Patch28:	%{name}-settoggles-fix.patch
 # from Remko
 # http://listserver.dreamhost.com/pipermail/psi-devel-affinix.com/2004-August/000295.html
 Patch50:	%{name}-status_presets.patch
@@ -141,6 +142,7 @@ Jest to wersja rozwojowa (CVS).
 %patch25 -p0
 %patch26 -p0
 %patch27 -p0
+%patch28 -p0
 # tried to fix it, but seems severly broken :(
 #patch50 -p0
 
