@@ -8,3 +8,4 @@ Terminal=false
 Type=Application
 Categories=Qt;Network;InstantMessaging
 Encoding=UTF-8
+# vi: encoding=utf-8
