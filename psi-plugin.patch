@@ -25,12 +25,3 @@ diff -ru psi-0.8.6/src/main.cpp psi-0.8.6-AlchemyX/src/main.cpp
  	dirs += "";
  	Stream::loadSSL(dirs);
  
-@@ -214,7 +217,7 @@
- {
- 	// set the paths
- 	g.pathBase = getResourcesDir();
--	char *p = getenv("PSIDATADIR");
-+	char *p = "/usr/X11R6/share/psi";
- 	if(p)
- 		g.pathHome = p;
- 	else
