@@ -26,16 +26,16 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 Conflicts:	qt-plugin-ssl = 1.0
 
 %description
-PSI is communicator for Jabber open messaging system. It is based on
-QT library. It supports SSL encrypted connections. Default behaviour
-for SSL was changed so it looks for SSL certificates in $DATADIR/certs
-or in ~/.psi/certs.
+PSI is a communicator for the Jabber open messaging system. It is
+based on the QT library. It supports SSL encrypted connections. The
+default behaviour for SSL was changed so that it looks for SSL
+certificates in $DATADIR/certs or in ~/.psi/certs.
 
 %description -l pl
 PSI jest komunikatorem dla otwartego systemu wiadomo¶ci Jabber. Zosta³
 stworzony w oparciu o bibliotekê QT. PSI wspiera po³±czenia szyfrowane
 SSL. W stosunku do domy¶lnego zachowania komunikatora zosta³a
-wprowadzona zmiana, która powoduje ¿e certyfikaty SSL poszukiwane s± w
+wprowadzona zmiana, która powoduje ¿e certyfikaty SSL s± poszukiwane w
 katalogu $DATADIR/certs lub ~/.psi/certs.
 
 %prep
