@@ -3,6 +3,7 @@
 #
 Summary:	PSI - Jabber client
 Summary(pl):	PSI - klient Jabbera
+Summary(de):	PSI - ein Instant Messaging Client-Programm für das Jabber
 Name:		psi
 Version:	0.10
 Release:	0.%{snap}.2pedrito
@@ -39,6 +40,10 @@ certificates in $DATADIR/certs or in ~/.psi/certs.
 
 This is a development version (CVS) with many additional patches. See:
 http://www.pld-linux.org/Packages/Psi
+
+%description -l de
+Psi ist ein Instant Messaging (IM) Client-Programm für das Jabber
+(XMPP) Protokoll, welches das Qt Toolkit nutzt.
 
 %description -l pl
 Psi jest komunikatorem dla otwartego systemu wiadomo¶ci Jabber. Zosta³
