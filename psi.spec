@@ -41,7 +41,7 @@ katalogu $DATADIR/certs lub ~/.psi/certs.
 %{?_with_addons:%patch2 -p1}
 %patch3 -p1
 perl -pi -e "s/QString PROG_VERSION = \"0.9\";/QString PROG_VERSION = \"0.9-%{release}\";/g" src/common.cpp
-perl -pi -e "s,/usr/local/share/psi,/usr/share/psi,g" src/common.cpp
+perl -pi -e "s,/usr/local/share/psi,%{_datadir}/psi,g" src/common.cpp
 
 %build
 QTDIR=%{_prefix}
