@@ -5,8 +5,8 @@ diff -ru psi-0.8.6/src/psi.pro psi-0.8.6-AlchemyX/src/psi.pro
  
  # System-specific build settings
  unix:!mac {
--	INCLUDEPATH  += /usr/X11R6/include
+-	INCLUDEPATH  += /usr/include /usr/X11R6/include
 +	INCLUDEPATH  += /usr/X11R6/include /usr/X11R6/include/qt
- 	LIBS         += -lXss -lz
+ 	LIBS         += -lz -lXss
  	SOURCES      += trayicon_x11.cpp
  }

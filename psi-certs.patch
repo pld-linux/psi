@@ -1,15 +1,3 @@
-diff -ru psi-0.8.6/src/jabber.cpp psi-0.8.6-AlchemyX/src/jabber.cpp
---- psi-0.8.6/src/jabber.cpp	Mon Jul  8 20:13:11 2002
-+++ psi-0.8.6-AlchemyX/src/jabber.cpp	Tue Nov 26 19:29:46 2002
-@@ -41,7 +41,7 @@
- 	connect(&stream, SIGNAL(error(const StreamError &)), SLOT(streamError(const StreamError &)));
- 	connect(&stream, SIGNAL(receivePacket(const QDomElement &)), SLOT(receivePacket(const QDomElement &)));
- 
--	stream.setSSLTrustedCertStoreDir(g.pathBase + "/certs");
-+	stream.setSSLTrustedCertStoreDir(g.pathHome + "/certs");
- 
- 	//io.stream = &stream;
- 	connect(&io, SIGNAL(done(JabTask *)), SLOT(ioDone(JabTask *)));
 diff -ru psi-0.8.6/src/profiles.cpp psi-0.8.6-AlchemyX/src/profiles.cpp
 --- psi-0.8.6/src/profiles.cpp	Mon Jul  8 20:13:11 2002
 +++ psi-0.8.6-AlchemyX/src/profiles.cpp	Tue Nov 26 19:29:33 2002
