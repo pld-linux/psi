@@ -1,4 +1,4 @@
-%define		snap 20041103
+%define		snap 20041223
 #
 Summary:	PSI - Jabber client
 Summary(pl):	PSI - klient Jabbera
@@ -8,7 +8,7 @@ Release:	0.%{snap}.3
 License:	GPL
 Group:		Applications/Communications
 Source0:	%{name}-snap-%{snap}.tar.bz2
-# Source0-md5:	46833f23018542503f34dde7a319079a
+# Source0-md5:	1161c8609fa59196db36d8f1bded9343
 Source1:	%{name}-richlistview.cpp
 Source2:	%{name}-richlistview.h
 Source3:	%{name}-roster-rich.README
@@ -29,9 +29,6 @@ Patch25:	%{name}-nicechats-mod.patch
 Patch26:	%{name}-roster-rich.patch
 Patch27:	%{name}-icondef.xml_status_indicator.patch
 Patch28:	%{name}-settoggles-fix.patch
-# from Remko
-# http://listserver.dreamhost.com/pipermail/psi-devel-affinix.com/2004-August/000295.html
-#Patch50:	%{name}-status_presets.patch
 URL:		http://psi.affinix.com/
 BuildRequires:	libstdc++-devel
 BuildRequires:	cyrus-sasl-devel
@@ -86,7 +83,7 @@ napisaæ w³asne okna dialogowe itp. albo poprawiæ obecne.
 %patch2 -p0
 %patch3 -p1
 %patch10 -p0
-%patch20 -p0
+#patch20 -p0
 #
 %patch22 -p0
 %patch23 -p0
@@ -96,8 +93,6 @@ napisaæ w³asne okna dialogowe itp. albo poprawiæ obecne.
 %patch26 -p0
 %patch27 -p0
 %patch28 -p0
-# tried to fix it, but seems severly broken :(
-#patch50 -p0
 
 sed -i \
 	's/QString PROG_VERSION = .*/QString PROG_VERSION = "0.9.3-%{snap}";/g' \
