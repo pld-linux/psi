@@ -14,7 +14,7 @@ Source1:	%{name}-snap-lang-20041209.tar.bz2
 # Source1-md5:	38f0894bf1b557a36788213c56797e62
 Source2:	http://michalj.alternatywa.info/psi/patches/emergency.png
 # Source2-md5:	5fa629c5177a7b1c5090428e22b7ec30
-URL:		http://radioemiter.pl/~pedrito/public/jabber/psi-pedrito/
+URL:		http://psi-pedrito.cjb.net/
 BuildRequires:	libstdc++-devel
 BuildRequires:	cyrus-sasl-devel
 BuildRequires:	openssl-devel >= 0.9.7c
