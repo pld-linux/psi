@@ -1,4 +1,5 @@
-%define		snap 2005-02-16
+%define		snap 20050226
+%define		_snap 2005-02-26
 #
 Summary:	PSI - Jabber client
 Summary(pl):	PSI - klient Jabbera
@@ -7,9 +8,9 @@ Version:	0.10
 Release:	0.%{snap}.1pedrito
 License:	GPL
 Group:		Applications/Communications
-Source0:	http://radioemiter.pl/~pedrito/public/jabber/psi-pedrito/%{snap}/%{name}-pedrito-%{snap}.tar.bz2
-# Source0-md5:	b3bc75d1c4aeb12a2f98af58b0bdb841
-#Source5:	%{name}-snap-lang-20041209.tar.bz2
+Source0:	http://radioemiter.pl/~pedrito/public/jabber/psi-pedrito/%{_snap}/%{name}-pedrito-%{_snap}.tar.bz2
+# Source0-md5:	277ab00b998c6882879a84b774216e11
+Source5:	%{name}-snap-lang-20041209.tar.bz2
 # Source5-md5:	38f0894bf1b557a36788213c56797e62
 URL:		http://radioemiter.pl/~pedrito/public/jabber/psi-pedrito/
 BuildRequires:	libstdc++-devel
@@ -61,8 +62,8 @@ widgetów u¿ytych w programie Psi. Moze Ci siê przydaæ, jesli chcia³by¶
 napisaæ w³asne okna dialogowe itp. albo poprawiæ obecne.
 
 %prep
-%setup -q -c %{name}-%{version}
-#%setup -q -D -a 5 -c %{name}-%{version}
+%setup -q -n %{name}-pedrito-%{_snap}
+%setup -q -D -a 5 -n %{name}-pedrito-%{_snap}
 
 %build
 export QTDIR=%{_prefix}
