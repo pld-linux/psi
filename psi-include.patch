@@ -18,7 +18,7 @@
 -	INCLUDEPATH  += /usr/include /usr/X11R6/include
 -	LIBS         += -lz -lXss
 +	INCLUDEPATH  += /usr/X11R6/include /usr/X11R6/include/qt
-+	LIBS         += -lz -lXss -lqssl -R$(QTDIR)/lib/qt/plugins-mt/network
++	LIBS         += -lz -lXss -lqssl -L$(QTDIR)/lib/qt/plugins-mt/network
  	SOURCES      += trayicon_x11.cpp
  
  	QMAKE_STRIP = "/bin/true"
