@@ -1,0 +1,498 @@
+Index: iconsets/system/default/icondef.xml
+===================================================================
+RCS file: /psi/psi/iconsets/system/default/icondef.xml,v
+retrieving revision 1.17
+diff -u -r1.17 icondef.xml
+--- iconsets/system/default/icondef.xml	3 Oct 2004 11:24:52 -0000	1.17
++++ iconsets/system/default/icondef.xml	15 Oct 2004 13:36:53 -0000
+@@ -295,7 +295,10 @@
+ 		<x xmlns='name'>psi/play</x>
+ 		<object mime='image/png'>play.png</object>
+ 	</icon>
+-
++	<icon>
++		<x xmlns='name'>psi/rosteritem</x>
++		<object mime='image/png'>add.png</object>
++	</icon>
+ 	<icon>
+ 		<x xmlns='name'>psi/eye</x>
+ 		<object mime='image/png'>eye_blue.png</object>
+Index: src/adduserdlg.cpp
+===================================================================
+RCS file: /psi/psi/src/adduserdlg.cpp,v
+retrieving revision 1.9
+diff -u -r1.9 adduserdlg.cpp
+--- src/adduserdlg.cpp	29 Jun 2004 20:17:06 -0000	1.9
++++ src/adduserdlg.cpp	15 Oct 2004 13:36:53 -0000
+@@ -107,6 +107,24 @@
+ 	delete d;
+ }
+ 
++void AddUserDlg::setJid(const QString& jid)
++{
++	le_jid->setText(jid);
++}
++
++void AddUserDlg::setName(const QString& name)
++{
++	le_nick->setText(name);
++}
++
++void AddUserDlg::setGroups(const QStringList& groups)
++{
++	// FIXME: Add it to all groups when Psi supports multiple groups per contact
++	if (!groups.isEmpty()) {
++		cb_group->setCurrentText(groups.first());
++	}
++}
++
+ void AddUserDlg::pa_updatedActivity()
+ {
+ 	if(!d->pa->loggedIn())
+Index: src/adduserdlg.h
+===================================================================
+RCS file: /psi/psi/src/adduserdlg.h,v
+retrieving revision 1.4
+diff -u -r1.4 adduserdlg.h
+--- src/adduserdlg.h	29 Jun 2004 20:17:06 -0000	1.4
++++ src/adduserdlg.h	15 Oct 2004 13:36:53 -0000
+@@ -37,6 +37,11 @@
+ 	AddUserDlg(const QStringList &services, const QStringList &names, const QStringList &groups, PsiAccount *);
+ 	~AddUserDlg();
+ 
++public slots:
++	void setJid(const QString&);
++	void setName(const QString&);
++	void setGroups(const QStringList&);
++            
+ signals:
+ 	void add(const Jid &, const QString &, const QStringList &, bool authReq);
+ 
+Index: src/eventdlg.cpp
+===================================================================
+RCS file: /psi/psi/src/eventdlg.cpp,v
+retrieving revision 1.40
+diff -u -r1.40 eventdlg.cpp
+--- src/eventdlg.cpp	3 Oct 2004 11:11:35 -0000	1.40
++++ src/eventdlg.cpp	15 Oct 2004 13:36:53 -0000
+@@ -254,22 +254,29 @@
+ class AttachViewItem : public QListViewItem
+ {
+ public:
++	typedef enum { UrlAttach, GroupChatAttach, RosterItemAttach } AttachType;
++        
+ 	AttachViewItem(const QString &_url, const QString &_desc, AttachView *par)
+ 	:QListViewItem(par)
+ 	{
+-		type = 0;
++		type = UrlAttach;
+ 		url = _url;
+ 		desc = _desc;
+ 
+ 		setPixmap(0, IconsetFactory::icon("psi/www"));
+-		setText(0, url + " (" + desc + ')');
++		if (!desc.isEmpty()) {
++			setText(0, url + " (" + desc + ')');
++		}
++		else {
++			setText(0, url);
++		}
+ 		setMultiLinesEnabled(true);
+ 	}
+ 
+ 	AttachViewItem(const QString &_gc, AttachView *par)
+ 	:QListViewItem(par)
+ 	{
+-		type = 1;
++		type = GroupChatAttach;
+ 		gc = _gc;
+ 
+ 		setPixmap(0, IconsetFactory::icon("psi/groupChat"));
+@@ -277,6 +284,19 @@
+ 		setMultiLinesEnabled(true);
+ 	}
+ 
++	AttachViewItem(const RosterItem &rosterItem, AttachView *par)
++	:QListViewItem(par)
++	{
++		type = RosterItemAttach;
++		ri = rosterItem;
++
++		setPixmap(0, IconsetFactory::icon("psi/rosteritem"));
++		QString text = ri.jid().full();
++		if (!ri.name().isEmpty()) 
++			text += " (" + ri.name() + ")";
++		setText(0, text);
++	}
++
+ 	int rtti() const
+ 	{
+ 		return 9100;
+@@ -284,7 +304,8 @@
+ 
+ 	QString url, desc;
+ 	QString gc;
+-	int type;
++	RosterItem ri;
++	AttachType type;
+ };
+ 
+ AttachView::AttachView(QWidget *parent, const char *name)
+@@ -296,15 +317,50 @@
+ 
+ 	connect(this, SIGNAL(contextMenuRequested(QListViewItem *, const QPoint &, int)), SLOT(qlv_context(QListViewItem *, const QPoint &, int)));
+ 	connect(this, SIGNAL(doubleClicked(QListViewItem *)), SLOT(qlv_doubleClicked(QListViewItem *)));
++	setAcceptDrops(TRUE);
+ };
+ 
+ AttachView::~AttachView()
+ {
+ }
+ 
++void AttachView::dragEnterEvent(QDragEnterEvent *e)
++{
++	e->accept(QTextDrag::canDecode(e));
++}
++
++void AttachView::dropEvent(QDropEvent *e)
++{
++	QString str;
++
++	if(QTextDrag::decode(e, str)) {
++		Jid jid(str);
++        if (jid.isValid() && !jid.node().isEmpty()) {
++			/* Try to find roster item */
++			EventDlg *e = (EventDlg *)parent();
++			QPtrList<UserListItem> ul = e->psiAccount()->findRelavent(jid);
++
++			if(!ul.isEmpty()) {
++				/* Add roster item */
++				UserListItem *u = ul.first();
++				rosterItemAdd(*u);
++			}
++			else {
++				/* Add new roster item */
++				rosterItemAdd(RosterItem(jid));
++			}
++		}
++		else {
++			/* Add as URL */
++			urlAdd(str,"");
++		}
++	}
++}
++
+ void AttachView::setReadOnly(bool b)
+ {
+ 	v_readOnly = b;
++	setAcceptDrops(!b);
+ }
+ 
+ void AttachView::urlAdd(const QString &url, const QString &desc)
+@@ -313,6 +369,13 @@
+ 	childCountChanged();
+ }
+ 
++void AttachView::rosterItemAdd(const RosterItem& ri)
++{
++	new AttachViewItem(ri, this);
++	childCountChanged();
++}
++
++
+ void AttachView::gcAdd(const QString &gc)
+ {
+ 	new AttachViewItem(gc, this);
+@@ -326,12 +389,18 @@
+ 		return;
+ 
+ 	QPopupMenu pm(this);
+-	if(i->type == 0) {
++	if(i->type == AttachViewItem::UrlAttach) {
+ 		pm.insertItem(tr("Go to &URL..."), 0);
+ 		pm.insertItem(tr("Copy location"), 1);
+ 	}
+-	else
++	else if (i->type == AttachViewItem::GroupChatAttach) {
+ 		pm.insertItem(tr("Join &Groupchat..."), 0);
++	}
++	else if (i->type == AttachViewItem::RosterItemAttach) {
++		pm.insertItem(tr("&Add Contact..."), 0);
++		if (!v_readOnly) 
++			pm.setItemEnabled(0, false);
++	}
+ 	pm.insertSeparator();
+ 	pm.insertItem(tr("Remove"), 2);
+ 
+@@ -343,10 +412,15 @@
+ 		return;
+ 
+ 	if(n == 0) {
+-		if(i->type == 0)
++		if(i->type == AttachViewItem::UrlAttach) {
+ 			goURL(i->url);
+-		else
++		}
++		else if (i->type == AttachViewItem::GroupChatAttach) {
+ 			actionGCJoin(i->gc);
++		}
++		else if (i->type == AttachViewItem::RosterItemAttach) {
++			actionAddContact(i->ri);
++		}
+ 	}
+ 	else if(n == 1) {
+ 		QApplication::clipboard()->setText(i->url, QClipboard::Clipboard);
+@@ -365,10 +439,12 @@
+ 	if(!i)
+ 		return;
+ 
+-	if(i->type == 0)
++	if(i->type == AttachViewItem::UrlAttach)
+ 		goURL(i->url);
+-	else
++	else if (i->type == AttachViewItem::GroupChatAttach) 
+ 		actionGCJoin(i->gc);
++	else if (i->type == AttachViewItem::RosterItemAttach)
++		actionAddContact(i->ri);
+ }
+ 
+ void AttachView::goURL(const QString &_url)
+@@ -383,12 +459,18 @@
+ 	openURL(url);
+ }
+ 
++void AttachView::actionAddContact(const RosterItem& ri)
++{
++	((EventDlg*)parent())->psiAccount()->openAddUserDlg(ri.jid(),ri.name(),ri.groups());
++}
++
+ UrlList AttachView::urlList() const
+ {
+ 	UrlList list;
+ 
+ 	for(AttachViewItem *i = (AttachViewItem *)firstChild(); i; i = (AttachViewItem *)i->nextSibling())
+-		list += Url(i->url, i->desc);
++		if (i->type == AttachViewItem::UrlAttach)
++			list += Url(i->url, i->desc);
+ 
+ 	return list;
+ }
+@@ -401,6 +483,24 @@
+ 	}
+ }
+ 
++RosterItemList AttachView::rosterItemList() const
++{
++	RosterItemList list;
++
++	for(AttachViewItem *i = (AttachViewItem *)firstChild(); i; i = (AttachViewItem *)i->nextSibling())
++		if (i->type == AttachViewItem::RosterItemAttach)
++			list += i->ri;
++
++	return list;
++}
++
++void AttachView::addRosterItemList(const RosterItemList &list)
++{
++	for(QValueList<RosterItem>::ConstIterator it = list.begin(); it != list.end(); ++it) {
++		rosterItemAdd(*it);
++	}
++}
++
+ 
+ //----------------------------------------------------------------------------
+ // AddUrlDlg
+@@ -453,6 +553,7 @@
+ 	IconButton *pb_close, *pb_quote, *pb_deny, *pb_send, *pb_reply, *pb_auth;
+ 	ChatView *mle;
+ 	AttachView *attachView;
++	QTimer *attachHide;
+ 	QTimer *whois;
+ 	QString lastWhois;
+ 	Jid jid, realJid;
+@@ -466,6 +567,7 @@
+ 	Message m;
+ 	QStringList sendLeft;
+ 
++
+ public slots:
+ 	void addEmoticon(const Icon *icon) {
+ 		if ( !dlg->isActiveWindow() )
+@@ -505,6 +607,7 @@
+ 	d->composing = true;
+ 	d->psi = psi;
+ 	d->pa = 0;
++	d->attachView = 0;
+ 	d->psi->dialogRegister(this);
+ 
+ 	d->anim = 0;
+@@ -517,6 +620,9 @@
+ 	d->whois = new QTimer;
+ 	connect(d->whois, SIGNAL(timeout()), SLOT(doWhois()));
+ 
++	d->attachHide = new QTimer;
++	connect(d->attachHide, SIGNAL(timeout()), SLOT(showHideAttachView()));
++
+ 	init();
+ 
+ 	d->cb_ident->setAccount(pa);
+@@ -562,6 +668,8 @@
+ 		if(u && u->isSecure(d->jid.resource()))
+ 			d->tb_pgp->setOn(true);
+ 	}
++	
++	setAcceptDrops(TRUE);
+ }
+ 
+ EventDlg::EventDlg(const Jid &j, PsiAccount *pa, bool unique)
+@@ -604,6 +712,7 @@
+ {
+ 	if(d->composing) {
+ 		delete d->whois;
++		delete d->attachHide;
+ 		d->psi->dialogUnregister(this);
+ 	}
+ 	else {
+@@ -1211,6 +1320,18 @@
+ 	return QSize(420, 280);
+ }
+ 
++void EventDlg::dragEnterEvent(QDragEnterEvent *)
++{
++	d->attachHide->stop();
++	if(d->attachView->isHidden())
++		d->attachView->show();
++}
++
++void EventDlg::dragLeaveEvent(QDragLeaveEvent *)
++{
++	d->attachHide->start(3000,true);
++}
++
+ void EventDlg::showEvent(QShowEvent *e)
+ {
+ 	QWidget::showEvent(e);
+@@ -1282,6 +1403,7 @@
+ 
+ 	m.setBody(d->mle->text());
+ 	m.setSubject(d->le_subj->text());
++	m.setRosterItemList(d->attachView->rosterItemList());
+ 	m.setUrlList(d->attachView->urlList());
+ 	m.setTimeStamp(QDateTime::currentDateTime());
+ 	m.setThread(d->thread);
+@@ -1513,6 +1635,7 @@
+ 
+ 		d->attachView->clear();
+ 		d->attachView->addUrlList(m.urlList());
++		d->attachView->addRosterItemList(m.rosterItemList());
+ 
+ 		if(!m.invite().isEmpty())
+ 			d->attachView->gcAdd(m.invite());
+Index: src/eventdlg.h
+===================================================================
+RCS file: /psi/psi/src/eventdlg.h,v
+retrieving revision 1.8
+diff -u -r1.8 eventdlg.h
+--- src/eventdlg.h	22 Oct 2003 11:40:37 -0000	1.8
++++ src/eventdlg.h	15 Oct 2004 13:36:53 -0000
+@@ -71,13 +71,21 @@
+ public:
+ 	AttachView(QWidget *parent=0, const char *name=0);
+ 	~AttachView();
++	
++	void dragEnterEvent(QDragEnterEvent *);
++	void dropEvent(QDropEvent *);
+ 
+ 	void setReadOnly(bool);
+ 	void urlAdd(const QString &, const QString &);
++	void rosterItemAdd(const RosterItem & ri);
+ 	void gcAdd(const QString &);
+ 
+ 	UrlList urlList() const;
+ 	void addUrlList(const UrlList &);
++	
++	RosterItemList rosterItemList() const;
++	void addRosterItemList(const RosterItemList &);
++        
+ 
+ signals:
+ 	void childCountChanged();
+@@ -90,6 +98,7 @@
+ private:
+ 	bool v_readOnly;
+ 
++	void actionAddContact(const RosterItem & ri);
+ 	void goURL(const QString &);
+ };
+ 
+@@ -120,6 +129,9 @@
+ 	PsiAccount *psiAccount();
+ 
+ 	static QSize defaultSize();
++        
++	void dragEnterEvent(QDragEnterEvent *);
++	void dragLeaveEvent(QDragLeaveEvent *);
+ 
+ signals:
+ 	void aReply(const Jid &jid, const QString &body, const QString &subject, const QString &thread);
+Index: src/psiaccount.h
+===================================================================
+RCS file: /psi/psi/src/psiaccount.h,v
+retrieving revision 1.41
+diff -u -r1.41 psiaccount.h
+--- src/psiaccount.h	18 Aug 2004 01:35:35 -0000	1.41
++++ src/psiaccount.h	15 Oct 2004 13:36:53 -0000
+@@ -173,6 +173,7 @@
+ 
+ 	void showXmlConsole();
+ 	void openAddUserDlg();
++	void openAddUserDlg(const Jid&, const QString& name, const QStringList&);
+ 	void openGroupChat(const Jid &);
+ 	bool groupChatJoin(const QString &host, const QString &room, const QString &nick);
+ 	void groupChatSetStatus(const QString &host, const QString &room, const Status &);
+--- src/psiaccount.cpp.orig	2005-02-02 22:08:45.714722936 +0100
++++ src/psiaccount.cpp	2005-02-02 22:10:20.649290688 +0100
+@@ -1470,7 +1470,7 @@
+ void PsiAccount::processIncomingMessage(const Message &_m)
+ {
+ 	// skip empty messages
+-	if(_m.body().isEmpty() && _m.urlList().isEmpty() && _m.invite().isEmpty() && !_m.containsEvents())
++	if(_m.body().isEmpty() && _m.urlList().isEmpty() && _m.invite().isEmpty() && !_m.containsEvents() && _m.rosterItemList().isEmpty())
+ 		return;
+ 
+ 	// skip headlines?
+@@ -1907,12 +1907,23 @@
+ 
+ void PsiAccount::openAddUserDlg()
+ {
++	Jid j;
++	QStringList sl;
++	openAddUserDlg(j, "", sl);
++}
++
++void PsiAccount::openAddUserDlg(const Jid& jid, const QString& name, const QStringList& groups)
++{
+ 	if(!checkConnected())
+ 		return;
+ 
+ 	AddUserDlg *w = (AddUserDlg *)dialogFind("AddUserDlg");
+-	if(w)
++	if(w) {
+ 		bringToFront(w);
++		w->setJid(jid.full());
++		w->setName(name);
++		w->setGroups(groups);
++	}
+ 	else {
+ 		QStringList gl, services, names;
+ 		UserListIt it(d->userList);
+@@ -1931,6 +1942,9 @@
+ 		}
+ 
+ 		w = new AddUserDlg(services, names, gl, this);
++		w->setJid(jid.full());
++		w->setName(name);
++		w->setGroups(groups);
+ 		connect(w, SIGNAL(add(const Jid &, const QString &, const QStringList &, bool)), SLOT(dj_add(const Jid &, const QString &, const QStringList &, bool)));
+ 		w->show();
+ 	}

@@ -1,0 +1,142 @@
+Index: include/im.h
+===================================================================
+RCS file: /psi/iris/include/im.h,v
+retrieving revision 1.9
+diff -u -r1.9 im.h
+--- include/im.h	14 Oct 2004 19:14:40 -0000	1.9
++++ include/im.h	15 Oct 2004 13:35:21 -0000
+@@ -45,7 +45,10 @@
+ 		Private *d;
+ 	};
+ 
++	class RosterItem;
++
+ 	typedef QValueList<Url> UrlList;
++	typedef QValueList<RosterItem> RosterItemList;
+ 	typedef QMap<QString, QString> StringMap;
+ 	typedef enum { OfflineEvent, DeliveredEvent, DisplayedEvent,
+ 			ComposingEvent, CancelEvent } MsgEvent;
+@@ -87,6 +90,12 @@
+ 		void urlAdd(const Url &u);
+ 		void urlsClear();
+ 		void setUrlList(const UrlList &list);
++
++		// JEP-0093
++		RosterItemList rosterItemList() const;
++		void rosterItemAdd(const RosterItem &ri);
++		void rosterItemsClear();
++		void setRosterItemList(const RosterItemList &list);
+ 
+ 		// JEP-0022
+ 		QString eventId() const;
+Index: xmpp-im/types.cpp
+===================================================================
+RCS file: /psi/iris/xmpp-im/types.cpp,v
+retrieving revision 1.7
+diff -u -r1.7 types.cpp
+--- xmpp-im/types.cpp	14 Oct 2004 19:14:40 -0000	1.7
++++ xmpp-im/types.cpp	15 Oct 2004 13:35:21 -0000
+@@ -189,6 +189,7 @@
+ 	UrlList urlList;
+ 	QValueList<MsgEvent> eventList;
+ 	QString eventId;
++ 	RosterItemList rosterItemList;
+ 	QString xencrypted, invite;
+ 
+ 	bool spooled, wasEncrypted;
+@@ -420,6 +421,34 @@
+ 	}
+ }
+ 
++//! \brief Return list of roster items attached to message.
++RosterItemList Message::rosterItemList() const
++{
++	return d->rosterItemList;
++}
++
++//! \brief Add RosterItem to the Roster Item list.
++//!
++//! \param ri - roster item to append
++void Message::rosterItemAdd(const RosterItem &ri)
++{
++	d->rosterItemList += ri;
++}
++
++//! \brief clear out the roster item list.
++void Message::rosterItemsClear()
++{
++	d->rosterItemList.clear();
++}
++
++//! \brief Set roster items to send
++//!
++//! \param list - list of roster items to send
++void Message::setRosterItemList(const RosterItemList &list)
++{
++	d->rosterItemList = list;
++}
++
+ QString Message::xencrypted() const
+ {
+ 	return d->xencrypted;
+@@ -542,6 +571,33 @@
+ 		s.appendChild(x);
+ 	} 
+ 
++	// roster items
++	if (!d->rosterItemList.isEmpty()) {
++		QDomElement x = s.createElement("jabber:x:roster", "x");
++		for(QValueList<RosterItem>::ConstIterator rit = d->rosterItemList.begin(); rit != d->rosterItemList.end(); ++rit) {
++			QDomElement item = s.createElement("jabber:x:roster", "item");
++
++			/* Set jid */
++			if (!(*rit).jid().isEmpty()) {
++				item.setAttribute("jid",(*rit).jid().full());
++			}
++                    
++			/* Set name */
++			if (!(*rit).name().isEmpty()) {
++				item.setAttribute("name",(*rit).name());
++			}
++                        
++			/* Add groups */
++			if (!(*rit).groups().isEmpty()) {
++				for (QStringList::ConstIterator git = (*rit).groups().begin() ; git !=  (*rit).groups().end(); ++git) {
++					item.appendChild(s.createTextElement("jabber:x:roster", "group", *git));
++				}
++			}
++			x.appendChild(item);
++		}
++		s.appendChild(x);
++	}
++        
+ 	// xencrypted
+ 	if(!d->xencrypted.isEmpty())
+ 		s.appendChild(s.createTextElement("jabber:x:encrypted", "x", d->xencrypted));
+@@ -642,6 +698,26 @@
+ 		}
+ 		if (d->eventList.isEmpty())
+ 			d->eventList += CancelEvent;
++	}
++	
++	// roster items
++	d->rosterItemList.clear();
++	nl = root.elementsByTagNameNS("jabber:x:roster", "x");
++	if (nl.count()) {
++		nl = nl.item(0).toElement().elementsByTagNameNS("jabber:x:roster", "item");
++		for(n = 0; n < nl.count(); ++n) {
++			QDomElement item = nl.item(n).toElement();
++			RosterItem it;
++			it.setJid(Jid(item.attribute("jid","")));
++			it.setName(item.attribute("name",""));
++
++			QDomNodeList groups = nl.item(n).toElement().elementsByTagNameNS("jabber:x:roster", "group");
++			for (unsigned int gn = 0; gn < groups.count(); ++gn) {
++				it.addGroup(groups.item(gn).toElement().text());
++			}
++		
++			d->rosterItemList += it;
++		}
+ 	}
+ 
+ 	// xencrypted
