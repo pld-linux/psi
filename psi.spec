@@ -2,7 +2,7 @@ Summary:	PSI - Jabber client
 Summary(pl):	PSI - klient Jabbera
 Name:		psi
 Version:	0.9.3
-Release:	0.3
+Release:	0.4
 License:	GPL
 Group:		Applications/Communications
 Source0:	http://osdn.dl.sourceforge.net/psi/%{name}-%{version}.tar.bz2
@@ -33,21 +33,19 @@ Source18:	%{name}_zh.qm
 Patch0:		%{name}-certs.patch
 Patch1:		%{name}-desktop.patch
 Patch2:		%{name}-home_etc.patch
-Patch3:		%{name}-timestamps.patch
+Patch3:		%{name}-nodebug.patch
 #	from jpc
 Patch10:	%{name}-customos.patch
 #	from SKaZi
 Patch20:        %{name}-status_indicator-add.patch
 Patch21:        %{name}-no_online_status-mod.patch
-Patch22:	%{name}-no_default_status_text-mod.patch
-Patch23:        %{name}-status_history-add.patch
-Patch24:	%{name}-offline_status-add.patch
-Patch25:        %{name}-icon_buttons_big_return-mod.patch
-Patch26:        %{name}-nicechats-mod.patch
-Patch27:        %{name}-roster-rich.patch
-Patch28:        %{name}-icondef.xml_status_indicator.patch
-Patch29:        %{name}-settoggles-fix.patch
-Patch30:        %{name}-wrong_mainwin_pos_gnome-fix.patch
+Patch22:        %{name}-status_history-add.patch
+Patch23:        %{name}-icon_buttons_big_return-mod.patch
+Patch24:        %{name}-nicechats-mod.patch
+Patch25:        %{name}-roster-rich.patch
+Patch26:        %{name}-icondef.xml_status_indicator.patch
+Patch27:        %{name}-settoggles-fix.patch
+Patch28:        %{name}-wrong_mainwin_pos_gnome-fix.patch
 URL:		http://psi.affinix.com/
 BuildRequires:	libstdc++-devel
 BuildRequires:	cyrus-sasl-devel
@@ -95,20 +93,17 @@ napisaæ w³asne okna dialogowe itp. albo poprawiæ obecne.
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
-#	jpc
-%patch10 -p1
+%patch3 -p1
 #	SKaZi
-#%patch20 -p1
+%patch20 -p1
 %patch21 -p1
-#%patch22 -p1
+%patch22 -p1
 %patch23 -p1
-#%patch24 -p1
+%patch24 -p1
 %patch25 -p1
 %patch26 -p1
 %patch27 -p1
-#%patch28 -p1
-%patch29 -p1
-%patch30 -p1
+%patch28 -p1
 
 %{__perl} -pi -e "s/QString PROG_VERSION = \"0.9.3\";/QString PROG_VERSION = \"0.9.3-%{release}\";/g" src/common.cpp
 # %{__perl} -pi -e "s,/usr/local/share/psi,%{_datadir}/psi,g" src/common.cpp
