@@ -163,7 +163,6 @@ rm -rf $RPM_BUILD_ROOT
 %doc psi/README psi/TODO psi/README.rich-roster
 %attr(755,root,root) %{_bindir}/*
 %dir %{_datadir}/psi
-%{_datadir}/psi/designer
 %{_datadir}/psi/certs
 %{_datadir}/psi/iconsets
 %{_datadir}/psi/sound
