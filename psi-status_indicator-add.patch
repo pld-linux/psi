@@ -1,7 +1,7 @@
 diff -ru -X exclude iris-clean/xmpp-im/client.cpp iris/xmpp-im/client.cpp
---- iris-clean/xmpp-im/client.cpp	Tue Feb 24 19:45:40 2004
-+++ iris/xmpp-im/client.cpp	Thu Apr 15 07:05:08 2004
-@@ -792,10 +792,27 @@
+--- iris-clean/xmpp-im/client.cpp	Sun May 16 16:06:10 2004
++++ iris/xmpp-im/client.cpp	Fri May 28 10:27:02 2004
+@@ -789,10 +789,27 @@
  
  	// unavailable?  remove the resource
  	if(!s.isAvailable()) {
@@ -34,9 +34,9 @@ diff -ru -X exclude iris-clean/xmpp-im/client.cpp iris/xmpp-im/client.cpp
  			i->setLastUnavailableStatus(s);
  		}
 diff -ru -X exclude psi-clean/src/chatdlg.cpp psi/src/chatdlg.cpp
---- psi-clean/src/chatdlg.cpp	Thu Apr 01 09:44:42 2004
-+++ psi/src/chatdlg.cpp	Thu Apr 15 07:05:08 2004
-@@ -366,8 +366,10 @@
+--- psi-clean/src/chatdlg.cpp	Sun May 16 16:06:14 2004
++++ psi/src/chatdlg.cpp	Fri May 28 10:27:02 2004
+@@ -371,8 +371,10 @@
  			u = ul.first();
  			if(rname.isEmpty()) {
  				// use priority
@@ -49,8 +49,8 @@ diff -ru -X exclude psi-clean/src/chatdlg.cpp psi/src/chatdlg.cpp
  					const UserResource &r = *u->userResourceList().priority();
  					status = makeSTATUS(r.status());
 diff -ru -X exclude psi-clean/src/common.h psi/src/common.h
---- psi-clean/src/common.h	Thu Mar 04 22:04:00 2004
-+++ psi/src/common.h	Thu Apr 15 07:05:08 2004
+--- psi-clean/src/common.h	Fri May 07 20:23:00 2004
++++ psi/src/common.h	Fri May 28 10:27:02 2004
 @@ -138,6 +138,7 @@
  	QStringList gcHighlights, gcNickColors;
  
@@ -61,7 +61,7 @@ diff -ru -X exclude psi-clean/src/common.h psi/src/common.h
  	bool ppIsOn;
 diff -ru -X exclude psi-clean/src/contactview.cpp psi/src/contactview.cpp
 --- psi-clean/src/contactview.cpp	Sun Mar 21 15:45:20 2004
-+++ psi/src/contactview.cpp	Thu Apr 15 08:30:14 2004
++++ psi/src/contactview.cpp	Fri May 28 10:27:36 2004
 @@ -25,6 +25,7 @@
  #include<qheader.h>
  #include<qtimer.h>
@@ -70,11 +70,41 @@ diff -ru -X exclude psi-clean/src/contactview.cpp psi/src/contactview.cpp
  #include<qpopupmenu.h>
  #include<qmessagebox.h>
  #include<qinputdialog.h>
-@@ -2652,12 +2751,13 @@
+@@ -2111,7 +2112,7 @@
+ 		cp = _cp;
+ 		u = 0;
+ 
+-		icon = lastIcon = 0;
++		icon = lastIcon = indIcon = 0;
+ 	}
+ 
+ 	~Private() {
+@@ -2171,7 +2172,7 @@
+ 	bool alerting;
+ 	bool animatingNick;
+ 
+-	Icon *icon, *lastIcon;
++	Icon *icon, *lastIcon, *indIcon;
+ 	int animateNickX, animateNickColor; // nick animation
+ };
+ 
+@@ -2380,6 +2382,11 @@
+ 				}
+ 			}
+ 		}
++
++		if( d->indIcon ){
++			const QPixmap &ipix = d->indIcon->pixmap();
++			p->drawPixmap((pix->width() - ipix.width())/2, (height() - ipix.height())/2, ipix);
++		}
+ 	}
+ 	else if ( d->type == Group || d->type == Profile ) {
+ 		QColorGroup xcg = cg;
+@@ -2652,12 +2659,13 @@
  
  void ContactViewItem::setIcon(const Icon *icon, bool alert)
  {
-+	/* needed by status indicator :o|
++	/* needed by status indicator :o| 
  	if ( d->lastIcon == icon ) {
  		return; // cause less flicker. but still have to run calltree valgring skin on psi while online (mblsha).
  	}
@@ -85,7 +115,7 @@ diff -ru -X exclude psi-clean/src/contactview.cpp psi/src/contactview.cpp
  	if ( d->icon ) {
  		disconnect(d->icon, 0, this, 0 );
  		d->icon->stop();
-@@ -2679,12 +2779,42 @@
+@@ -2679,11 +2687,29 @@
  		pix = d->icon->pixmap();
  	}
  
@@ -95,10 +125,8 @@ diff -ru -X exclude psi-clean/src/contactview.cpp psi/src/contactview.cpp
  
  void ContactViewItem::iconUpdated(const QPixmap &pix)
  {
--	setPixmap(0, pix);
-+	QPixmap out(pix);
-+	// add status indicator to contact icon
-+	if(d->u && !out.isNull()){
++	// set status indicator icon
++	if(d->u){
 +		bool ind = false;
 +		if(!d->u->userResourceList().isEmpty() && option.clStIndicator) {
 +			UserResourceList srl = d->u->userResourceList();
@@ -110,29 +138,17 @@ diff -ru -X exclude psi-clean/src/contactview.cpp psi/src/contactview.cpp
 +		else if(!d->u->lastUnavailableStatus().status().isEmpty() && option.clStIndicator)
 +			ind = true;
 +
-+		if(ind) {
-+			const QPixmap &ipix = is->indicator(d->u->jid()).pixmap();
-+			// sum masks
-+			if(out.hasAlpha() && ipix.hasAlpha()){
-+				QBitmap mask(*out.mask());
-+				const QBitmap* imask = ipix.mask();
-+				bitBlt(&mask, (mask.width() - imask->width())/2, (mask.height() - imask->height())/2, 
-+					imask, 0, 0, imask->width(), imask->height(), 
-+					QPixmap::OrROP);
-+				out.setMask(mask);
-+			}
-+			bitBlt(&out, (out.width() - ipix.width())/2, (out.height() - ipix.height())/2, 
-+				&ipix, 0, 0, ipix.width(), ipix.height(), 
-+				QPixmap::CopyROP);
-+		}
++		if(ind)
++			d->indIcon = is->indicatorPtr(d->u->jid());
++		else
++			d->indIcon = 0;
 +	}
-+	setPixmap(0, out);
+ 	setPixmap(0, pix);
  }
  
- void ContactViewItem::animateNick()
 diff -ru -X exclude psi-clean/src/options/opt_appearance-ui.ui psi/src/options/opt_appearance-ui.ui
---- psi-clean/src/options/opt_appearance-ui.ui	Thu Dec 11 16:44:18 2003
-+++ psi/src/options/opt_appearance-ui.ui	Thu Apr 15 07:05:08 2004
+--- psi-clean/src/options/opt_appearance-ui.ui	Sat May 01 18:08:18 2004
++++ psi/src/options/opt_appearance-ui.ui	Fri May 28 10:27:02 2004
 @@ -30,6 +30,14 @@
                  <string>Small group headings in roster</string>
              </property>
@@ -149,9 +165,9 @@ diff -ru -X exclude psi-clean/src/options/opt_appearance-ui.ui psi/src/options/o
              <property name="name">
                  <cstring>groupBox11</cstring>
 diff -ru -X exclude psi-clean/src/options/opt_appearance.cpp psi/src/options/opt_appearance.cpp
---- psi-clean/src/options/opt_appearance.cpp	Tue Dec 02 14:28:58 2003
-+++ psi/src/options/opt_appearance.cpp	Thu Apr 15 07:05:08 2004
-@@ -112,6 +112,9 @@
+--- psi-clean/src/options/opt_appearance.cpp	Sat May 01 18:08:20 2004
++++ psi/src/options/opt_appearance.cpp	Fri May 28 10:27:02 2004
+@@ -148,6 +148,9 @@
  	QWhatsThis::add(d->pb_cAnimBack,
  		tr("Specifies the background animation color for nicks."));
  
@@ -161,10 +177,26 @@ diff -ru -X exclude psi-clean/src/options/opt_appearance.cpp psi/src/options/opt
  	QWhatsThis::add(d->ck_newHeadings,
  		tr("Toggles on new, smaller group headings."));
  
+@@ -161,6 +164,7 @@
+ 
+ 	OptAppearanceUI *d = (OptAppearanceUI *)w;
+ 	opt->clNewHeadings = d->ck_newHeadings->isChecked();
++	opt->clStIndicator = d->ck_statusIndicator->isChecked();
+ 	//opt->avatarsChatdlgEnabled = d->ck_avatarsChatdlg->isChecked(); // Avatars
+ 
+ 	int n;
+@@ -177,6 +181,7 @@
+ 
+ 	OptAppearanceUI *d = (OptAppearanceUI *)w;
+ 	d->ck_newHeadings->setChecked( opt->clNewHeadings );
++	d->ck_statusIndicator->setChecked( opt->clStIndicator );
+ 	//d->ck_avatarsChatdlg->setChecked( opt->avatarsChatdlgEnabled ); // Avatars
+ 
+ 	int n;
 diff -ru -X exclude psi-clean/src/psiiconset.cpp psi/src/psiiconset.cpp
---- psi-clean/src/psiiconset.cpp	Sun Jan 25 14:52:04 2004
-+++ psi/src/psiiconset.cpp	Thu Apr 15 07:05:08 2004
-@@ -510,6 +510,19 @@
+--- psi-clean/src/psiiconset.cpp	Wed May 05 14:41:20 2004
++++ psi/src/psiiconset.cpp	Fri May 28 10:27:02 2004
+@@ -513,6 +513,19 @@
  	return Icon();
  }
  
@@ -186,7 +218,7 @@ diff -ru -X exclude psi-clean/src/psiiconset.cpp psi/src/psiiconset.cpp
  	return d->jid2icon(jid, status2name(s));
 diff -ru -X exclude psi-clean/src/psiiconset.h psi/src/psiiconset.h
 --- psi-clean/src/psiiconset.h	Sat Nov 22 07:47:10 2003
-+++ psi/src/psiiconset.h	Thu Apr 15 07:05:08 2004
++++ psi/src/psiiconset.h	Fri May 28 10:27:02 2004
 @@ -61,9 +61,11 @@
  	// JID-enabled status functions
  	Icon *statusPtr(const XMPP::Jid &, int);
@@ -200,8 +232,8 @@ diff -ru -X exclude psi-clean/src/psiiconset.h psi/src/psiiconset.h
  	// functions to get status icon by transport name
  	Icon *transportStatusPtr(QString name, int);
 diff -ru -X exclude psi-clean/src/psi_profiles.cpp psi/src/psi_profiles.cpp
---- psi-clean/src/psi_profiles.cpp	Sun Mar 21 15:47:06 2004
-+++ psi/src/psi_profiles.cpp	Thu Apr 15 07:05:08 2004
+--- psi-clean/src/psi_profiles.cpp	Sun May 16 16:06:18 2004
++++ psi/src/psi_profiles.cpp	Fri May 28 10:27:02 2004
 @@ -423,6 +423,8 @@
  		prefs.font[fPopup] = font.toString();
  	}
@@ -211,7 +243,7 @@ diff -ru -X exclude psi-clean/src/psi_profiles.cpp psi/src/psi_profiles.cpp
  	// calculate the small font size
  	const int minimumFontSize = 7;
  	prefs.smallFontSize = qApp->font().pointSize();
-@@ -774,6 +776,7 @@
+@@ -783,6 +785,7 @@
  		p.appendChild(p_lnf);
  
  		p_lnf.appendChild(textTag(doc, "newHeadings", prefs.clNewHeadings));
@@ -219,7 +251,7 @@ diff -ru -X exclude psi-clean/src/psi_profiles.cpp psi/src/psi_profiles.cpp
  
  		{
  			QDomElement tag = doc.createElement("colors");
-@@ -1258,6 +1261,7 @@
+@@ -1271,6 +1274,7 @@
  			bool found;
  
  			readBoolEntry(p_lnf, "newHeadings", &prefs.clNewHeadings);
@@ -227,21 +259,3 @@ diff -ru -X exclude psi-clean/src/psi_profiles.cpp psi/src/psi_profiles.cpp
  
  			QDomElement tag = findSubTag(p_lnf, "colors", &found);
  			if(found) {
---- psi/src/options/opt_appearance.cpp~	2004-08-21 15:32:23.777002080 +0200
-+++ psi/src/options/opt_appearance.cpp	2004-08-21 15:36:01.177952112 +0200
-@@ -169,6 +169,7 @@
- 	OptAppearanceUI *d = (OptAppearanceUI *)w;
- 	opt->clNewHeadings = d->ck_newHeadings->isChecked();
- 	//opt->avatarsChatdlgEnabled = d->ck_avatarsChatdlg->isChecked(); // Avatars
-+        opt->clStIndicator = d->ck_statusIndicator->isChecked();
- 
- 	int n;
- 	for (n = 0; n < 4; ++n)
-@@ -186,6 +187,7 @@
- 	OptAppearanceUI *d = (OptAppearanceUI *)w;
- 	d->ck_newHeadings->setChecked( opt->clNewHeadings );
- 	//d->ck_avatarsChatdlg->setChecked( opt->avatarsChatdlgEnabled ); // Avatars
-+        d->ck_statusIndicator->setChecked( opt->clStIndicator );
- 
- 	int n;
- 	for (n = 0; n < 4; ++n)

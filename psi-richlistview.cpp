@@ -8,14 +8,14 @@ RichListViewItem::RichListViewItem( QListView * parent ):
 QListViewItem(parent)
 {
 	v_rt = 0;
-	v_selected = false;
+	v_active = v_selected = false;
 }
 
 RichListViewItem::RichListViewItem( QListViewItem * parent ):
 QListViewItem(parent)
 {
 	v_rt = 0;
-	v_selected = false;
+	v_active = v_selected = false;
 }
 
 RichListViewItem::~RichListViewItem()
