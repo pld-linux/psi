@@ -4,7 +4,7 @@ Summary:	PSI - Jabber client
 Summary(pl):	PSI - klient Jabbera
 Name:		psi
 Version:	0.8.7
-Release:	2
+Release:	1
 License:	GPL
 Group:		Applications/Communications
 Source0:	ftp://ftp.sourceforge.net/pub/sourceforge/psi/%{name}-%{version}.tar.bz2
@@ -25,7 +25,6 @@ URL:		http://psi.affinix.com/
 BuildRequires:	qt-devel >= 3.0.5
 %{!?_without_qssl:BuildRequires:	qt-plugin-ssl-devel >= 1.0-2}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
-%define		_prefix /usr/X11R6
 
 %description
 PSI is communicator for Jabber open messaging system. It is based on
