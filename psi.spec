@@ -1,14 +1,14 @@
-%define		snap 20040507
+%define		snap 20040510
 #
 Summary:	PSI - Jabber client
 Summary(pl):	PSI - klient Jabbera
 Name:		psi
 Version:	0.9.2
-Release:	0.%{snap}.3
+Release:	0.%{snap}.1
 License:	GPL
 Group:		Applications/Communications
 Source0:	%{name}-snap-%{snap}.tar.bz2
-# Source0-md5:	aae7c677e3efde17c18c7de68b82f240
+# Source0-md5:	2f1d3bc4f41041f17e819336fcb68a82
 Source1:	%{name}-richlistview.cpp
 Source2:	%{name}-richlistview.h
 Source3:	%{name}-roster-rich.README
@@ -110,7 +110,7 @@ Jest to wersja rozwojowa (CVS).
 %patch12 -p0
 %patch13 -p1
 
-%{__perl} -pi -e "s/QString PROG_VERSION = \"0.9.1-CVS\";/QString PROG_VERSION = \"0.9.2-%{snap}\";/g" psi/src/common.cpp
+%{__perl} -pi -e "s/QString PROG_VERSION = \"0.9.2-[^\"]+\";/QString PROG_VERSION = \"0.9.2-%{snap}\";/g" psi/src/common.cpp
 %{__perl} -pi -e "s,/usr/local/share/psi,%{_datadir}/psi,g" psi/src/common.cpp
 %{__perl} -pi -e 's/CONFIG \+= debug//g' psi/src/src.pro
 
