@@ -2,7 +2,7 @@ Summary:	PSI Jabber client
 Summary(pl):	PSI - klient Jabbera
 Name:		psi
 Version:	0.8.7
-Release:	0.3
+Release:	0.4
 License:	GPL
 Group:		Applications/Communications
 Source0:	ftp://ftp.sourceforge.net/pub/sourceforge/psi/%{name}-%{version}.tar.bz2
@@ -78,7 +78,7 @@ install %{SOURCE2} $RPM_BUILD_ROOT%{_applnkdir}/Network/Communications
 rm -f src/tr.qm
 cp src/*.qm $RPM_BUILD_ROOT%{_datadir}/psi/translations
 
-rm -f $RPM_BUILD_ROOT%{_datadir}/psi/{README,COPYING}
+rm -f $RPM_BUILD_ROOT%{_datadir}/psi/{certs/*.pem,{README,COPYING}}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -87,6 +87,18 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %doc README
 %attr(755,root,root) %{_bindir}/*
-%{_datadir}/psi
+%dir %{_datadir}/psi
+%dir %{_datadir}/psi/translations
+%{_datadir}/psi/certs
+%{_datadir}/psi/iconsets
+%{_datadir}/psi/image
+%{_datadir}/psi/sound
+%lang(cz) %{_datadir}/psi/translations/psi_cz.qm
+%lang(de) %{_datadir}/psi/translations/psi_de.qm
+%lang(es) %{_datadir}/psi/translations/psi_es.qm
+%lang(fr) %{_datadir}/psi/translations/psi_fr.qm
+%lang(nl) %{_datadir}/psi/translations/psi_nl.qm
+%lang(pl) %{_datadir}/psi/translations/psi_pl.qm
+%lang(ru) %{_datadir}/psi/translations/psi_ru.qm
 %{_libdir}/psi
 %{_applnkdir}/Network/Communications/%{name}.desktop
