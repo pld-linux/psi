@@ -8,13 +8,10 @@ Group:		Applications/Communications
 Source0:	http://dl.sourceforge.net/%{name}/%{name}-%{version}.tar.bz2
 # Source0-md5:	bf3aaa7fa8a1efdff9f96fa718366aa8
 Source2:	%{name}.desktop
-# Translation files ftom http://psi.sourceforge.net/
-
 Patch0:		%{name}-paths.patch
 Patch1:		%{name}-certs.patch
 URL:		http://psi.affinix.com/
-BuildRequires:	qt-devel >= 3.0.5
-BuildRequires:	qt-plugin-ssl-devel >= 1.0-2
+BuildRequires:	qt-devel >= 3.1.0
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
