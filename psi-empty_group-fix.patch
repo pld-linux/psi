@@ -1,7 +1,7 @@
-diff -ru -X exclude iris-clean/xmpp-im/types.cpp iris/xmpp-im/types.cpp
---- iris-clean/xmpp-im/types.cpp	Wed Nov 26 18:24:42 2003
-+++ iris/xmpp-im/types.cpp	Thu May 20 12:12:28 2004
-@@ -941,7 +1026,7 @@
+diff -urN psi-0.9.3.orig/iris/xmpp-im/types.cpp psi-0.9.3/iris/xmpp-im/types.cpp
+--- psi-0.9.3.orig/iris/xmpp-im/types.cpp	2004-10-14 21:14:40.000000000 +0200
++++ psi-0.9.3/iris/xmpp-im/types.cpp	2005-01-14 23:04:31.138456536 +0100
+@@ -1026,7 +1026,7 @@
  
  bool RosterItem::addGroup(const QString &g)
  {
@@ -10,7 +10,7 @@ diff -ru -X exclude iris-clean/xmpp-im/types.cpp iris/xmpp-im/types.cpp
  		return false;
  
  	v_groups += g;
-@@ -990,8 +1075,10 @@
+@@ -1075,8 +1075,10 @@
  		QDomElement i = n.toElement();
  		if(i.isNull())
  			continue;
