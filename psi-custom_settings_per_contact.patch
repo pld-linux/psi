@@ -1,0 +1,763 @@
+--- psi-0.9.4/psi/src/contactview.cpp	2005-03-27 20:47:43.000000000 +0200
++++ psi-0.9.4.plus/psi/src/contactview.cpp	2005-03-27 20:25:55.000000000 +0200
+@@ -446,13 +446,23 @@
+ 
+ 	if(u.inList()) {
+ 		// don't add if we're not supposed to see it
+-		if(u.isTransport()) {
++		if(u.isTransport()) 
++        {
+ 			if(!d->cv->isShowAgents())
+ 				return;
+ 		}
++        else if(!e->alerting && 
++                option.contactVisible.contains(u.jid().bare()) && 
++                option.contactVisible[u.jid().bare()] != -1)
++        {
++            if (option.contactVisible[u.jid().bare()] == 0 && !d->cv->isShowHidden())
++                return;
++        }
+ 		else {
+ 			if(!e->alerting) {
+-				if((!d->cv->isShowOffline() && !u.isAvailable()) || (!d->cv->isShowAway() && u.isAway()) || (!d->cv->isShowHidden() && u.isHidden()))
++				if((!d->cv->isShowOffline() && !u.isAvailable()) || 
++                   (!d->cv->isShowAway() && u.isAway()) || 
++                   (!d->cv->isShowHidden() && u.isHidden()))
+ 					return;
+ 			}
+ 		}
+@@ -479,14 +489,25 @@
+ 
+ 	if(u.inList()) {
+ 		bool delAll = !d->v_enabled;
+-		if(u.isTransport()) {
++		if(u.isTransport()) 
++        {
+ 			if(!d->cv->isShowAgents())
+ 				delAll = true;
+ 		}
+-		else {
++        else if (!e->alerting &&
++                option.contactVisible.contains(u.jid().bare()) &&
++                option.contactVisible[u.jid().bare()] != -1)
++        {
++            if (option.contactVisible[u.jid().bare()] == 0 && !d->cv->isShowHidden())
++                delAll = true;
++        }
++		else 
++        {
+ 			if(!e->alerting) {
+-				if((!d->cv->isShowOffline() && !u.isAvailable()) || (!d->cv->isShowAway() && u.isAway()) || (!d->cv->isShowHidden() && u.isHidden()))
+-					delAll = true;
++				if((!d->cv->isShowOffline() && !u.isAvailable()) || 
++                   (!d->cv->isShowAway() && u.isAway()) || 
++                   (!d->cv->isShowHidden() && u.isHidden()))
++				   delAll = true;
+ 			}
+ 		}
+ 		if(delAll) {
+@@ -1268,6 +1289,87 @@
+ 			pm.insertSeparator();
+ 		}
+ 
++		// More properties
++		QPopupMenu *mm = new QPopupMenu(&pm);
++		
++		// Sound notification
++		{
++			QPopupMenu *sndm = new QPopupMenu(mm);
++			sndm->setCheckable(true);
++			d->cv->qa_contactSoundMsgOn->addTo(sndm);
++			d->cv->qa_contactSoundMsgOff->addTo(sndm);
++			d->cv->qa_contactSoundMsgDefault->addTo(sndm);
++			int n = -1;
++			if (option.contactSoundMsg.contains(i->u()->jid().bare()))
++			{
++				switch (option.contactSoundMsg[i->u()->jid().bare()])
++				{
++					case 1: n = 0; break;
++					case 0: n = 1; break;
++					case -1:
++					default: n = 2; break;
++				}
++			}
++			else
++			{
++				n = 2;
++			}
++			if (n > -1) sndm->setItemChecked(sndm->idAt(n), true);
++			mm->insertItem(tr("Message &sounds"), sndm);
++		}
++		
++		// Popup notification for on/offline
++		{
++			QPopupMenu *ppm = new QPopupMenu(mm);
++			ppm->setCheckable(true);
++			d->cv->qa_contactPopupAvailOn->addTo(ppm);
++			d->cv->qa_contactPopupAvailOff->addTo(ppm);
++			d->cv->qa_contactPopupAvailDefault->addTo(ppm);
++			int n = -1;
++			if (option.contactPopupAvail.contains(i->u()->jid().bare()))
++			{
++				switch (option.contactPopupAvail[i->u()->jid().bare()])
++				{
++					case 1: n = 0; break;
++					case 0: n = 1; break;
++					case -1:
++					default: n = 2; break;
++				}
++			}
++			else
++			{
++				n = 2;
++			}
++			if (n > -1) ppm->setItemChecked(ppm->idAt(n), true);
++			mm->insertItem(tr("Availability &popups"), ppm);
++		}
++		
++		// Visibility on roster
++		{
++			QPopupMenu *vism = new QPopupMenu(mm);
++			vism->setCheckable(true);
++			d->cv->qa_contactVisibleOn->addTo(vism);
++			d->cv->qa_contactVisibleOff->addTo(vism);
++			d->cv->qa_contactVisibleDefault->addTo(vism);
++			int n = -1;
++			if (option.contactVisible.contains(i->u()->jid().bare()))
++			{
++				switch (option.contactVisible[i->u()->jid().bare()])
++				{
++					case 1: n = 0; break;
++					case 0: n = 1; break;
++					case -1:
++					default: n = 2; break;
++				}
++			}
++			else
++			{
++				n = 2;
++			}
++			if (n > -1) vism->setItemChecked(vism->idAt(n), true);
++			mm->insertItem(tr("&Visibility on roster"), vism);
++		}
++        
+ 		// Avatars
+ 		//QPopupMenu *avpm = new QPopupMenu(&pm);
+ 		//d->cv->qa_assignAvatar->addTo(avpm);
+@@ -1278,11 +1380,14 @@
+ 
+ 		if(d->pa->psi()->pgp()) {
+ 			if(u->publicKeyID().isEmpty())
+-				pm.insertItem(IconsetFactory::iconPixmap("psi/keySingle"), tr("Assign Open&PGP key"), 21);
+-			else
+-				pm.insertItem(IconsetFactory::iconPixmap("psi/keySingle"), tr("Unassign Open&PGP key"), 22);
++				mm->insertItem(IconsetFactory::iconPixmap("psi/keySingle"), tr("Assign Open&PGP key"), 21);
++            else
++				mm->insertItem(IconsetFactory::iconPixmap("psi/keySingle"), tr("Unassign Open&PGP key"), 22);
+ 		}
+ 
++        pm.insertItem(tr("More properties"), mm);
++		// END More properties
++
+ 		pm.insertItem(/*IconsetFactory::iconPixmap("psi/info"),*/ tr("Check &Status"), 4);
+ 
+ 		d->cv->qa_vcard->addTo( &pm );
+@@ -1898,6 +2003,29 @@
+ 	connect(qa_recv, SIGNAL(activated()), SLOT(doRecvEvent()));
+ 	qa_rem = new IconAction("", "psi/remove", tr("Rem&ove"), QListView::Key_Delete, this);
+ 	connect(qa_rem, SIGNAL(activated()), SLOT(doRemove()));
++
++	// More properties
++	qa_contactSoundMsgOn = new IconAction("", tr("On"), QKeySequence(), this);
++	connect(qa_contactSoundMsgOn, SIGNAL(activated()), SLOT(doContactSoundMsgOn()));
++	qa_contactSoundMsgOff = new IconAction("", tr("Off"), QKeySequence(), this);
++	connect(qa_contactSoundMsgOff, SIGNAL(activated()), SLOT(doContactSoundMsgOff()));
++	qa_contactSoundMsgDefault = new IconAction("", tr("Default"), QKeySequence(), this);
++	connect(qa_contactSoundMsgDefault, SIGNAL(activated()), SLOT(doContactSoundMsgDefault()));
++
++	qa_contactPopupAvailOn = new IconAction("", tr("On"), QKeySequence(), this);
++	connect(qa_contactPopupAvailOn, SIGNAL(activated()), SLOT(doContactPopupAvailOn()));
++	qa_contactPopupAvailOff = new IconAction("", tr("Off"), QKeySequence(), this);
++	connect(qa_contactPopupAvailOff, SIGNAL(activated()), SLOT(doContactPopupAvailOff()));
++	qa_contactPopupAvailDefault = new IconAction("", tr("Default"), QKeySequence(), this);
++	connect(qa_contactPopupAvailDefault, SIGNAL(activated()), SLOT(doContactPopupAvailDefault()));
++
++	qa_contactVisibleOn = new IconAction("", tr("On"), QKeySequence(), this);
++	connect(qa_contactVisibleOn, SIGNAL(activated()), SLOT(doContactVisibleOn()));
++	qa_contactVisibleOff = new IconAction("", tr("Off"), QKeySequence(), this);
++	connect(qa_contactVisibleOff, SIGNAL(activated()), SLOT(doContactVisibleOff()));
++	qa_contactVisibleDefault = new IconAction("", tr("Default"), QKeySequence(), this);
++	connect(qa_contactVisibleDefault, SIGNAL(activated()), SLOT(doContactVisibleDefault()));
++    
+ 	qa_vcard = new IconAction("", "psi/vCard", tr("User &Info"), QListView::CTRL+QListView::Key_I, this);
+ 	connect(qa_vcard, SIGNAL(activated()), SLOT(doVCard()));
+ 
+@@ -2103,8 +2231,10 @@
+ 	setSelected(item, true);
+ 
+ 	if(button == QListView::MidButton) {
+-		if(item->type() == ContactViewItem::Contact)
++		if(item->type() == ContactViewItem::Contact){
++            item->setSelected(false);
+ 			item->contactProfile()->scActionDefault(item);
++        }
+ 	}
+ 	else {
+ 		if(option.useleft) {
+@@ -2120,8 +2250,10 @@
+ 				}
+ 			}
+ 			else if(option.singleclick && button == QListView::RightButton) {
+-				if(item->type() == ContactViewItem::Contact)
++				if(item->type() == ContactViewItem::Contact){
++                    item->setSelected(false);
+ 					item->contactProfile()->scActionDefault(item);
++                }
+ 			}
+ 		}
+ 		else {
+@@ -2129,8 +2261,10 @@
+ 			//	qlv_contextPopup(i, pos, c);
+ 			//}
+ 			/*else*/if(button == QListView::LeftButton && option.singleclick) {
+-				if(item->type() == ContactViewItem::Contact)
++				if(item->type() == ContactViewItem::Contact){
++                    item->setSelected(false);
+ 					item->contactProfile()->scActionDefault(item);
++                }
+ 			}
+ 		}
+ 	}
+@@ -2149,6 +2283,7 @@
+ 		return;
+ 
+ 	ContactViewItem *item = (ContactViewItem *)i;
++    item->setSelected(false);
+ 	item->contactProfile()->scActionDefault(item);
+ 
+ 	d->typeAhead = "";
+@@ -2207,6 +2342,7 @@
+ 	ContactViewItem *i = (ContactViewItem *)selectedItem();
+ 	if(!i)
+ 		return;
++    i->setSelected(false);
+ 	i->contactProfile()->scRecvEvent(i);
+ }
+ 
+@@ -2215,9 +2351,86 @@
+ 	ContactViewItem *i = (ContactViewItem *)selectedItem();
+ 	if(!i)
+ 		return;
++    i->setSelected(false);
+ 	i->contactProfile()->scRename(i);
+ }
+ 
++// More Properties
++// Message sound notification
++void ContactView::doContactSoundMsgOn()
++{
++	ContactViewItem *i = (ContactViewItem *)selectedItem();
++	option.contactSoundMsg[i->u()->jid().bare()] = 1;
++	//QMessageBox::information(0, "Sound on for JID", i->u()->jid().bare());
++}
++
++void ContactView::doContactSoundMsgOff()
++{
++	ContactViewItem *i = (ContactViewItem *)selectedItem();
++	option.contactSoundMsg[i->u()->jid().bare()] = 0;
++}
++
++void ContactView::doContactSoundMsgDefault()
++{
++	ContactViewItem *i = (ContactViewItem *)selectedItem();
++	option.contactSoundMsg[i->u()->jid().bare()] = -1;
++}
++
++// On/offline popup notification
++void ContactView::doContactPopupAvailOn()
++{
++	ContactViewItem *i = (ContactViewItem *)selectedItem();
++	option.contactPopupAvail[i->u()->jid().bare()] = 1;
++}
++
++void ContactView::doContactPopupAvailOff()
++{
++	ContactViewItem *i = (ContactViewItem *)selectedItem();
++	option.contactPopupAvail[i->u()->jid().bare()] = 0;
++}
++
++void ContactView::doContactPopupAvailDefault()
++{
++	ContactViewItem *i = (ContactViewItem *)selectedItem();
++	option.contactPopupAvail[i->u()->jid().bare()] = -1;
++}
++
++// Visibility on roster
++void ContactView::doContactVisibleOn()
++{
++	ContactViewItem *i = (ContactViewItem *)selectedItem();
++	option.contactVisible[i->u()->jid().bare()] = 1;
++
++	QPtrListIterator<ContactProfile> it(d->profiles);
++	for(ContactProfile *cp; (cp = it.current()); ++it) {
++		cp->addAllNeededContactItems();
++	}
++}
++
++void ContactView::doContactVisibleOff()
++{
++	ContactViewItem *i = (ContactViewItem *)selectedItem();
++	option.contactVisible[i->u()->jid().bare()] = 0;
++
++	QPtrListIterator<ContactProfile> it(d->profiles);
++	for(ContactProfile *cp; (cp = it.current()); ++it) {
++		cp->removeAllUnneededContactItems();
++	}
++}
++
++void ContactView::doContactVisibleDefault()
++{
++	ContactViewItem *i = (ContactViewItem *)selectedItem();
++	option.contactVisible[i->u()->jid().bare()] = -1;
++
++	QPtrListIterator<ContactProfile> it(d->profiles);
++	for(ContactProfile *cp; (cp = it.current()); ++it) {
++		cp->removeAllUnneededContactItems();
++		cp->addAllNeededContactItems();
++	}
++}
++
++
+ // Avatars
+ //void ContactView::doAssignAvatar()
+ //{
+@@ -2240,6 +2453,7 @@
+ 	ContactViewItem *i = (ContactViewItem *)selectedItem();
+ 	if(!i)
+ 		return;
++    i->setSelected(false);
+ 	i->contactProfile()->scActionDefault(i);
+ }
+ 
+@@ -2248,6 +2462,7 @@
+ 	ContactViewItem *i = (ContactViewItem *)selectedItem();
+ 	if(!i)
+ 		return;
++    i->setSelected(false);
+ 	ensureItemVisible(i);
+ 
+ 	if(i->type() == ContactViewItem::Group)
+@@ -2261,6 +2476,7 @@
+ 	ContactViewItem *i = (ContactViewItem *)selectedItem();
+ 	if(!i)
+ 		return;
++    i->setSelected(false);
+ 	i->contactProfile()->scSendMessage(i);
+ }
+ 
+@@ -2269,6 +2485,7 @@
+ 	ContactViewItem *i = (ContactViewItem *)selectedItem();
+ 	if(!i)
+ 		return;
++    i->setSelected(false);
+ 	i->contactProfile()->scOpenChat(i);
+ }
+ 
+@@ -2277,6 +2494,7 @@
+ 	ContactViewItem *i = (ContactViewItem *)selectedItem();
+ 	if(!i)
+ 		return;
++    i->setSelected(false);
+ 	i->contactProfile()->scHistory(i);
+ }
+ 
+--- psi-0.9.4/psi/src/contactview.h	2005-03-27 21:46:31.000000000 +0200
++++ psi-0.9.4.plus/psi/src/contactview.h	2005-03-27 21:47:30.000000000 +0200
+@@ -193,6 +193,10 @@
+ 	QTimer *animTimer() const;
+ 
+ 	IconAction *qa_send, *qa_chat, *qa_ren, *qa_hist, *qa_logon, *qa_recv, *qa_rem, *qa_vcard;
++	// More properties
++	IconAction *qa_contactSoundMsgOn, *qa_contactSoundMsgOff, *qa_contactSoundMsgDefault;
++	IconAction *qa_contactPopupAvailOn, *qa_contactPopupAvailOff, *qa_contactPopupAvailDefault;
++	IconAction *qa_contactVisibleOn, *qa_contactVisibleOff, *qa_contactVisibleDefault;	
+ 	// Avatars
+ 	//IconAction *qa_assignAvatar, *qa_clearAvatar;
+ 
+@@ -240,6 +244,17 @@
+ 	void doLogon();
+ 	void doRemove();
+ 
++	// More properties
++	void doContactSoundMsgOn();
++	void doContactSoundMsgOff();
++	void doContactSoundMsgDefault();
++	void doContactPopupAvailOn();
++	void doContactPopupAvailOff();
++	void doContactPopupAvailDefault();
++	void doContactVisibleOn();
++	void doContactVisibleOff();
++	void doContactVisibleDefault();
++    
+ 	// Avatars
+ 	//void doAssignAvatar();
+ 	//void doClearAvatar();
+--- psi-0.9.4/psi/src/common.h	2005-03-27 21:48:50.000000000 +0200
++++ psi-0.9.4.plus/psi/src/common.h	2005-03-27 19:22:38.000000000 +0200
+@@ -94,9 +94,14 @@
+ 	bool alwaysOnTop, noAwaySound, noAwayPopup, noUnlistedPopup, rosterAnim, autoVersion, autoVCardOnLogin, xmlConsoleOnLogin;
+ 	bool useDock, dockDCstyle, dockHideMW, dockToolMW, isWMDock;
+ 	bool smallChats, chatLineEdit, showJoins, useTabs, putTabsAtBottom, autoRosterSize, autoResolveNicksOnAdd;
+-  bool oldSmallChats; //Filthy hack, see chat code.
++    bool oldSmallChats; //Filthy hack, see chat code.
+ 	int delChats, browser;
+ 
++    // More properties
++	QMap<QString, int> contactSoundMsg;
++	QMap<QString, int> contactPopupAvail;
++	QMap<QString, int> contactVisible;
++    
+ 	// Avatars
+ 	//bool avatarsEnabled, avatarsChatdlgEnabled;
+ 	//int avatarsSize;
+--- psi-0.9.4/psi/src/psi_profiles.cpp	2005-03-27 22:20:09.000000000 +0200
++++ psi-0.9.4.plus/psi/src/psi_profiles.cpp	2005-03-27 19:50:52.000000000 +0200
+@@ -895,6 +895,62 @@
+ 			p_priority.appendChild(textTag(doc, "auth",     prefs.eventPriorityAuth));
+ 			p_priority.appendChild(textTag(doc, "file",     prefs.eventPriorityFile));
+ 		}
++		// More contact properties: custom message sound notification
++		{
++			QDomElement p_csound = doc.createElement("contactSoundMsg");
++			p_events.appendChild(p_csound);
++
++			QString jid;
++			QMapIterator<QString, int> it = prefs.contactSoundMsg.begin();
++			for ( ; it != prefs.contactSoundMsg.end(); ++it) {
++				if (it.data() != -1)   // don't save "default" setting
++				{
++					QDomElement contact = doc.createElement("contact");
++					p_csound.appendChild(contact);
++
++					contact.setAttribute("jid", it.key());
++					contact.setAttribute("sound", it.data());
++				}
++			}
++		}
++
++		// More contact properties: custom availability popup notification
++		{
++			QDomElement p_cpopup = doc.createElement("contactPopupAvail");
++			p_events.appendChild(p_cpopup);
++
++			QString jid;
++			QMapIterator<QString, int> it = prefs.contactPopupAvail.begin();
++			for ( ; it != prefs.contactPopupAvail.end(); ++it) {
++				if (it.data() != -1)   // don't save "default" setting
++				{
++					QDomElement contact = doc.createElement("contact");
++					p_cpopup.appendChild(contact);
++
++					contact.setAttribute("jid", it.key());
++					contact.setAttribute("popup", it.data());
++				}
++			}
++		}
++
++		// More contact properties: custom visibility on roster
++		{
++			QDomElement p_cvis = doc.createElement("contactVisible");
++			p_events.appendChild(p_cvis);
++
++			QString jid;
++			QMapIterator<QString, int> it = prefs.contactVisible.begin();
++			for ( ; it != prefs.contactVisible.end(); ++it) {
++				if (it.data() != -1)   // don't save "default" setting
++				{
++					QDomElement contact = doc.createElement("contact");
++					p_cvis.appendChild(contact);
++
++					contact.setAttribute("jid", it.key());
++					contact.setAttribute("visible", it.data());
++				}
++			}
++		}
+ 	}
+ 
+ 	{
+@@ -1463,7 +1519,46 @@
+ 				readNumEntry(tag, "auth",     &prefs.eventPriorityAuth);
+ 				readNumEntry(tag, "file",     &prefs.eventPriorityFile);
+  			}
+-		}
++
++			// More contact properties: custom message sound notifications
++			QDomElement sounds = findSubTag(p_events, "contactSoundMsg", &found);
++			if (found) {
++				prefs.contactSoundMsg.clear();
++				for (QDomNode n = sounds.firstChild(); !n.isNull(); n = n.nextSibling()) {
++					QDomElement el = n.toElement();
++					if ( el.isNull() || el.nodeName() != "contact")
++						continue;
++
++					prefs.contactSoundMsg[el.attribute("jid")] = el.attribute("sound").toInt();
++				}
++			}
++
++			// More contact properties: custom availability popup notifications
++			QDomElement popups = findSubTag(p_events, "contactPopupAvail", &found);
++			if (found) {
++				prefs.contactPopupAvail.clear();
++				for (QDomNode n = popups.firstChild(); !n.isNull(); n = n.nextSibling()) {
++					QDomElement el = n.toElement();
++					if ( el.isNull() || el.nodeName() != "contact")
++						continue;
++
++					prefs.contactPopupAvail[el.attribute("jid")] = el.attribute("popup").toInt();
++				}
++			}
++
++			// More contact properties: custom visibility on roster
++			QDomElement cvis = findSubTag(p_events, "contactVisible", &found);
++			if (found) {
++				prefs.contactVisible.clear();
++				for (QDomNode n = cvis.firstChild(); !n.isNull(); n = n.nextSibling()) {
++					QDomElement el = n.toElement();
++					if ( el.isNull() || el.nodeName() != "contact")
++						continue;
++
++					prefs.contactVisible[el.attribute("jid")] = el.attribute("visible").toInt();
++				}
++			}
++ 		}        
+ 
+ 		QDomElement p_pres = findSubTag(p, "presence", &found);
+ 		if(found) {
+--- psi-0.9.4/psi/src/psiaccount.h	2005-03-27 22:20:09.000000000 +0200
++++ psi-0.9.4.plus/psi/src/psiaccount.h	2005-03-27 20:10:27.000000000 +0200
+@@ -191,8 +191,8 @@
+ 	UserList *userList() const;
+ 
+ 	bool checkConnected(QWidget *parent=0);
+-	void playSound(const QString &);
+-
++    void playSound(const QString &, bool force = false);
++    
+ 	QLabel *accountLabel(QWidget *parent=0, bool simpleMode=false);
+ 	QStringList hiddenChats(const Jid &) const;
+ 
+--- psi-0.9.4/psi/src/psiaccount.cpp	2005-03-27 22:20:09.000000000 +0200
++++ psi-0.9.4.plus/psi/src/psiaccount.cpp	2005-03-27 20:09:37.000000000 +0200
+@@ -1319,11 +1319,11 @@
+ 
+ 	bool doSound = false;
+ 	bool doPopup = false;
++    bool local = false;
+ 	QPtrList<UserListItem> list = findRelavent(j);
+ 	QPtrListIterator<UserListItem> it(list);
+ 	for(UserListItem *u; (u = it.current()); ++it) {
+ 		bool doAnim = false;
+-		bool local = false;
+ 		if(u->isSelf() && r.name() == d->client->resource())
+ 			local = true;
+ 
+@@ -1381,9 +1381,17 @@
+ 	}
+ 	if(doSound)
+ 		playSound(option.onevent[eOnline]);
+-
+-	if ( popupType == PopupOnline && !option.ppOnline )
+-		doPopup = false;
++	if (popupType == PopupOnline)
++	{
++		if (!option.ppOnline) doPopup = false;
++		// custom contact availability popup notification
++		if (option.contactPopupAvail.contains(j.bare()) && !local && notifyOnlineOk)
++		{
++			// custom value is set
++			if (option.contactPopupAvail[j.bare()] == 1) doPopup = true;
++			else if (option.contactPopupAvail[j.bare()] == 0) doPopup = false;
++		}
++	}    
+ 	if ( popupType == PopupStatusChange && !option.ppStatus )
+ 		doPopup = false;
+ 	if(notifyOnlineOk && doPopup && d->doPopups && !d->blockTransportPopupList->find(j, popupType == PopupOnline)) {
+@@ -1406,14 +1414,15 @@
+ {
+ 	bool doSound = false;
+ 	bool doPopup = false;
+-
++    bool local = false;
++    
+ 	if ( j.user().isEmpty() )
+ 		new BlockTransportPopup(d->blockTransportPopupList, j);
+ 
+ 	QPtrList<UserListItem> list = findRelavent(j);
+ 	QPtrListIterator<UserListItem> it(list);
+ 	for(UserListItem *u; (u = it.current()); ++it) {
+-		bool local = false;
++        bool doAnim = false;
+ 		if(u->isSelf() && r.name() == d->client->resource())
+ 			local = true;
+ 
+@@ -1442,9 +1451,15 @@
+ 	if(doSound)
+ 		playSound(option.onevent[eOffline]);
+ 
+-	if ( !option.ppOffline )
+-		doPopup = false;
+-	if(doPopup && d->doPopups && !d->blockTransportPopupList->find(j)) {
++	if (!option.ppOffline) doPopup = false;
++	// custom contact availability popup notification
++	if (option.contactPopupAvail.contains(j.bare()) && !local && !isDisconnecting)
++	{
++		// custom value is set
++		if (option.contactPopupAvail[j.bare()] == 1) doPopup = true;
++		else if (option.contactPopupAvail[j.bare()] == 0) doPopup = false;
++	}
++    if(doPopup && d->doPopups && !d->blockTransportPopupList->find(j)) {
+ 		QString name;
+ 		UserListItem *u = findFirstRelavent(j);
+ 
+@@ -1827,7 +1842,8 @@
+ 	d->lastStatus = lastStatus;
+ }
+ 
+-void PsiAccount::playSound(const QString &str)
++void PsiAccount::playSound(const QString &str, bool force)
++
+ {
+ 	if(str.isEmpty())
+ 		return;
+@@ -1836,14 +1852,14 @@
+ 	if(loggedIn())
+ 		s = makeSTATUS(status());
+ 
+-	if(s == STATUS_DND)
+-		return;
++	//if(s == STATUS_DND)
++	//	return;
+ 
+ 	// no away sounds?
+-	if(option.noAwaySound && (s == STATUS_AWAY || s == STATUS_XA))
++    if(!force && option.noAwaySound && (s == STATUS_AWAY || s == STATUS_XA || s == STATUS_DND))
+ 		return;
+ 
+-	d->psi->playSound(str);
++    d->psi->playSound(str, force);
+ }
+ 
+ QWidget *PsiAccount::dialogFind(const char *className, const Jid &j)
+@@ -2893,8 +2909,17 @@
+ 			//or in a window
+ 			if( c && ( d->psi->isChatTabbed(c) || !c->isHidden() ) ) {
+ 				c->incomingMessage(m);
+-				playSound(option.onevent[eChat2]);
+-				if(option.alertOpenChats && !d->psi->isChatActiveWindow(c)) {
++				if (option.contactSoundMsg.contains(e->from().bare()) &&
++				    option.contactSoundMsg[e->from().bare()] != -1)
++				{
++					if (option.contactSoundMsg[e->from().bare()] == 1)
++						playSound(option.onevent[eChat2], true);
++				}
++				else
++				{
++					playSound(option.onevent[eChat2]);
++				}				
++                if(option.alertOpenChats && !d->psi->isChatActiveWindow(c)) {
+ 					// to alert the chat also, we put it in the queue
+ 					me->setSentToChatWindow(true);
+ 				}
+@@ -2903,25 +2928,63 @@
+ 			}
+ 			else {
+ 				bool firstChat = !d->eventQueue->hasChats(e->from());
+-				playSound(option.onevent[firstChat ? eChat1: eChat2]);
++				if (option.contactSoundMsg.contains(e->from().bare()) &&
++				    option.contactSoundMsg[e->from().bare()] != -1)
++				{
++					if (option.contactSoundMsg[e->from().bare()] == 1)
++						playSound(option.onevent[firstChat ? eChat1: eChat2], true);
++				}
++				else
++				{
++					playSound(option.onevent[firstChat ? eChat1: eChat2]);
++				}                
+ 			}
+ 		} // /chat
+ 		else if (m.type() == "headline") {
+-			playSound(option.onevent[eHeadline]);
++			if (option.contactSoundMsg.contains(e->from().bare()) &&
++			    option.contactSoundMsg[e->from().bare()] != -1)
++			{
++				if (option.contactSoundMsg[e->from().bare()] == 1)
++					playSound(option.onevent[eHeadline], true);
++			}
++			else
++			{
++				playSound(option.onevent[eHeadline]);
++			}            
+ 			if (option.ppHeadline) {
+ 				doPopup = true;
+ 				popupType = PsiPopup::AlertHeadline;
+ 			}
+ 		} // /headline
+ 		else if (m.type() == "") {
+-			playSound(option.onevent[eMessage]);
++			if (option.contactSoundMsg.contains(e->from().bare()) &&
++			    option.contactSoundMsg[e->from().bare()] != -1)
++			{
++				if (option.contactSoundMsg[e->from().bare()] == 1)
++					playSound(option.onevent[eMessage], true);
++			}
++			else
++			{
++				playSound(option.onevent[eMessage]);
++			}            
+ 			if (option.ppMessage && m.type() == "") {
+ 				doPopup = true;
+ 				popupType = PsiPopup::AlertMessage;
+ 			}
+ 		} // /""
+ 		else
+-			playSound(option.onevent[eSystem]);
++        {
++    		if (option.contactSoundMsg.contains(e->from().bare()) &&
++			    option.contactSoundMsg[e->from().bare()] != -1)
++			{
++				if (option.contactSoundMsg[e->from().bare()] == 1)
++					playSound(option.onevent[eSystem], true);
++			}
++			else
++			{
++				playSound(option.onevent[eSystem]);
++			}
++        }
+ 
+ 		if(m.type() == "error") {
+ 			// FIXME: handle message errors
+--- psi-0.9.4/psi/src/psicon.cpp	2005-03-27 22:20:09.000000000 +0200
++++ psi-0.9.4.plus/psi/src/psicon.cpp	2005-03-27 20:12:26.000000000 +0200
+@@ -1250,9 +1250,9 @@
+ 		pa->openNextEvent();
+ }
+ 
+-void PsiCon::playSound(const QString &str)
++void PsiCon::playSound(const QString &str, bool force)
+ {
+-	if(str.isEmpty() || !useSound)
++    if(str.isEmpty() || !useSound && !force)
+ 		return;
+ 
+ 	soundPlay(str);
+--- psi-0.9.4/psi/src/psicon.h	2005-03-27 22:20:09.000000000 +0200
++++ psi-0.9.4.plus/psi/src/psicon.h	2005-03-27 20:13:06.000000000 +0200
+@@ -114,7 +114,7 @@
+ 	void removeAccount(PsiAccount *);
+ 	void enableAccount(PsiAccount *, bool e=TRUE);
+ 
+-	void playSound(const QString &);
++    void playSound(const QString &, bool force = false);
+ 	void raiseMainwin();
+ 
+ 	// global event handling
