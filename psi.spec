@@ -1,5 +1,5 @@
 Summary:	PSI Jabber client
-Summary(pl):	Klient Jabbera
+Summary(pl):	PSI - klient Jabbera
 Name:		psi
 Version:	0.8.6
 Release:	1
@@ -15,8 +15,10 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 %define		_mandir		%{_prefix}/man
 
 %description
+PSI Jabber client.
 
 %description -l pl
+PSI - klient Jabbera.
 
 %prep
 %setup -q
