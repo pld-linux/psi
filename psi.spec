@@ -3,17 +3,17 @@
 %bcond_without	external_patches	# only apply needed patches
 					# WARNING: will remove many added features
 #
-%define		snap 20050102
+%define		snap 20050216
 #
 Summary:	PSI - Jabber client
 Summary(pl):	PSI - klient Jabbera
 Name:		psi
-Version:	0.9.3
+Version:	0.9.4
 Release:	0.%{snap}.4%{?with_external_patches:patched}
 License:	GPL
 Group:		Applications/Communications
-Source0:	%{name}-snap-%{snap}.tar.bz2
-# Source0-md5:	e96365960164757321a5be7d6d4ddcb5
+Source0:	http://zenburn.net/~jpc/%{name}-snap-%{snap}.tar.bz2
+# Source0-md5:	b3bc75d1c4aeb12a2f98af58b0bdb841
 Source1:	%{name}-richlistview.cpp
 Source2:	%{name}-richlistview.h
 Source3:	%{name}-roster-rich.README
@@ -69,21 +69,23 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 %define		_plugindir %{_libdir}/qt/plugins-mt/crypto
 
 %description
-PSI is a communicator for the Jabber open messaging system. It is
-based on the QT library. It supports SSL encrypted connections. The
+Psi is a communicator for the Jabber open messaging system. It is
+based on the Qt library. It supports SSL encrypted connections. The
 default behaviour for SSL was changed so that it looks for SSL
 certificates in $DATADIR/certs or in ~/.psi/certs.
 
-This is a development version (CVS) with SKaZi's patches.
+This is a development version (CVS) with many additional patches. See:
+http://www.pld-linux.org/Packages/Psi
 
 %description -l pl
-PSI jest komunikatorem dla otwartego systemu wiadomo¶ci Jabber. Zosta³
-stworzony w oparciu o bibliotekê QT. PSI wspiera po³±czenia szyfrowane
+Psi jest komunikatorem dla otwartego systemu wiadomo¶ci Jabber. Zosta³
+stworzony w oparciu o bibliotekê Qt. Psi wspiera po³±czenia szyfrowane
 SSL. W stosunku do domy¶lnego zachowania komunikatora zosta³a
 wprowadzona zmiana, która powoduje ¿e certyfikaty SSL s± poszukiwane w
 katalogu $DATADIR/certs lub ~/.psi/certs.
 
-Jest to wersja rozwojowa (CVS) z ³atkami SKaZiego.
+Jest to wersja rozwojowa (CVS) z wieloma dodatkowymi ³atkami. Zobacz:
+http://www.pld-linux.org/Packages/Psi
 
 %package -n qt-designer-psiwidgets
 Summary:	Psi widgets collection for Qt Designer
@@ -138,14 +140,14 @@ cd psi
 cd ..
 #	from Machekku:
 %patch300 -p1
-%patch301 -p1
-%patch302 -p1
-%patch303 -p1
+#patch301 -p1
+#patch302 -p1
+#patch303 -p1
 %patch304 -p1
 %endif
 
 sed -i \
-	's/QString PROG_VERSION = .*/QString PROG_VERSION = "0.9.3-%{snap}";/g' \
+	's/QString PROG_VERSION = .*/QString PROG_VERSION = "%{version}-%{snap}";/g' \
 	psi/src/common.cpp
 sed -i \
 	"s,/usr/local/share/psi,%{_datadir}/psi,g" \
