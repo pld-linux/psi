@@ -1,3 +1,5 @@
+# Conditional build:
+%bcond_without home_etc		# Disable the HOME_ETC patch
 Summary:	PSI - Jabber client
 Summary(pl):	PSI - klient Jabbera
 Name:		psi
@@ -100,7 +102,7 @@ chcieliby napisaæ w³asne okna dialogowe albo poprawiæ obecne.
 #	PLD
 %patch0 -p1
 %patch1 -p1
-%patch2 -p1
+%{?with_home_etc:%patch2 -p1}
 #	SKaZi
 %patch20 -p1
 %patch21 -p1
