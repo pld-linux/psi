@@ -65,7 +65,7 @@ napisaæ w³asne okna dialogowe itp. albo poprawiæ obecne.
 
 %prep
 %setup -q -n %{name}-pedrito-%{_snap}
-%setup -q -D -a 5 -n %{name}-pedrito-%{_snap}
+%setup -q -D -a 1 -n %{name}-pedrito-%{_snap}
 
 %build
 export QTDIR=%{_prefix}
