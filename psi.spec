@@ -5,7 +5,7 @@ Summary:	PSI Jabber client
 Summary(pl):	PSI - klient Jabbera
 Name:		psi
 Version:	0.8.6
-Release:	2
+Release:	3
 License:	GPL
 Group:		Applications/Communications
 Source0:	ftp://ftp.sourceforge.net/pub/sourceforge/psi/%{name}-%{version}.tar.bz2
@@ -40,13 +40,13 @@ cd src
 qmake psi.pro
 patch -p0 < %{PATCH0}
 
-%if %{?!_without_qssl:1}
+%if %{?_without_qssl:0}%{?!_without_qssl:1}
 patch -p0 < %{PATCH2}
 %endif
 
 %{__make}
 
-%if %{?!_without_qssl:1}
+%if %{?_without_qssl:0}%{?!_without_qssl:1}
 bzip2 -dc %{SOURCE1}|tar x
 cd qssl-%{_qssl_version}
 qmake qssl.pro
@@ -56,8 +56,8 @@ patch -p0 < %{PATCH1}
 %endif
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d {$RPM_BUILD_ROOT%{_bindir},$RPM_BUILD_ROOT%{_datadir}/psi/{image,iconsets,sound}}
-%if %{?!_without_qssl:1}
+install -d $RPM_BUILD_ROOT{%{_bindir},%{_datadir}/psi/{image,iconsets,sound}}
+%if %{?_without_qssl:0}%{?!_without_qssl:1}
 install -d $RPM_BUILD_ROOT%{_libdir}
 %endif
 install src/psi $RPM_BUILD_ROOT%{_bindir}/
@@ -66,7 +66,7 @@ install image/*.png %{buildroot}%{_datadir}/psi/image
 cp -r iconsets/* %{buildroot}%{_datadir}/psi/iconsets
 install sound/* %{buildroot}%{_datadir}/psi/sound
 
-%if %{?!_without_qssl:1}
+%if %{?_without_qssl:0}%{?!_without_qssl:1}
 install src/qssl-%{_qssl_version}/libqssl.so %{buildroot}%{_libdir}
 %endif
 %clean
@@ -76,10 +76,8 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %doc README
 %attr(755,root,root) %{_bindir}/*
-%attr(644,root,root) %{_datadir}/*
-%if %{?!_without_qssl:1}
-%attr(644,root,root) %{_libdir}/*
-%endif
+%{_datadir}/*
+%{?!_without_qssl:%{_libdir}/*}
 #%{_applnkdir}/Network/Communications/*.desktop
 #%{_pixmapsdir}/*/*/apps/*.png
 #%{_datadir}/apps/%{name}/msg.wav
