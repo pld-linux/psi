@@ -3,7 +3,7 @@
 %bcond_without	external_patches	# only apply needed patches
 					# WARNING: will remove many added features
 #
-%define		snap 20050216
+%define		snap 20050325
 #
 Summary:	PSI - Jabber client
 Summary(pl):	PSI - klient Jabbera
@@ -12,8 +12,8 @@ Version:	0.9.4
 Release:	0.%{snap}.4%{?with_external_patches:patched}
 License:	GPL
 Group:		Applications/Communications
-Source0:	http://zenburn.net/~jpc/%{name}-snap-%{snap}.tar.bz2
-# Source0-md5:	b3bc75d1c4aeb12a2f98af58b0bdb841
+Source0:	%{name}-snap-%{snap}.tar.bz2
+# Source0-md5:	7e0fb1fe20311c7750c1589192dd46b9
 Source1:	%{name}-richlistview.cpp
 Source2:	%{name}-richlistview.h
 Source3:	%{name}-roster-rich.README
