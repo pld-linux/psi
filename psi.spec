@@ -70,7 +70,7 @@ cd ..
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT%{_applnkdir}/Network/Communications \
 	$RPM_BUILD_ROOT%{_libdir}/psi \
-	$RPM_BUILD_ROOT%{_datadir}/translations
+	$RPM_BUILD_ROOT%{_datadir}/psi/translations
 
 %{__make} install INSTALL_ROOT=$RPM_BUILD_ROOT
 
