@@ -270,7 +270,6 @@ rm -rf $RPM_BUILD_ROOT
 %files -n qt-designer-psiwidgets
 %defattr(644,root,root,755)
 %doc psi/libpsi/psiwidgets/README
-%defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/qt/plugins-mt/designer/libpsiwidgets.so
 
 %files -n qt-plugin-qca-tls
