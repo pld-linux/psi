@@ -15,21 +15,21 @@ Source1:	%{name}-richlistview.cpp
 Source2:	%{name}-richlistview.h
 Source3:	%{name}-roster-rich.README
 Source4:	%{name}-indicator.png
-Source10:	psi_de.qm
+Source10:	ftp://jack.eu.org/psi_de.qm
 # Source10-md5:	c9799f489966a288b2f477ad4ea49ecf
-Source11:	psi_fi.qm
+Source11:	ftp://jack.eu.org/psi_fi.qm
 # Source11-md5:	b203c264862d1dd9feaa0884b137c300
-Source12:	psi_fr.qm
+Source12:	ftp://jack.eu.org/psi_fr.qm
 # Source12-md5:	f5029a111460a57d18e2d6f44975f9a8
-Source13:	psi_nl.qm
+Source13:	ftp://jack.eu.org/psi_nl.qm
 # Source13-md5:	52927ee59a2a7fd9f94db154dde97451
-Source14:	psi_pl.qm
+Source14:	ftp://jack.eu.org/psi_pl.qm
 # Source14-md5:	c0f39f92cf458d57e9dca7e28b943948
-Source15:	psi_sk.qm
+Source15:	ftp://jack.eu.org/psi_sk.qm
 # Source15-md5: 539b37a7b94a07fce2a217e4197ede09
-Source16:	psi_sw.qm
+Source16:	ftp://jack.eu.org/psi_sw.qm
 # Source16-md5:	49d98283f443a2d5e6473c5cf19e7690
-Source17:	psi_zh.qm
+Source17:	ftp://jack.eu.org/psi_zh.qm
 # Source17-md5: 5b6245e14bcef3dc2c78c83bf61d719f
 Patch0:		%{name}-certs.patch
 Patch1:		%{name}-desktop.patch
