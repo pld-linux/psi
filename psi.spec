@@ -1,3 +1,7 @@
+#
+# Conditional build:
+%bcond_with	square_timestamps	# this is how they used to be
+#
 %define		snap 20040606
 #
 Summary:	PSI - Jabber client
@@ -126,7 +130,7 @@ Jest to wersja rozwojowa (CVS).
 %patch10 -p0
 %patch11 -p0
 %patch12 -p0
-%patch13 -p1
+%{?with_square_timestamps:%patch13 -p1}
 
 %{__perl} -pi -e "s/QString PROG_VERSION = \"0.9.2-[^\"]+\";/QString PROG_VERSION = \"0.9.2-%{snap}\";/g" psi/src/common.cpp
 %{__perl} -pi -e "s,/usr/local/share/psi,%{_datadir}/psi,g" psi/src/common.cpp
