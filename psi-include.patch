@@ -1,0 +1,12 @@
+diff -ru psi-0.8.6/src/psi.pro psi-0.8.6-AlchemyX/src/psi.pro
+--- psi-0.8.6/src/psi.pro	Mon Jul  8 20:13:11 2002
++++ psi-0.8.6-AlchemyX/src/psi.pro	Sat Nov 16 01:59:19 2002
+@@ -140,7 +140,7 @@
+ 
+ # System-specific build settings
+ unix:!mac {
+-	INCLUDEPATH  += /usr/X11R6/include
++	INCLUDEPATH  += /usr/X11R6/include /usr/X11R6/include/qt
+ 	LIBS         += -lXss -lz
+ 	SOURCES      += trayicon_x11.cpp
+ }
