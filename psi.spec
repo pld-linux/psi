@@ -29,7 +29,7 @@ Patch8:		%{name}-offline_status-add.patch
 Patch9:		%{name}-icon_buttons_big_return-mod.patch
 Patch10:	%{name}-nicechats-mod.patch
 Patch11:	%{name}-rich_contactview-add.patch
-Patch12:	%{name}-CV-doublebuffer.patch
+#Patch12:	%{name}-CV-doublebuffer.patch
 URL:		http://psi.affinix.com/
 BuildRequires:	libstdc++-devel
 BuildRequires:	openssl-devel >= 0.9.7c
@@ -91,7 +91,7 @@ Jest to wersja rozwojowa (CVS).
 %patch9 -p0
 %patch10 -p0
 %patch11 -p0
-%patch12 -p0
+#%patch12 -p0
 
 %{__perl} -pi -e "s/QString PROG_VERSION = \"0.9.1-CVS\";/QString PROG_VERSION = \"0.9.2-%{snap}\";/g" psi/src/common.cpp
 %{__perl} -pi -e "s,/usr/local/share/psi,%{_datadir}/psi,g" psi/src/common.cpp
