@@ -24,7 +24,7 @@
  	dirs += g.pathHome;
  	dirs += g.pathBase;
 +	dirs += "/usr/X11R6/lib/psi";
-+	dirs += "/usr/X11R6/lib";
++	dirs += "/usr/X11R6/lib/qt/plugins-mt/network";
  	dirs += "";
  	Stream::loadSSL(dirs);
  
