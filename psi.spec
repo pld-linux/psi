@@ -2,7 +2,7 @@ Summary:	PSI Jabber client
 Summary(pl):	PSI - klient Jabbera
 Name:		psi
 Version:	0.8.7
-Release:	0.2
+Release:	0.3
 License:	GPL
 Group:		Applications/Communications
 Source0:	ftp://ftp.sourceforge.net/pub/sourceforge/psi/%{name}-%{version}.tar.bz2
@@ -17,7 +17,7 @@ Source8:	%{name}_nl.ts
 Source9:	%{name}_pl.ts
 Source10:	%{name}_ru.ts
 Patch0:		%{name}-include.patch
-Patch1:		%{name}-plugin.patch
+Patch1:		%{name}-paths.patch
 Patch2:		%{name}-certs.patch
 URL:		http://psi.affinix.com/
 BuildRequires:	qt-devel >= 3.0.5
@@ -64,13 +64,14 @@ cd ..
 %install
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT%{_applnkdir}/Network/Communications \
-	$RPM_BUILD_ROOT%{_libdir}/psi
+	$RPM_BUILD_ROOT%{_libdir}/psi \
+	$RPM_BUILD_ROOT%{_libdir}/translations
 
 make install INSTALL_ROOT=$RPM_BUILD_ROOT
 
 install %{SOURCE2} $RPM_BUILD_ROOT%{_applnkdir}/Network/Communications
 rm -f src/tr.qm
-cp src/*.qm $RPM_BUILD_ROOT%{_datadir}/psi
+cp src/*.qm $RPM_BUILD_ROOT%{_datadir}/psi/translations
 
 rm -f $RPM_BUILD_ROOT%{_datadir}/psi/{README,COPYING}
 
