@@ -55,7 +55,10 @@ install -d $RPM_BUILD_ROOT%{_desktopdir} \
 	$RPM_BUILD_ROOT%{_libdir}/psi \
 	$RPM_BUILD_ROOT%{_datadir}/psi/translations
 
-QTDIR=/usr %{__make} install INSTALL_ROOT=$RPM_BUILD_ROOT
+# ugly workaround: they ignore INSTALL_ROOT!
+perl -pi -e 's#(\.\./)+#/#g' Makefile
+
+QTDIR=%{_prefix} %{__make} install INSTALL_ROOT=$RPM_BUILD_ROOT
 
 install %{SOURCE2} $RPM_BUILD_ROOT%{_desktopdir}
 cp lang/*.qm $RPM_BUILD_ROOT%{_datadir}/psi/translations
