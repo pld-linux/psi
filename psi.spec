@@ -1,4 +1,4 @@
-%define		snap 20041223
+%define		snap 20050102
 #
 Summary:	PSI - Jabber client
 Summary(pl):	PSI - klient Jabbera
@@ -8,19 +8,22 @@ Release:	0.%{snap}.3
 License:	GPL
 Group:		Applications/Communications
 Source0:	%{name}-snap-%{snap}.tar.bz2
-# Source0-md5:	1161c8609fa59196db36d8f1bded9343
+# Source0-md5:	e96365960164757321a5be7d6d4ddcb5
 Source1:	%{name}-richlistview.cpp
 Source2:	%{name}-richlistview.h
 Source3:	%{name}-roster-rich.README
 Source4:	%{name}-indicator.png
-# from PLD
+# temporary (not sure where to find newer files, ripped from and old snap)
+Source5:	%{name}-snap-lang-20041209.tar.bz2
+# Source5-md5:	38f0894bf1b557a36788213c56797e62
+#       from PLD
 Patch0:		%{name}-certs.patch
 Patch1:		%{name}-desktop.patch
 Patch2:		%{name}-home_etc.patch
 Patch3:		%{name}-nodebug.patch
-# from jpc
+#       from jpc
 Patch10:	%{name}-customos.patch
-# from SKaZi
+#       from SKaZi
 Patch20:	%{name}-status_indicator-add.patch
 Patch22:	%{name}-no_online_status-mod.patch
 Patch23:	%{name}-status_history-add.patch
@@ -29,6 +32,11 @@ Patch25:	%{name}-nicechats-mod.patch
 Patch26:	%{name}-roster-rich.patch
 Patch27:	%{name}-icondef.xml_status_indicator.patch
 Patch28:	%{name}-settoggles-fix.patch
+Patch29:	%{name}-empty_group-fix.patch
+Patch30:	%{name}-wrong_mainwin_pos_gnome-fix.patch
+#       from Remko Troncon:
+# http://www.cs.kuleuven.ac.be/~remko/psi/rc/ (downloaded on 2005-01-02 18:38)
+Patch100:	%{name}-adhoc_and_rc.patch
 URL:		http://psi.affinix.com/
 BuildRequires:	libstdc++-devel
 BuildRequires:	cyrus-sasl-devel
@@ -78,21 +86,27 @@ napisaæ w³asne okna dialogowe itp. albo poprawiæ obecne.
 
 %prep
 %setup -q -c %{name}-%{version}
+%setup -q -D -a 5
+#       PLD:
 %patch0 -p0
 %patch1 -p0
 %patch2 -p0
 %patch3 -p1
+#       jpc:
 %patch10 -p0
-#patch20 -p0
-#
+#       SKaZi:
+%patch20 -p0
 %patch22 -p0
 %patch23 -p0
 %patch24 -p0
-#
 %patch25 -p0
 %patch26 -p0
 %patch27 -p0
 %patch28 -p0
+%patch29 -p0
+%patch30 -p0
+#       Other:
+%patch100 -p1
 
 sed -i \
 	's/QString PROG_VERSION = .*/QString PROG_VERSION = "0.9.3-%{snap}";/g' \
