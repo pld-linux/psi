@@ -1,10 +1,4 @@
-#
-# TODO:
-#   - correct iconsets to include indicator.png
-#     ftp://skazi.homeip.net/SkaZi/psi/patches/
-#     (*indicator.png, icondef.status_indicator.xml)
-#
-%define		snap 20040401
+%define		snap 20040427
 #
 Summary:	PSI - Jabber client
 Summary(pl):	PSI - klient Jabbera
@@ -14,10 +8,11 @@ Release:	0.%{snap}.1
 License:	GPL
 Group:		Applications/Communications
 Source0:	%{name}-snap-%{snap}.tar.bz2
-# Source0-md5:	be45470ad818eebc4f344935d93b4efd
+# Source0-md5:	c41d6569e8ac8bf80703dbbe70647c16
 Source1:	%{name}-richlistview.cpp
 Source2:	%{name}-richlistview.h
-Source3:        %{name}-roster-rich.README
+Source3:	%{name}-roster-rich.README
+Source4:	%{name}-indicator.png
 Patch0:		%{name}-certs.patch
 Patch1:		%{name}-desktop.patch
 Patch2:		%{name}-home_etc.patch
@@ -30,6 +25,7 @@ Patch8:		%{name}-offline_status-add.patch
 Patch9:		%{name}-icon_buttons_big_return-mod.patch
 Patch10:	%{name}-nicechats-mod.patch
 Patch11:	%{name}-roster-rich.patch
+Patch12:	%{name}-icondef.xml_status_indicator.patch
 URL:		http://psi.affinix.com/
 BuildRequires:	libstdc++-devel
 BuildRequires:	openssl-devel >= 0.9.7c
@@ -63,7 +59,7 @@ Epoch:		1
 License:	GPL v2
 Group:		Libraries
 
-%define         _plugindir %{_libdir}/qt/plugins-mt/crypto
+%define		_plugindir %{_libdir}/qt/plugins-mt/crypto
 
 %description -n qt-plugin-qca-tls
 A plugin to provide SSL/TLS capability to programs that utilize the Qt
@@ -91,6 +87,7 @@ Jest to wersja rozwojowa (CVS).
 %patch9 -p0
 %patch10 -p0
 %patch11 -p0
+%patch12 -p0
 
 %{__perl} -pi -e "s/QString PROG_VERSION = \"0.9.1-CVS\";/QString PROG_VERSION = \"0.9.2-%{snap}\";/g" psi/src/common.cpp
 %{__perl} -pi -e "s,/usr/local/share/psi,%{_datadir}/psi,g" psi/src/common.cpp
@@ -99,6 +96,7 @@ Jest to wersja rozwojowa (CVS).
 cp %{SOURCE1} psi/src/richlistview.cpp
 cp %{SOURCE2} psi/src/richlistview.h
 cp %{SOURCE3} psi/README.rich-roster
+cp %{SOURCE4} psi/indicator.png
 
 %build
 cd psi
@@ -151,6 +149,7 @@ install psi/psi.desktop $RPM_BUILD_ROOT%{_desktopdir}
 install psi/iconsets/system/default/icon_48.png $RPM_BUILD_ROOT%{_pixmapsdir}/psi.png
 install psi/iconsets/roster/stellar-icq/online.png $RPM_BUILD_ROOT%{_pixmapsdir}/psi-stellar.png
 install psi/lang/*.qm $RPM_BUILD_ROOT%{_datadir}/psi
+install psi/indicator.png $RPM_BUILD_ROOT%{_datadir}/psi/iconsets/roster/default/indicator.png
 
 rm $RPM_BUILD_ROOT%{_datadir}/psi/COPYING $RPM_BUILD_ROOT%{_datadir}/psi/README
 
