@@ -11,9 +11,9 @@ Group:		Applications/Communications
 Source0:	http://radioemiter.pl/~pedrito/public/jabber/psi-pedrito/%{_snap}/%{name}-pedrito-%{_snap}.tar.bz2
 # Source0-md5:	277ab00b998c6882879a84b774216e11
 Source1:	%{name}-snap-lang-20041209.tar.bz2
-# Source5-md5:	38f0894bf1b557a36788213c56797e62
+# Source1-md5:	38f0894bf1b557a36788213c56797e62
 Source2:	http://michalj.alternatywa.info/psi/patches/emergency.png
-
+# Source2-md5:	5fa629c5177a7b1c5090428e22b7ec30
 URL:		http://radioemiter.pl/~pedrito/public/jabber/psi-pedrito/
 BuildRequires:	libstdc++-devel
 BuildRequires:	cyrus-sasl-devel
