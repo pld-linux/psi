@@ -1,6 +1,6 @@
 diff -ru -X exclude iris-clean/xmpp-im/client.cpp iris/xmpp-im/client.cpp
---- iris-clean/xmpp-im/client.cpp	Tue Feb 24 19:45:40 2004
-+++ iris/xmpp-im/client.cpp	Thu Apr 15 07:05:08 2004
+--- psi-clean/iris-clean/xmpp-im/client.cpp	Tue Feb 24 19:45:40 2004
++++ psi/iris/xmpp-im/client.cpp	Thu Apr 15 07:05:08 2004
 @@ -792,10 +792,27 @@
  
  	// unavailable?  remove the resource
