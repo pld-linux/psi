@@ -1,60 +1,17 @@
-#
-# Conditional build:
-%bcond_without	external_patches	# only apply needed patches
-					# WARNING: will remove many added features
-#
-%define		snap 20050216
+%define		snap 2005-02-16
 #
 Summary:	PSI - Jabber client
 Summary(pl):	PSI - klient Jabbera
 Name:		psi
-Version:	0.9.4
-Release:	0.%{snap}.4%{?with_external_patches:patched}
+Version:	0.10
+Release:	0.%{snap}.1pedrito
 License:	GPL
 Group:		Applications/Communications
-Source0:	http://zenburn.net/~jpc/%{name}-snap-%{snap}.tar.bz2
+Source0:	http://radioemiter.pl/~pedrito/public/jabber/psi-pedrito/%{snap}/%{name}-pedrito-%{snap}.tar.bz2
 # Source0-md5:	b3bc75d1c4aeb12a2f98af58b0bdb841
-Source1:	%{name}-richlistview.cpp
-Source2:	%{name}-richlistview.h
-Source3:	%{name}-roster-rich.README
-Source4:	%{name}-indicator.png
-# temporary (not sure where to find newer files, ripped from and old snap)
-Source5:	%{name}-snap-lang-20041209.tar.bz2
+#Source5:	%{name}-snap-lang-20041209.tar.bz2
 # Source5-md5:	38f0894bf1b557a36788213c56797e62
-#       from PLD
-Patch0:		%{name}-certs.patch
-Patch1:		%{name}-desktop.patch
-Patch2:		%{name}-home_etc.patch
-Patch3:		%{name}-nodebug.patch
-#       from jpc
-Patch10:	%{name}-customos.patch
-#       from SKaZi
-Patch20:	%{name}-status_indicator-add.patch
-Patch22:	%{name}-no_online_status-mod.patch
-Patch23:	%{name}-status_history-add.patch
-Patch24:	%{name}-icon_buttons_big_return-mod.patch
-Patch25:	%{name}-nicechats-mod.patch
-Patch26:	%{name}-roster-rich.patch
-Patch27:	%{name}-icondef.xml_status_indicator.patch
-Patch28:	%{name}-settoggles-fix.patch
-Patch29:	%{name}-empty_group-fix.patch
-#       from Remko Troncon:
-# http://www.cs.kuleuven.ac.be/~remko/psi/rc/ (downloaded on 2005-01-02 18:38)
-Patch100:	%{name}-adhoc_and_rc.patch
-# http://www.cs.kuleuven.ac.be/~remko/psi/ (downloaded on 2005-02-02 22:00)
-Patch101:	%{name}-rosteritems_iris.patch
-Patch102:	%{name}-rosteritems_psi.patch
-#       from Psi forums:
-# http://www.uni-bonn.de/~nieuwenh/libTeXFormula.diff
-Patch200:	%{name}-libTeXFormula.patch
-#       from Machekku:
-# http://machekku.uaznia.net/jabber/psi/patches/ (downloaded on 2005-01-27 15:30)
-Patch300:	%{name}-contact_icons_at_top.patch
-Patch301:	%{name}-emoticons_advanced_toggle.patch
-Patch302:	%{name}-emoticons_advanced_toggle-fix.patch
-Patch303:	%{name}-emoticons_advanced_toggle-richroster.patch
-Patch304:	%{name}-enable_thread_in_messages.patch
-URL:		http://psi.affinix.com/
+URL:		http://radioemiter.pl/~pedrito/public/jabber/psi-pedrito/
 BuildRequires:	libstdc++-devel
 BuildRequires:	cyrus-sasl-devel
 BuildRequires:	openssl-devel >= 0.9.7c
@@ -105,53 +62,7 @@ napisaæ w³asne okna dialogowe itp. albo poprawiæ obecne.
 
 %prep
 %setup -q -c %{name}-%{version}
-%setup -q -D -a 5 -c %{name}-%{version}
-#       PLD:
-%patch0 -p0
-%patch1 -p0
-%patch2 -p0
-%patch3 -p1
-#       jpc:
-%patch10 -p0
-%if %{with external_patches}
-#       SKaZi:
-%patch20 -p0
-%patch22 -p0
-%patch23 -p0
-%patch24 -p0
-%patch25 -p0
-%patch26 -p0
-%patch27 -p0
-%patch28 -p0
-%patch29 -p0
-cp %{SOURCE1} psi/src/richlistview.cpp
-cp %{SOURCE2} psi/src/richlistview.h
-cp %{SOURCE3} psi/README.rich-roster
-#       Remko Troncon:
-%patch100 -p1
-cd iris
-%patch101 -p0
-cd ../psi
-%patch102 -p0
-cd ..
-#	Psi forums:
-cd psi
-%patch200 -p0
-cd ..
-#	from Machekku:
-%patch300 -p1
-#patch301 -p1
-#patch302 -p1
-#patch303 -p1
-%patch304 -p1
-%endif
-
-sed -i \
-	's/QString PROG_VERSION = .*/QString PROG_VERSION = "%{version}-%{snap}";/g' \
-	psi/src/common.cpp
-sed -i \
-	"s,/usr/local/share/psi,%{_datadir}/psi,g" \
-	psi/src/common.cpp
+#%setup -q -D -a 5 -c %{name}-%{version}
 
 %build
 export QTDIR=%{_prefix}
