@@ -1,12 +1,14 @@
 #
 # Conditional build:
 # _with_addons		- enables additional GUI features
+# _with_customos	- enables OS identification changing ~/.psi/custom-os
+# _with_pld		- enables PLD Linux identification
 #
 Summary:	PSI - Jabber client
 Summary(pl):	PSI - klient Jabbera
 Name:		psi
 Version:	0.9
-Release:	3
+Release:	4
 License:	GPL
 Group:		Applications/Communications
 Source0:	http://dl.sourceforge.net/%{name}/%{name}-%{version}.tar.bz2
@@ -17,6 +19,7 @@ Patch1:		%{name}-certs.patch
 Patch2:		%{name}-additional_features.patch
 Patch3:		%{name}-pld.patch
 Patch4:		%{name}-home_etc.patch
+Patch5:		%{name}-customos.patch
 URL:		http://psi.affinix.com/
 BuildRequires:	qt-devel >= 3.1.0
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
@@ -40,7 +43,11 @@ katalogu $DATADIR/certs lub ~/.psi/certs.
 %patch0 -p1
 %patch1 -p1
 %{?_with_addons:%patch2 -p1}
+%if %{undefined _with_pld} && %{defined _with_customos}
+%patch5 -p1
+%else
 %patch3 -p1
+%endif
 %patch4 -p1
 perl -pi -e "s/QString PROG_VERSION = \"0.9\";/QString PROG_VERSION = \"0.9-%{release}\";/g" src/common.cpp
 perl -pi -e "s,/usr/local/share/psi,%{_datadir}/psi,g" src/common.cpp
