@@ -56,7 +56,7 @@ export QMAKESPEC
 	--libdir %{_datadir}/psi \
 	--qtdir $QTDIR
 %{__make} \
-	CXXFLAGS="-pipe -Wall %{rpmcflags} -fno-exceptions -fno-rtti \
+	CXXFLAGS="-pipe -Wall %{rpmcflags} -fno-exceptions \
 	-D_REENTRANT %{?debug:-DQT_NO_DEBUG} -DQT_THREAD_SUPPORT"
 
 cd src
