@@ -7,7 +7,7 @@ diff -urN psi-old/src/common.cpp psi/src/common.cpp
  {
 -	QDir proghome(QDir::homeDirPath() + "/.psi");
 +	char *home_etc = getenv("HOME_ETC");
-+	QDir proghome((home_etc != NULL ? QString(home_etc) : QDir::homeDirPath()) + "/.psi");
++	QDir proghome((home_etc != NULL && (strncmp(home_etc, "", 1) != 0) ? QString(home_etc) : QDir::homeDirPath()) + "/.psi");
  	if(!proghome.exists()) {
  		QDir home = QDir::home();
  		home.mkdir(".psi");
@@ -17,7 +17,7 @@ diff -urN psi-old/src/common.cpp psi/src/common.cpp
  {
 -	QDir proghome(QDir::homeDirPath() + "/.psi");
 +	char *home_etc = getenv("HOME_ETC");
-+	QDir proghome((home_etc != NULL ? QString(home_etc) : QDir::homeDirPath()) + "/.psi");
++	QDir proghome((home_etc != NULL && (strncmp(home_etc, "", 1) != 0) ? QString(home_etc) : QDir::homeDirPath()) + "/.psi");
  	if(!proghome.exists()) {
  		QDir home = QDir::home();
  		home.mkdir(".psi");
