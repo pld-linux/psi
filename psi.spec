@@ -33,6 +33,7 @@ BuildRequires:	cyrus-sasl-devel
 BuildRequires:	openssl-devel >= 0.9.7c
 BuildRequires:	/usr/bin/qmake
 BuildRequires:	qt-devel >= 3.1.2
+BuildRequires:	qt-linguist
 Requires:	qt-plugin-qca-tls >= 1:1.1
 Conflicts:	qt-plugin-ssl = 1.0
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
