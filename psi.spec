@@ -10,9 +10,10 @@ License:	GPL
 Group:		Applications/Communications
 Source0:	ftp://ftp.sourceforge.net/pub/sourceforge/psi/%{name}-%{version}.tar.bz2
 Source1:        ftp://ftp.sourceforge.net/pub/sourceforge/psi/qssl-%{_qssl_version}.tar.bz2
-Patch0:		%{name}-fhs.patch
-Patch1:		%{name}-qssl-fhs.patch
+Patch0:		%{name}-include.patch
+Patch1:		%{name}-qssl-include.patch
 Patch2:		%{name}-plugin.patch
+Patch3:		%{name}-test.patch
 URL:		http://psi.affinix.com/
 BuildRequires:	qt-devel >= 3.0.5
 %{?!_without_qssl:BuildRequires: openssl-devel}
@@ -28,7 +29,11 @@ PSI Jabber client.
 PSI - klient Jabbera.
 
 %prep
-%setup -q
+%setup -q -a 0
+%setup -q -a 1
+%patch0 -p1
+%patch1 -p1
+%patch3 -p1
 
 %build
 QTDIR=%{_prefix}
