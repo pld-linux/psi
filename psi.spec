@@ -26,6 +26,10 @@ BuildRequires:	qt-devel >= 3.0.5
 %{!?_without_qssl:BuildRequires:	qt-plugin-ssl-devel >= 1.0-2}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
+%define		_xprefix	%{_prefix}/X11R6
+%define		_xdatadir	%{_xprefix}/share
+%define		_xbindir	%{_xprefix}/bin
+
 %description
 PSI is communicator for Jabber open messaging system. It is based on
 QT library. It supports SSL encrypted connections. Default behaviour
@@ -46,13 +50,13 @@ katalogu $DATADIR/certs lub ~/.psi/certs.
 %patch2 -p1
 
 %build
-QTDIR=%{_prefix}
-QMAKESPEC=%{_datadir}/qt/mkspecs/linux-g++
+QTDIR=%{_xprefix}
+QMAKESPEC=%{_xdatadir}/qt/mkspecs/linux-g++
 export QTDIR QMAKESPEC
 
 ./configure \
-	--prefix %{_prefix} \
-	--libdir %{_datadir}/psi \
+	--prefix %{_xprefix} \
+	--libdir %{_xdatadir}/psi \
 	--qtdir $QTDIR
 %{__make} \
 	CXX=%{__cxx} LINK=%{__cxx} CXXFLAGS="-pipe -Wall %{rpmcflags} \
@@ -68,15 +72,15 @@ cd ..
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT%{_applnkdir}/Network/Communications \
 	$RPM_BUILD_ROOT%{_libdir}/psi \
-	$RPM_BUILD_ROOT%{_datadir}/psi/translations
+	$RPM_BUILD_ROOT%{_xdatadir}/psi/translations
 
 %{__make} install INSTALL_ROOT=$RPM_BUILD_ROOT
 
 install %{SOURCE2} $RPM_BUILD_ROOT%{_applnkdir}/Network/Communications
 rm -f src/tr.qm
-cp src/*.qm $RPM_BUILD_ROOT%{_datadir}/psi/translations
+cp src/*.qm $RPM_BUILD_ROOT%{_xdatadir}/psi/translations
 
-rm -f $RPM_BUILD_ROOT%{_datadir}/psi/{certs/*.pem,{README,COPYING}}
+rm -f $RPM_BUILD_ROOT%{_xdatadir}/psi/{certs/*.pem,{README,COPYING}}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -84,19 +88,19 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 %doc README
-%attr(755,root,root) %{_bindir}/*
-%dir %{_datadir}/psi
-%dir %{_datadir}/psi/translations
-%{_datadir}/psi/certs
-%{_datadir}/psi/iconsets
-%{_datadir}/psi/image
-%{_datadir}/psi/sound
-%lang(cs) %{_datadir}/psi/translations/psi_cz.qm
-%lang(de) %{_datadir}/psi/translations/psi_de.qm
-%lang(es) %{_datadir}/psi/translations/psi_es.qm
-%lang(fr) %{_datadir}/psi/translations/psi_fr.qm
-%lang(nl) %{_datadir}/psi/translations/psi_nl.qm
-%lang(pl) %{_datadir}/psi/translations/psi_pl.qm
-%lang(ru) %{_datadir}/psi/translations/psi_ru.qm
+%attr(755,root,root) %{_xbindir}/*
+%dir %{_xdatadir}/psi
+%dir %{_xdatadir}/psi/translations
+%{_xdatadir}/psi/certs
+%{_xdatadir}/psi/iconsets
+%{_xdatadir}/psi/image
+%{_xdatadir}/psi/sound
+%lang(cs) %{_xdatadir}/psi/translations/psi_cz.qm
+%lang(de) %{_xdatadir}/psi/translations/psi_de.qm
+%lang(es) %{_xdatadir}/psi/translations/psi_es.qm
+%lang(fr) %{_xdatadir}/psi/translations/psi_fr.qm
+%lang(nl) %{_xdatadir}/psi/translations/psi_nl.qm
+%lang(pl) %{_xdatadir}/psi/translations/psi_pl.qm
+%lang(ru) %{_xdatadir}/psi/translations/psi_ru.qm
 %{_libdir}/psi
 %{_applnkdir}/Network/Communications/%{name}.desktop
