@@ -4,12 +4,14 @@
 					# WARNING: will remove many added features
 #
 %define		snap 20050325
+%define         pld_rel 5
 #
 Summary:	PSI - Jabber client
 Summary(pl):	PSI - klient Jabbera
 Name:		psi
 Version:	0.9.4
-Release:	0.%{snap}.4%{?with_external_patches:patched}
+%define		rel %{snap}.%{pld_rel}%{?with_external_patches:patched}
+Release:	0.%{rel}
 License:	GPL
 Group:		Applications/Communications
 Source0:	%{name}-snap-%{snap}.tar.bz2
@@ -50,10 +52,16 @@ Patch200:	%{name}-libTeXFormula.patch
 #       from Machekku:
 # http://machekku.uaznia.net/jabber/psi/patches/ (downloaded on 2005-01-27 15:30)
 Patch300:	%{name}-contact_icons_at_top.patch
-Patch301:	%{name}-emoticons_advanced_toggle.patch
-Patch302:	%{name}-emoticons_advanced_toggle-fix.patch
-Patch303:	%{name}-emoticons_advanced_toggle-richroster.patch
+#Patch301:	%{name}-emoticons_advanced_toggle.patch
+#Patch302:	%{name}-emoticons_advanced_toggle-fix.patch
+#Patch303:	%{name}-emoticons_advanced_toggle-richroster.patch
 Patch304:	%{name}-enable_thread_in_messages.patch
+#	from Yves Goergen:
+# http://home.unclassified.de/psi.php
+Patch400:	%{name}-custom_settings_per_contact.patch
+#       from Micha³ Jaz³owiecki
+# http://michalj.alternatywa.info/psi/patches/
+Patch500:	%{name}-offline_statuses_in_roster.patch
 URL:		http://psi.affinix.com/
 BuildRequires:	libstdc++-devel
 BuildRequires:	cyrus-sasl-devel
@@ -145,9 +153,13 @@ cd ..
 #patch303 -p1
 %patch304 -p1
 %endif
+# 	from Yves:
+%patch400 -p1
+#       from Micha³ Jaz³owiecki:
+%patch500 -p1
 
 sed -i \
-	's/QString PROG_VERSION = .*/QString PROG_VERSION = "%{version}-%{snap}";/g' \
+	's/QString PROG_VERSION = .*/QString PROG_VERSION = "%{version}-PLD-%{rel}";/g' \
 	psi/src/common.cpp
 sed -i \
 	"s,/usr/local/share/psi,%{_datadir}/psi,g" \
