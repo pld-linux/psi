@@ -1,4 +1,3 @@
-# TODO: optflags (but note that CXXFLAGS are different in src and lib)
 %define		_rel test1
 Summary:        PSI - Jabber client
 Summary(pl):    PSI - klient Jabbera
@@ -36,13 +35,19 @@ katalogu $DATADIR/certs lub ~/.psi/certs.
 
 %{__perl} -pi -e "s/QString PROG_VERSION = \"0.9.1-%{_rel}\";/QString PROG_VERSION = \"0.9.1-%{release}\";/g" src/common.cpp
 %{__perl} -pi -e "s,/usr/local/share/psi,%{_datadir}/psi,g" src/common.cpp
-%{!?debug:%{__perl} -pi -e 's/CONFIG \+= debug//g' src/src.pro}
+%{__perl} -pi -e 's/CONFIG \+= debug//g' src/src.pro
 
 %build
 export QTDIR=%{_prefix}
 ./configure \
         --prefix=%{_prefix} \
 	--qtdir=%{_prefix}
+
+qmake psi.pro \
+	QMAKE_CXX="%{__cxx}" \
+	QMAKE_LINK="%{__cxx}" \
+	QMAKE_CXXFLAGS_RELEASE="%{rpmcflags}" \
+	QMAKE_RPATH=
 
 %{__make}
 
@@ -65,7 +70,6 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %doc README TODO
 %attr(755,root,root) %{_bindir}/*
-%dir %{_datadir}/psi
 %{_datadir}/psi
 %{_desktopdir}/*.desktop
 %{_pixmapsdir}/*.png
