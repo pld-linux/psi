@@ -139,7 +139,7 @@ diff -ru -X exclude psi-clean/src/psiaccount.cpp psi/src/psiaccount.cpp
  {
 -	if(x == STATUS_OFFLINE) {
 -		setStatus(Status("","",0,false));
-+	if(x == STATUS_OFFLINE && !option.askOffline) {
++	if(x == STATUS_OFFLINE && (!option.askOffline || !isConnected())) {
 +		setStatus(Status("","Logged out",0,false));
  	}
  	else {
@@ -166,16 +166,23 @@ diff -ru -X exclude psi-clean/src/psiaccount.h psi/src/psiaccount.h
 diff -ru -X exclude psi-clean/src/psicon.cpp psi/src/psicon.cpp
 --- psi-clean/src/psicon.cpp	Thu Feb 12 22:47:38 2004
 +++ psi/src/psicon.cpp	Sun Feb 15 20:30:02 2004
-@@ -757,7 +757,7 @@
+@@ -751,8 +794,14 @@
  
  void PsiCon::statusMenuChanged(int x)
  {
 -	if(x == STATUS_OFFLINE) {
 -		setGlobalStatus(Status("","",0,false));
-+	if(x == STATUS_OFFLINE && !option.askOffline) {
++	bool anyConnected = false;
++
++	PsiAccountListIt it(d->listEnabled);
++	for(PsiAccount *pa; !anyConnected && (pa = it.current()); ++it)
++		anyConnected = pa->isConnected();
++
++	if(x == STATUS_OFFLINE && (!option.askOffline || !anyConnected)) {
 +		setGlobalStatus(Status("","Logged out",0,false));
  		if(option.useDock == true)
  			d->mainwin->setTrayToolTip(Status("","",0,false));
+ 	}
 diff -ru -X exclude psi-clean/src/psi_profiles.cpp psi/src/psi_profiles.cpp
 --- psi-clean/src/psi_profiles.cpp	Tue Jan 27 18:09:32 2004
 +++ psi/src/psi_profiles.cpp	Sun Feb 15 20:29:48 2004
