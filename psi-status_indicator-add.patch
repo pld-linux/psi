@@ -161,22 +161,6 @@ diff -ru -X exclude psi-clean/src/options/opt_appearance.cpp psi/src/options/opt
  	QWhatsThis::add(d->ck_newHeadings,
  		tr("Toggles on new, smaller group headings."));
  
-@@ -125,6 +128,7 @@
- 
- 	OptAppearanceUI *d = (OptAppearanceUI *)w;
- 	opt->clNewHeadings = d->ck_newHeadings->isChecked();
-+	opt->clStIndicator = d->ck_statusIndicator->isChecked();
- 
- 	int n;
- 	for (n = 0; n < 3; ++n)
-@@ -141,6 +145,7 @@
- 
- 	OptAppearanceUI *d = (OptAppearanceUI *)w;
- 	d->ck_newHeadings->setChecked( opt->clNewHeadings );
-+	d->ck_statusIndicator->setChecked( opt->clStIndicator );
- 
- 	int n;
- 	for (n = 0; n < 3; ++n)
 diff -ru -X exclude psi-clean/src/psiiconset.cpp psi/src/psiiconset.cpp
 --- psi-clean/src/psiiconset.cpp	Sun Jan 25 14:52:04 2004
 +++ psi/src/psiiconset.cpp	Thu Apr 15 07:05:08 2004
@@ -243,3 +227,21 @@ diff -ru -X exclude psi-clean/src/psi_profiles.cpp psi/src/psi_profiles.cpp
  
  			QDomElement tag = findSubTag(p_lnf, "colors", &found);
  			if(found) {
+--- psi/src/options/opt_appearance.cpp~	2004-08-21 15:32:23.777002080 +0200
++++ psi/src/options/opt_appearance.cpp	2004-08-21 15:36:01.177952112 +0200
+@@ -169,6 +169,7 @@
+ 	OptAppearanceUI *d = (OptAppearanceUI *)w;
+ 	opt->clNewHeadings = d->ck_newHeadings->isChecked();
+ 	//opt->avatarsChatdlgEnabled = d->ck_avatarsChatdlg->isChecked(); // Avatars
++        opt->clStIndicator = d->ck_statusIndicator->isChecked();
+ 
+ 	int n;
+ 	for (n = 0; n < 4; ++n)
+@@ -186,6 +187,7 @@
+ 	OptAppearanceUI *d = (OptAppearanceUI *)w;
+ 	d->ck_newHeadings->setChecked( opt->clNewHeadings );
+ 	//d->ck_avatarsChatdlg->setChecked( opt->avatarsChatdlgEnabled ); // Avatars
++        d->ck_statusIndicator->setChecked( opt->clStIndicator );
+ 
+ 	int n;
+ 	for (n = 0; n < 4; ++n)

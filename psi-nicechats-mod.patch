@@ -914,25 +914,6 @@ diff -ru -X exclude psi-clean/src/options/opt_appearance.cpp psi/src/options/opt
  	connect(bg_color, SIGNAL(clicked(int)), SLOT(chooseColor(int)));
  
  	QString s = tr("Specifies the text color for a contact name in the main window when that user is \"%1\".");
-@@ -114,6 +120,18 @@
- 
- 	QWhatsThis::add(d->ck_newHeadings,
- 		tr("Toggles on new, smaller group headings."));
-+	QWhatsThis::add(d->pb_cChatMessage,
-+		tr("Specifies the color for chat message text."));
-+	QWhatsThis::add(d->pb_cChatSys,
-+		tr("Specifies the color for system chat messages."));
-+	QWhatsThis::add(d->pb_cChatTo,
-+		tr("Specifies the color for sent chat messages."));
-+	QWhatsThis::add(d->pb_cChatFrom,
-+		tr("Specifies the color for recieved chat messages."));
-+	QWhatsThis::add(d->pb_cChatSpool,
-+		tr("Specifies the color for spooled chat messages."));
-+	QWhatsThis::add(d->pb_cChatBG,
-+		tr("Specifies the color for the chat window."));
- 
- 	return w;
- }
 @@ -130,7 +148,7 @@
  	for (n = 0; n < 3; ++n)
  		opt->font[n] = le_font[n]->text();
@@ -1081,3 +1062,27 @@ diff -ru -X exclude psi-clean/src/psi_profiles.cpp psi/src/psi_profiles.cpp
  
  	int y = d->log->contentsHeight() - d->log->visibleHeight();
  	if(y < 0)
+--- psi/src/options/opt_appearance.cpp~	2004-08-21 15:38:01.595645840 +0200
++++ psi/src/options/opt_appearance.cpp	2004-08-21 16:02:45.995982688 +0200
+@@ -156,7 +156,20 @@
+ 
+ 	QWhatsThis::add(d->ck_newHeadings,
+ 		tr("Toggles on new, smaller group headings."));
+-	
++
++	QWhatsThis::add(d->pb_cChatMessage,
++		tr("Specifies the color for chat message text."));
++	QWhatsThis::add(d->pb_cChatSys,
++		tr("Specifies the color for system chat messages."));
++	QWhatsThis::add(d->pb_cChatTo,
++		tr("Specifies the color for sent chat messages."));
++	QWhatsThis::add(d->pb_cChatFrom,
++		tr("Specifies the color for recieved chat messages."));
++	QWhatsThis::add(d->pb_cChatSpool,
++		tr("Specifies the color for spooled chat messages."));
++	QWhatsThis::add(d->pb_cChatBG,
++		tr("Specifies the color for the chat window."));
++
+ 	// Avatars
+ 	//QWhatsThis::add(d->ck_avatarsChatdlg,
+ 	//	tr("Toggles displaying of avatars in the chat dialog"));
