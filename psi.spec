@@ -39,7 +39,7 @@ based on the QT library. It supports SSL encrypted connections. The
 default behaviour for SSL was changed so that it looks for SSL
 certificates in $DATADIR/certs or in ~/.psi/certs.
 
-This is a development version (CVS).
+This is a development version (CVS) with SKaZi's patches.
 
 %description -l pl
 PSI jest komunikatorem dla otwartego systemu wiadomo¶ci Jabber. Zosta³
@@ -48,7 +48,7 @@ SSL. W stosunku do domy¶lnego zachowania komunikatora zosta³a
 wprowadzona zmiana, która powoduje ¿e certyfikaty SSL s± poszukiwane w
 katalogu $DATADIR/certs lub ~/.psi/certs.
 
-Jest to wersja rozwojowa (CVS).
+Jest to wersja rozwojowa (CVS) z ³atkami SKaZiego.
 
 %package -n qt-plugin-qca-tls
 Summary:	Qt Cryptographic Architecture (QCA) SSL/TLS plugin
