@@ -2,14 +2,16 @@
 # Conditional build:
 %bcond_with	square_timestamps	# this is how they used to be
 #
+%define		_ver	2004-12-23
 Summary:	PSI - Jabber client
 Summary(pl):	PSI - klient Jabbera
 Name:		psi
 Version:	0.9.3
-Release:	0.1
+Release:	cvs.0.1
+Epoch:		0
 License:	GPL
 Group:		Applications/Communications
-Source0:	http://dl.sourceforge.net/%{name}/%{name}-%{version}.tar.bz2
+Source0:	http://psi.affinix.com/files/cvs/%{name}-cvs-%{_ver}.tar.bz2	
 # Source0-md5:	e29f90aea7d839f2a70e4a6e77e95a70
 Source1:	%{name}-richlistview.cpp
 Source2:	%{name}-richlistview.h
@@ -70,8 +72,8 @@ wprowadzona zmiana, która powoduje ¿e certyfikaty SSL s± poszukiwane w
 katalogu $DATADIR/certs lub ~/.psi/certs.
 
 %prep
-%setup -q -c psi-cvs-2004-12-21
-cd psi-cvs-2004-12-21
+%setup -q -c %{name}-cvs-%{_ver}
+cd %{name}-cvs-%{_ver}
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
@@ -97,7 +99,7 @@ cp %{SOURCE4} indicator.png
 
 %build
 export QTDIR=%{_prefix}
-cd psi-cvs-2004-12-21
+cd %{name}-cvs-%{_ver}
 ./configure \
 	--prefix=%{_prefix}
 
@@ -113,7 +115,7 @@ qmake psi.pro \
 rm -rf $RPM_BUILD_ROOT
 
 export QTDIR=%{_prefix}
-cd psi-cvs-2004-12-21
+cd %{name}-cvs-%{_ver}
 
 %{__make} install \
 	INSTALL_ROOT=$RPM_BUILD_ROOT
