@@ -1,6 +1,22 @@
 --- main.cpp.orig	Mon Jul  8 20:13:11 2002
-+++ main.cpp	Sun Oct  6 22:53:22 2002
-@@ -163,6 +163,7 @@
++++ main.cpp	Mon Oct  7 20:33:20 2002
+@@ -54,6 +54,7 @@
+ 	dirs += "." + subdir;
+ 	dirs += g.pathHome + subdir;
+ 	dirs += g.pathBase + subdir;
++	dirs += "/usr/X11R6/share/psi/" + subdir;
+ 	for(QStringList::Iterator it = dirs.begin(); it != dirs.end(); ++it) {
+ 		if(!QFile::exists(*it))
+ 			continue;
+@@ -120,6 +121,7 @@
+ 	dirs += "." + subdir;
+ 	dirs += g.pathHome + subdir;
+ 	dirs += g.pathBase + subdir;
++	dirs += "/usr/X11R6/share/psi/" + subdir;
+ 
+ 	for(QStringList::Iterator it = dirs.begin(); it != dirs.end(); ++it) {
+ 		if(!QFile::exists(*it))
+@@ -163,6 +165,7 @@
  	dirs.clear();
  	dirs += g.pathHome;
  	dirs += g.pathBase;
@@ -8,3 +24,12 @@
  	dirs += "";
  	Stream::loadSSL(dirs);
  
+@@ -214,7 +217,7 @@
+ {
+ 	// set the paths
+ 	g.pathBase = getResourcesDir();
+-	char *p = getenv("PSIDATADIR");
++	char *p = "/usr/X11R6/share/psi";
+ 	if(p)
+ 		g.pathHome = p;
+ 	else
