@@ -1,18 +1,20 @@
 diff -ru -X exclude psi-clean/src/common.h psi/src/common.h
---- psi-clean/src/common.h	Thu Mar 04 22:04:00 2004
-+++ psi/src/common.h	Thu Apr 01 14:09:06 2004
-@@ -84,6 +84,7 @@
+--- psi-clean/src/common.h	Tue Jun 08 05:40:46 2004
++++ psi/src/common.h	Fri Jun 18 08:18:34 2004
+@@ -85,6 +85,9 @@
  	QString defaultRosterIconset;
  	QMap<QString, QString> serviceRosterIconset;
  	QMap<QString, QString> customRosterIconset;
++	QString defaultTemplate;	
 +	QMap<QString, QString> customRosterTemplate;
++	int templFieldTrim;
  
  	bool useleft, singleclick, askOnline, popupMsgs, popupChats, popupHeadlines, raise;
  	bool alwaysOnTop, noAwaySound, noAwayPopup, noUnlistedPopup, rosterAnim, autoVersion, autoVCardOnLogin, xmlConsoleOnLogin;
 diff -ru -X exclude psi-clean/src/contactview.cpp psi/src/contactview.cpp
---- psi-clean/src/contactview.cpp	Sun Mar 21 15:45:20 2004
-+++ psi/src/contactview.cpp	Thu Apr 01 14:29:02 2004
-@@ -1684,7 +1684,7 @@
+--- psi-clean/src/contactview.cpp	Sun Jun 06 20:18:00 2004
++++ psi/src/contactview.cpp	Fri Jun 18 08:36:52 2004
+@@ -1698,7 +1698,7 @@
  };
  
  ContactView::ContactView(QWidget *parent, const char *name)
@@ -21,7 +23,7 @@ diff -ru -X exclude psi-clean/src/contactview.cpp psi/src/contactview.cpp
  {
  	d = new Private(this);
  
-@@ -2176,7 +2176,7 @@
+@@ -2190,7 +2190,7 @@
  };
  
  ContactViewItem::ContactViewItem(const QString &profileName, ContactProfile *cp, ContactView *parent)
@@ -30,7 +32,7 @@ diff -ru -X exclude psi-clean/src/contactview.cpp psi/src/contactview.cpp
  {
  	d = new Private(this, cp);
  	d->type = Profile;
-@@ -2191,7 +2191,7 @@
+@@ -2205,7 +2205,7 @@
  }
  
  ContactViewItem::ContactViewItem(const QString &groupName, int groupType, ContactProfile *cp, ContactView *parent)
@@ -39,7 +41,7 @@ diff -ru -X exclude psi-clean/src/contactview.cpp psi/src/contactview.cpp
  {
  	d = new Private(this, cp);
  	d->type = Group;
-@@ -2207,7 +2207,7 @@
+@@ -2221,7 +2221,7 @@
  }
  
  ContactViewItem::ContactViewItem(const QString &groupName, int groupType, ContactProfile *cp, ContactViewItem *parent)
@@ -48,7 +50,7 @@ diff -ru -X exclude psi-clean/src/contactview.cpp psi/src/contactview.cpp
  {
  	d = new Private(this, cp);
  	d->type = Group;
-@@ -2226,7 +2226,7 @@
+@@ -2240,7 +2240,7 @@
  }
  
  ContactViewItem::ContactViewItem(UserListItem *u, ContactProfile *cp, ContactViewItem *parent)
@@ -57,7 +59,7 @@ diff -ru -X exclude psi-clean/src/contactview.cpp psi/src/contactview.cpp
  {
  	d = new Private(this, cp);
  	d->cp = cp;
-@@ -2245,6 +2250,8 @@
+@@ -2259,6 +2259,8 @@
  
  	if(!parent->isVisible())
  		setVisible(false);
@@ -66,13 +68,13 @@ diff -ru -X exclude psi-clean/src/contactview.cpp psi/src/contactview.cpp
  }
  
  ContactViewItem::~ContactViewItem()
-@@ -2346,6 +2346,95 @@
+@@ -2360,6 +2388,104 @@
  	p->fillRect(0, 0, w, h, cg.base());
  }
  
 +QString jid2template(const Jid &jid)
 +{
-+	QString templ = "";
++	QString templ = option.defaultTemplate;
 +	QMapIterator<QString, QString> it = option.customRosterTemplate.begin();
 +	for ( ; it != option.customRosterTemplate.end(); ++it) {
 +		QRegExp rx = QRegExp(it.key());
@@ -123,6 +125,15 @@ diff -ru -X exclude psi-clean/src/contactview.cpp psi/src/contactview.cpp
 +		if(option.useEmoticons)
 +			ins = emoticonify(ins);
 +		ins.replace("\n", "<br>");
++		if(option.templFieldTrim > 0 ){
++			// try not to break <tags>
++			int trim = ins.left(option.templFieldTrim).findRev("<");
++			if( trim != -1 )
++				trim = ins.find(">", trim);
++			if( trim == -1 || trim < option.templFieldTrim)
++				trim = option.templFieldTrim;
++			ins = ins.left(trim).stripWhiteSpace() + (((int)ins.length() > trim)?(" ..."):(""));
++		}
 +		repl.setPattern("<status_msg>"); txt.replace(repl, ins);
 +		if(!ins.isEmpty()){
 +			repl.setPattern("<!status_msg>"); txt.replace(repl, QString("<br>") + ins);
@@ -162,7 +173,7 @@ diff -ru -X exclude psi-clean/src/contactview.cpp psi/src/contactview.cpp
  void ContactViewItem::paintCell(QPainter *p, const QColorGroup & cg, int column, int width, int alignment)
  {
  	if ( d->type == Contact ) {
-@@ -2363,11 +2452,12 @@
+@@ -2377,11 +2470,12 @@
  			xcg.setColor(QColorGroup::HighlightedText, d->animateNickColor ? option.color[cAnimFront] : option.color[cAnimBack]);
  		}
  
@@ -178,7 +189,7 @@ diff -ru -X exclude psi-clean/src/contactview.cpp psi/src/contactview.cpp
  
  		if ( d->u ) {
  			UserResourceList::ConstIterator it = d->u->priority();
-@@ -2784,6 +2874,7 @@
+@@ -2798,6 +2892,7 @@
  	if(needUpdate)
  		updatePosition();
  
@@ -187,8 +198,8 @@ diff -ru -X exclude psi-clean/src/contactview.cpp psi/src/contactview.cpp
  }
  
 diff -ru -X exclude psi-clean/src/contactview.h psi/src/contactview.h
---- psi-clean/src/contactview.h	Sun Mar 21 15:45:24 2004
-+++ psi/src/contactview.h	Thu Apr 01 14:09:06 2004
+--- psi-clean/src/contactview.h	Thu Mar 18 22:50:10 2004
++++ psi/src/contactview.h	Fri Jun 18 08:17:42 2004
 @@ -23,6 +23,7 @@
  
  #include<qobject.h>
@@ -215,24 +226,29 @@ diff -ru -X exclude psi-clean/src/contactview.h psi/src/contactview.h
  private:
  	class Private;
 diff -ru -X exclude psi-clean/src/psi_profiles.cpp psi/src/psi_profiles.cpp
---- psi-clean/src/psi_profiles.cpp	Sun Mar 21 15:47:06 2004
-+++ psi/src/psi_profiles.cpp	Thu Apr 01 14:09:06 2004
-@@ -549,6 +549,8 @@
+--- psi-clean/src/psi_profiles.cpp	Sat May 15 17:34:30 2004
++++ psi/src/psi_profiles.cpp	Fri Jun 18 08:23:48 2004
+@@ -556,6 +556,10 @@
  
  	prefs.customRosterIconset.clear();
  
++	prefs.defaultTemplate = "";
 +	prefs.customRosterTemplate.clear();
++	prefs.templFieldTrim = 0;
 +
  	// roster sorting
  	prefs.rosterContactSortStyle = Options::ContactSortStyle_Status;
  	prefs.rosterGroupSortStyle   = Options::GroupSortStyle_Alpha;
-@@ -643,6 +645,19 @@
+@@ -651,6 +655,22 @@
  					name = "rank";
  				sorting.appendChild(textTag(doc, "account", name));
  			}
 +			{
 +				QDomElement templates = doc.createElement("templates");
 +				p_roster.appendChild(templates);
++				templates.setAttribute("fieldTrim", QString::number(prefs.templFieldTrim));
++
++				templates.appendChild(textTag(doc, "default", prefs.defaultTemplate));
 +
 +				QMapIterator<QString, QString> it = prefs.customRosterTemplate.begin();
 +				for ( ; it != prefs.customRosterTemplate.end(); ++it) {
@@ -246,17 +262,20 @@ diff -ru -X exclude psi-clean/src/psi_profiles.cpp psi/src/psi_profiles.cpp
  		}
  		{
  			QDomElement p_misc = doc.createElement("misc");
-@@ -1125,6 +1140,17 @@
+@@ -1137,6 +1157,20 @@
  						prefs.rosterAccountSortStyle = Options::AccountSortStyle_Rank;
  					else
  						prefs.rosterAccountSortStyle = Options::AccountSortStyle_Alpha;
 +				}
 +				QDomElement templates = findSubTag(p_roster, "templates", &found);
 +				if (found) {
++					prefs.templFieldTrim = templates.attribute("fieldTrim").toInt();
++					readEntry(templates, "default", &prefs.defaultTemplate);
++
 +					prefs.customRosterTemplate.clear();
 +					for (QDomNode n = templates.firstChild(); !n.isNull(); n = n.nextSibling()) {
 +						QDomElement i = n.toElement();
-+						if ( i.isNull() )
++						if ( i.isNull() || i.nodeName() != "item")
 +							continue;
 +
 +						prefs.customRosterTemplate[i.attribute("regExp")] = i.attribute("template");
@@ -265,8 +284,8 @@ diff -ru -X exclude psi-clean/src/psi_profiles.cpp psi/src/psi_profiles.cpp
  			}
  
 diff -ru -X exclude psi-clean/src/src.pro psi/src/src.pro
---- psi-clean/src/src.pro	Sun Mar 21 15:48:44 2004
-+++ psi/src/src.pro	Thu Apr 01 14:09:06 2004
+--- psi-clean/src/src.pro	Tue Jun 08 05:39:36 2004
++++ psi/src/src.pro	Fri Jun 18 08:17:42 2004
 @@ -81,6 +81,7 @@
  
  # Header files
