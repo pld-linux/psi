@@ -2,23 +2,14 @@ Summary:	PSI - Jabber client
 Summary(pl):	PSI - klient Jabbera
 Name:		psi
 Version:	0.9
-Release:	0.1
+Release:	1
 License:	GPL
 Group:		Applications/Communications
 Source0:	http://dl.sourceforge.net/%{name}/%{name}-%{version}.tar.bz2
 # Source0-md5:	bf3aaa7fa8a1efdff9f96fa718366aa8
 Source2:	%{name}.desktop
 # Translation files ftom http://psi.sourceforge.net/
-Source3:	%{name}_cz.ts
-Source4:	%{name}_de.ts
-Source5:	%{name}_es.ts
-Source6:	%{name}_fr.ts
-Source7:	%{name}_mk.ts
-Source8:	%{name}_nl.ts
-Source9:	%{name}_pl.ts
-Source10:	%{name}_ru.ts
-Source11:       %{name}_br.ts
-Source12:	%{name}_fi.ts
+
 Patch0:		%{name}-paths.patch
 Patch1:		%{name}-certs.patch
 URL:		http://psi.affinix.com/
@@ -26,7 +17,7 @@ BuildRequires:	qt-devel >= 3.0.5
 BuildRequires:	qt-plugin-ssl-devel >= 1.0-2
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
-%define _prefix /usr/X11R6
+%define _prefix /usr
 
 %description
 PSI is communicator for Jabber open messaging system. It is based on
@@ -45,6 +36,8 @@ katalogu $DATADIR/certs lub ~/.psi/certs.
 %setup  -q
 %patch0 -p1
 %patch1 -p1
+perl -pi -e "s/QString PROG_VERSION = \"0.9\";/QString PROG_VERSION = \"0.9-%{release}\";/g" src/common.cpp
+perl -pi -e "s,/usr/local/share/psi,/usr/share/psi,g" src/common.cpp
 
 %build
 QTDIR=%{_prefix}
@@ -59,11 +52,7 @@ export QTDIR QMAKESPEC
 	CXX=%{__cxx} LINK=%{__cxx} CXXFLAGS="-pipe -Wall %{rpmcflags} \
 	-fno-exceptions -D_REENTRANT %{?debug:-DQT_NO_DEBUG} -DQT_THREAD_SUPPORT"
 
-cd src
-cp %{SOURCE3} %{SOURCE4} %{SOURCE5} %{SOURCE6} %{SOURCE7} %{SOURCE8} \
-	%{SOURCE9} %{SOURCE10}  %{SOURCE11}  %{SOURCE12} .
 lrelease psi.pro
-cd ..
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -71,11 +60,10 @@ install -d $RPM_BUILD_ROOT%{_desktopdir} \
 	$RPM_BUILD_ROOT%{_libdir}/psi \
 	$RPM_BUILD_ROOT%{_datadir}/psi/translations
 
-%{__make} install INSTALL_ROOT=$RPM_BUILD_ROOT
+QTDIR=/usr %{__make} install INSTALL_ROOT=$RPM_BUILD_ROOT
 
 install %{SOURCE2} $RPM_BUILD_ROOT%{_desktopdir}
-rm -f src/tr.qm
-cp src/*.qm $RPM_BUILD_ROOT%{_datadir}/psi/translations
+cp lang/*.qm $RPM_BUILD_ROOT%{_datadir}/psi/translations
 
 rm -f $RPM_BUILD_ROOT%{_datadir}/psi/{certs/*.pem,{README,COPYING}}
 
@@ -92,15 +80,24 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/psi/iconsets
 %{_datadir}/psi/image
 %{_datadir}/psi/sound
-%lang(cs) %{_datadir}/psi/translations/psi_cz.qm
+%lang(ar) %{_datadir}/psi/translations/psi_ar.qm
+%lang(da) %{_datadir}/psi/translations/psi_da.qm
+%lang(cs) %{_datadir}/psi/translations/psi_cs.qm
 %lang(de) %{_datadir}/psi/translations/psi_de.qm
 %lang(es) %{_datadir}/psi/translations/psi_es.qm
 %lang(fr) %{_datadir}/psi/translations/psi_fr.qm
+%lang(jp) %{_datadir}/psi/translations/psi_jp.qm
 %lang(nl) %{_datadir}/psi/translations/psi_nl.qm
 %lang(pl) %{_datadir}/psi/translations/psi_pl.qm
 %lang(ru) %{_datadir}/psi/translations/psi_ru.qm
+%lang(sr) %{_datadir}/psi/translations/psi_sr.qm
+%lang(it) %{_datadir}/psi/translations/psi_it.qm
+%lang(pt) %{_datadir}/psi/translations/psi_pt.qm
+%lang(se) %{_datadir}/psi/translations/psi_se.qm
+%lang(zh) %{_datadir}/psi/translations/psi_zh.qm
 %lang(fi) %{_datadir}/psi/translations/psi_fi.qm
-%lang(pt_BR) %{_datadir}/psi/translations/psi_br.qm
 %lang(mk) %{_datadir}/psi/translations/psi_mk.qm
+%lang(pt_BR) %{_datadir}/psi/translations/psi_ptbr.qm
+
 %{_libdir}/psi
 %{_desktopdir}/psi.desktop
