@@ -1,0 +1,28 @@
+diff -ru psi-0.8.6/src/main.cpp psi-0.8.6-AlchemyX/src/main.cpp
+--- psi-0.8.6/src/main.cpp	Mon Jul  8 20:13:11 2002
++++ psi-0.8.6-AlchemyX/src/main.cpp	Sat Nov 16 02:33:38 2002
+@@ -54,6 +54,7 @@
+ 	dirs += "." + subdir;
+ 	dirs += g.pathHome + subdir;
+ 	dirs += g.pathBase + subdir;
++	dirs += "/usr/X11R6/share/psi/" + subdir;
+ 	for(QStringList::Iterator it = dirs.begin(); it != dirs.end(); ++it) {
+ 		if(!QFile::exists(*it))
+ 			continue;
+@@ -120,6 +121,8 @@
+ 	dirs += "." + subdir;
+ 	dirs += g.pathHome + subdir;
+ 	dirs += g.pathBase + subdir;
++	dirs += "/usr/X11R6/share/psi/" + subdir;
++	dirs += "/usr/X11R6/share/psi/translations";
+ 
+ 	for(QStringList::Iterator it = dirs.begin(); it != dirs.end(); ++it) {
+ 		if(!QFile::exists(*it))
+@@ -163,6 +165,7 @@
+ 	dirs.clear();
+ 	dirs += g.pathHome;
+ 	dirs += g.pathBase;
++	dirs += "/usr/X11R6/lib";
+ 	dirs += "";
+ 	Stream::loadSSL(dirs);
+ 
