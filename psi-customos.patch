@@ -1,18 +1,16 @@
-diff -urN psi-old/src/common.cpp psi/src/common.cpp
---- psi-old/src/common.cpp	2004-02-15 20:19:22.990488168 +0100
-+++ psi/src/common.cpp	2004-02-15 20:21:23.576156360 +0100
-@@ -1162,7 +1162,9 @@
- 		LinuxALT,
+--- psi/src/common.cpp~	2004-03-10 21:03:53.000000000 +0100
++++ psi/src/common.cpp	2004-03-21 17:56:22.993517712 +0100
+@@ -1160,7 +1160,8 @@
  
  		LinuxPLD, // Polish Linux distros
--		LinuxAurox
-+		LinuxAurox,
-+
-+                LinuxCustom // custom distro string,  ~/.psi/custom-os
+ 		LinuxAurox,
+-		LinuxArch
++		LinuxArch,
++		LinuxCustom
  	};
  
  	enum OsFlags {
-@@ -1177,6 +1179,7 @@
+@@ -1175,6 +1176,7 @@
  		QString file;
  		QString name;
  	} osInfo[] = {
