@@ -2,7 +2,7 @@ Summary:	PSI Jabber client
 Summary(pl):	PSI - klient Jabbera
 Name:		psi
 Version:	0.8.7
-Release:	0.5
+Release:	0.6
 License:	GPL
 Group:		Applications/Communications
 Source0:	ftp://ftp.sourceforge.net/pub/sourceforge/psi/%{name}-%{version}.tar.bz2
