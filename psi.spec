@@ -2,8 +2,8 @@ Summary:	PSI - Jabber client
 Summary(pl):	PSI - klient Jabbera
 Name:		psi
 Version:	0.9.3
-Release:	0.5
-License:	GPL
+Release:	1
+License:	GPL v2
 Group:		Applications/Communications
 Source0:	http://osdn.dl.sourceforge.net/psi/%{name}-%{version}.tar.bz2
 # Source0-md5:	d20f3bb530235a246bc2d92308089744
@@ -35,7 +35,6 @@ Source19:	%{name}_zh.qm
 Patch0:		%{name}-certs.patch
 Patch1:		%{name}-desktop.patch
 Patch2:		%{name}-home_etc.patch
-Patch3:		%{name}-nodebug.patch
 #	from jpc
 Patch10:	%{name}-customos.patch
 #	from SKaZi
@@ -87,9 +86,9 @@ interested in it, if you want to develop custom dialogs, or hack
 existing ones.
 
 %description -n qt-designer-psiwidgets -l pl
-Pakiet ten zawiera wtyczke dla programu Qt Designer, bed±c± zbiorem
-widgetów u¿ytych w programie Psi. Moze Ci siê przydaæ, jesli chcia³by¶
-napisaæ w³asne okna dialogowe itp. albo poprawiæ obecne.
+Pakiet ten zawiera wtyczkê dla programu Qt Designer, bêd±c± zbiorem
+widgetów u¿ytych w programie Psi. Mo¿e Ci siê przydaæ, je¶li chcia³by¶
+napisaæ w³asne okna dialogowe albo poprawiæ obecne.
 
 %prep
 %setup -q
@@ -97,7 +96,6 @@ napisaæ w³asne okna dialogowe itp. albo poprawiæ obecne.
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
-%patch3 -p1
 #	SKaZi
 %patch20 -p1
 %patch21 -p1
@@ -112,8 +110,8 @@ napisaæ w³asne okna dialogowe itp. albo poprawiæ obecne.
 %patch30 -p1
 
 %{__perl} -pi -e "s/QString PROG_VERSION = \"0.9.3\";/QString PROG_VERSION = \"0.9.3-%{release}\";/g" src/common.cpp
-# %{__perl} -pi -e "s,/usr/local/share/psi,%{_datadir}/psi,g" src/common.cpp
-# %{__perl} -pi -e 's/CONFIG \+= debug//g' src/src.pro
+%{__perl} -pi -e "s,/usr/local/share/psi,%{_datadir}/psi,g" src/common.cpp
+%{__perl} -pi -e 's/CONFIG \+= debug//g' src/src.pro
 
 cp %{SOURCE1} src/richlistview.cpp
 cp %{SOURCE2} src/richlistview.h
