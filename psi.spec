@@ -1,4 +1,4 @@
-%define		snap 20040510
+%define		snap 20040522
 #
 Summary:	PSI - Jabber client
 Summary(pl):	PSI - klient Jabbera
@@ -8,7 +8,7 @@ Release:	0.%{snap}.1
 License:	GPL
 Group:		Applications/Communications
 Source0:	%{name}-snap-%{snap}.tar.bz2
-# Source0-md5:	2f1d3bc4f41041f17e819336fcb68a82
+# Source0-md5:	c1acdb7b99afaa7564d9ba30a2d42638
 Source1:	%{name}-richlistview.cpp
 Source2:	%{name}-richlistview.h
 Source3:	%{name}-roster-rich.README
