@@ -11,7 +11,7 @@ Summary:	PSI - Jabber client
 Summary(pl):	PSI - klient Jabbera
 Name:		psi
 Version:	0.9.3
-Release:	0.%{snap}.2
+Release:	0.%{snap}.3
 License:	GPL
 Group:		Applications/Communications
 Source0:	%{name}-snap-%{snap}.tar.bz2
@@ -24,6 +24,7 @@ Source4:	%{name}-indicator.png
 Patch0:		%{name}-certs.patch
 Patch1:		%{name}-desktop.patch
 Patch2:		%{name}-home_etc.patch
+Patch3:		%{name}-nodebug.patch
 # from jpc
 Patch10:	%{name}-customos.patch
 Patch11:	%{name}-timestamps.patch
@@ -36,7 +37,6 @@ Patch24:	%{name}-icon_buttons_big_return-mod.patch
 Patch25:	%{name}-nicechats-mod.patch
 Patch26:	%{name}-roster-rich.patch
 Patch27:	%{name}-icondef.xml_status_indicator.patch
-Patch28:	%{name}-nodebug.patch
 # from Remko
 # http://listserver.dreamhost.com/pipermail/psi-devel-affinix.com/2004-August/000295.html
 Patch50:	%{name}-status_presets.patch
@@ -130,6 +130,7 @@ Jest to wersja rozwojowa (CVS).
 %patch0 -p0
 %patch1 -p0
 %patch2 -p0
+%patch3 -p1
 %patch10 -p0
 %{?with_square_timestamps:%patch11 -p0}
 %patch20 -p0
@@ -140,7 +141,6 @@ Jest to wersja rozwojowa (CVS).
 %patch25 -p0
 %patch26 -p0
 %patch27 -p0
-%patch28 -p1
 # tried to fix it, but seems severly broken :(
 #patch50 -p0
 
