@@ -1,3 +1,4 @@
+# TODO: optflags (but note that CXXFLAGS are different in src and lib)
 %define		_rel test1
 Summary:        PSI - Jabber client
 Summary(pl):    PSI - klient Jabbera
@@ -12,30 +13,31 @@ Patch0:         %{name}-certs.patch
 Patch1:		%{name}-desktop.patch
 URL:            http://psi.affinix.com/
 BuildRequires:  qt-devel >= 3.1.2
-BuildRoot:      %{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 Requires:	qt-plugin-qca-tls >= 20031208
-                                                                                
+BuildRoot:      %{tmpdir}/%{name}-%{version}-root-%(id -u -n)
+
 %description
 PSI is communicator for Jabber open messaging system. It is based on
 QT library. It supports SSL encrypted connections. Default behaviour
 for SSL was changed so it looks for SSL certificates in $DATADIR/certs
 or in ~/.psi/certs.
-                                                                                
+
 %description -l pl
 PSI jest komunikatorem dla otwartego systemu wiadomo¶ci Jabber. Zosta³
 stworzony w oparciu o bibliotekê QT. PSI wspiera po³±czenia szyfrowane
 SSL. W stosunku do domy¶lnego zachowania komunikatora zosta³a
 wprowadzona zmiana, która powoduje ¿e certyfikaty SSL poszukiwane s± w
 katalogu $DATADIR/certs lub ~/.psi/certs.
-                                                                                
+
 %prep
 %setup  -qn %{name}-%{version}-%{_rel}
 %patch0 -p1
 %patch1 -p1
 
-perl -pi -e "s/QString PROG_VERSION = \"0.9.1-%{_rel}\";/QString PROG_VERSION = \"0.9.1-%{release}\";/g" src/common.cpp
-perl -pi -e "s,/usr/local/share/psi,%{_datadir}/psi,g" src/common.cpp
-                                                                                                                  
+%{__perl} -pi -e "s/QString PROG_VERSION = \"0.9.1-%{_rel}\";/QString PROG_VERSION = \"0.9.1-%{release}\";/g" src/common.cpp
+%{__perl} -pi -e "s,/usr/local/share/psi,%{_datadir}/psi,g" src/common.cpp
+%{!?debug:%{__perl} -pi -e 's/CONFIG \+= debug//g' src/src.pro}
+
 %build
 export QTDIR=%{_prefix}
 ./configure \
@@ -58,7 +60,7 @@ install -c iconsets/system/default/icon_48.png $RPM_BUILD_ROOT%{_pixmapsdir}/psi
 
 %clean
 rm -rf $RPM_BUILD_ROOT
-						                                                                                                                  
+
 %files
 %defattr(644,root,root,755)
 %doc README TODO
