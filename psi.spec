@@ -1,3 +1,4 @@
+# _without_qssl        - without ssl plugin
 %define 	_qssl_version	1.0
 
 Summary:	PSI Jabber client
@@ -9,13 +10,14 @@ License:	GPL
 Group:		Applications/Communications
 Source0:	ftp://ftp.sourceforge.net/pub/sourceforge/psi/%{name}-%{version}.tar.bz2
 Source1:        ftp://ftp.sourceforge.net/pub/sourceforge/psi/qssl-%{_qssl_version}.tar.bz2
-Patch0:		%{name}-pld.patch
-Patch1:		%{name}-qssl.patch
+Patch0:		%{name}-fhs.patch
+Patch1:		%{name}-qssl-fhs.patch
 Patch2:		%{name}-plugin.patch
 URL:		http://psi.affinix.com/
 BuildRequires:	qt-devel >= 3.0.5
+%{?!_without_qssl:BuildRequires: openssl-devel}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
-
+%{?!_without_qssl:Requires: openssl}
 %define		_prefix		/usr/X11R6
 %define		_mandir		%{_prefix}/man
 
@@ -36,27 +38,37 @@ export QMAKESPEC
 
 cd src
 qmake psi.pro
-%patch0 -p0
-%patch2 -p0
+patch -p0 < %{PATCH0}
+
+%if %{?!_without_qssl:1}
+patch -p0 < %{PATCH2}
+%endif
+
 %{__make}
 
+%if %{?!_without_qssl:1}
 bzip2 -dc %{SOURCE1}|tar x
 cd qssl-%{_qssl_version}
 qmake qssl.pro
-%patch1 -p2
+patch -p0 < %{PATCH1}
 %{__make}
 
+%endif
 %install
 rm -rf $RPM_BUILD_ROOT
 install -d {$RPM_BUILD_ROOT%{_bindir},$RPM_BUILD_ROOT%{_datadir}/psi/{image,iconsets,sound}}
+%if %{?!_without_qssl:1}
 install -d $RPM_BUILD_ROOT%{_libdir}
+%endif
 install src/psi $RPM_BUILD_ROOT%{_bindir}/
 
 install image/*.png %{buildroot}%{_datadir}/psi/image
 cp -r iconsets/* %{buildroot}%{_datadir}/psi/iconsets
 install sound/* %{buildroot}%{_datadir}/psi/sound
-install qssl-%{_qssl_version}/libqssl.so %{buildroot}%{_libdir}
 
+%if %{?!_without_qssl:1}
+install qssl-%{_qssl_version}/libqssl.so %{buildroot}%{_libdir}
+%endif
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -65,7 +77,9 @@ rm -rf $RPM_BUILD_ROOT
 %doc README
 %attr(755,root,root) %{_bindir}/*
 %attr(644,root,root) %{_datadir}/*
+%if %{!?_without_qssl:0}%{?_without_qssl:1}
 %attr(644,root,root) %{_libdir}/*
+%endif
 #%{_applnkdir}/Network/Communications/*.desktop
 #%{_pixmapsdir}/*/*/apps/*.png
 #%{_datadir}/apps/%{name}/msg.wav
