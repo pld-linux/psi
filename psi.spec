@@ -51,8 +51,7 @@ qmake psi.pro
 %{__make}
 
 %if %{?_without_qssl:0}%{?!_without_qssl:1}
-bzip2 -dc %{SOURCE1}|tar x
-cd qssl-%{_qssl_version}
+cd ../qssl-%{_qssl_version}
 qmake qssl.pro
 %{__make}
 %endif
@@ -70,7 +69,7 @@ cp -r iconsets/* %{buildroot}%{_datadir}/psi/iconsets
 install sound/* %{buildroot}%{_datadir}/psi/sound
 
 %if %{?_without_qssl:0}%{?!_without_qssl:1}
-install src/qssl-%{_qssl_version}/libqssl.so %{buildroot}%{_libdir}
+install qssl-%{_qssl_version}/libqssl.so %{buildroot}%{_libdir}
 %endif
 
 %clean
@@ -82,7 +81,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/*
 %{_datadir}/*
 %{?!_without_qssl:%{_libdir}/*}
-%{_applnkdir}/Network/Communications/*.desktop
-%{_pixmapsdir}/*/*/apps/*.png
-%{_datadir}/apps/%{name}/msg.wav
-%{_datadir}/apps/%{name}/images/*
+#%{_applnkdir}/Network/Communications/*.desktop
+#%{_pixmapsdir}/*/*/apps/*.png
+#%{_datadir}/%{name}/msg.wav
+#%{_datadir}/%{name}/images/*
