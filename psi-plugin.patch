@@ -1,0 +1,10 @@
+--- main.cpp.orig	Mon Jul  8 20:13:11 2002
++++ main.cpp	Sun Oct  6 22:53:22 2002
+@@ -163,6 +163,7 @@
+ 	dirs.clear();
+ 	dirs += g.pathHome;
+ 	dirs += g.pathBase;
++	dirs += "/usr/X11R6/lib";
+ 	dirs += "";
+ 	Stream::loadSSL(dirs);
+ 
