@@ -4,8 +4,8 @@
 Summary:	PSI Jabber client
 Summary(pl):	PSI - klient Jabbera
 Name:		psi
-Version:	0.8.6
-Release:	0.3
+Version:	0.8.7
+Release:	0
 License:	GPL
 Group:		Applications/Communications
 Source0:	ftp://ftp.sourceforge.net/pub/sourceforge/psi/%{name}-%{version}.tar.bz2
@@ -13,9 +13,8 @@ Source1:        ftp://ftp.sourceforge.net/pub/sourceforge/psi/qssl-%{_qssl_versi
 Source2:	%{name}.desktop
 Patch0:		%{name}-include.patch
 Patch1:		%{name}-qssl-include.patch
-Patch2:		%{name}-resourcesdir.patch
-Patch3:		%{name}-plugin.patch
-Patch4:		%{name}-certs.patch
+Patch2:		%{name}-plugin.patch
+Patch3:		%{name}-certs.patch
 URL:		http://psi.affinix.com/
 BuildRequires:	qt-devel >= 3.0.5
 %{?!_without_qssl:BuildRequires: openssl-devel}
@@ -48,13 +47,16 @@ lub ~/.psi/certs.
 %endif
 %patch2 -p1
 %patch3 -p1
-%patch4 -p1
 
 %build
 QTDIR=%{_prefix}
 export QTDIR
 QMAKESPEC=%{_datadir}/qt/mkspecs/linux-g++
 export QMAKESPEC
+LIBDIR=%{_datadir}/psi
+export LIBDIR
+
+./configure
 
 cd src
 qmake psi.pro
