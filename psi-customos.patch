@@ -1,0 +1,30 @@
+diff -urN psi-0.9.orig/src/common.cpp psi-0.9/src/common.cpp
+--- psi-0.9.orig/src/common.cpp	2003-12-02 10:37:29.000000000 +0100
++++ psi-0.9/src/common.cpp	2003-12-02 14:55:34.000000000 +0100
+@@ -1229,7 +1229,9 @@
+ 		LinuxSuSE,
+ 
+ 		LinuxASP, // russian Linux distros
+-		LinuxALT
++		LinuxALT,
++		LinuxPLD, // Polish Linux distro
++		LinuxCustom // custom distro string, edit ~/.psi/custom-os
+ 	};
+ 
+ 	enum OsFlags {
+@@ -1244,12 +1246,14 @@
+ 		QString file;
+ 		QString name;
+ 	} osInfo[] = {
++		{ LinuxCustom,		OsUseFile,	getHomeDir()+"/custom-os",	"",			},
+ 		{ LinuxMandrake,	OsUseFile,	"/etc/mandrake-release",	"Mandrake Linux"	},
+ 		{ LinuxDebian,		OsAppendFile,	"/etc/debian_version",		"Debian GNU/Linux"	},
+ 		{ LinuxRedHat,		OsUseFile,	"/etc/redhat-release",		"RedHat Linux"		},
+ 		{ LinuxGentoo,		OsUseName,	"/etc/gentoo-release",		"Gentoo Linux"		},
+ 		{ LinuxSlackware,	OsAppendFile,	"/etc/slackware-version",	"Slackware Linux"	},
+-
++		{ LinuxPLD,		OsUseFile,	"/etc/pld-release",
++	"PLD Linux"		},
+ 		// untested
+ 		{ LinuxSuSE,		OsUseName,	"/etc/rc.config.d",		"SuSE Linux"		},
+ 
