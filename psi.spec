@@ -1,15 +1,14 @@
-%define		_rel test2
 Summary:        PSI - Jabber client
 Summary(pl):    PSI - klient Jabbera
 Name:           psi
 Version:        0.9.1
-Release:        0.%{_rel}.1
+Release:        1
 License:        GPL
 Group:          Applications/Communications
-Source0:        http://psi.affinix.com/beta/%{name}-%{version}-%{_rel}.tar.bz2
-# Source0-md5:	1776fa19bc67648db2a1b4ba1a743459
+Source0:        http://dl.sourceforge.net/%{name}/%{name}-%{version}.tar.bz2
+# Source0-md5:	7057b61518e1b1ebd732a95c265a3b76
 Source1:	http://beta.jabberpl.org/komunikatory/psi/psi_pl.qm
-# Source1-md5:	7580db7813ca17d8cf00f1eab794dd1a
+# Source1-md5:	4ffe9c032a4ebf35cb6943187b560f9c
 Patch0:         %{name}-certs.patch
 Patch1:		%{name}-desktop.patch
 URL:            http://psi.affinix.com/
@@ -31,7 +30,7 @@ wprowadzona zmiana, która powoduje ¿e certyfikaty SSL poszukiwane s± w
 katalogu $DATADIR/certs lub ~/.psi/certs.
 
 %prep
-%setup  -qn %{name}-%{version}-%{_rel}
+%setup  -q
 %patch0 -p1
 %patch1 -p1
 
