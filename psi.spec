@@ -10,8 +10,10 @@ License:	GPL
 Group:		Applications/Communications
 Source0:	http://radioemiter.pl/~pedrito/public/jabber/psi-pedrito/%{_snap}/%{name}-pedrito-%{_snap}.tar.bz2
 # Source0-md5:	277ab00b998c6882879a84b774216e11
-Source5:	%{name}-snap-lang-20041209.tar.bz2
+Source1:	%{name}-snap-lang-20041209.tar.bz2
 # Source5-md5:	38f0894bf1b557a36788213c56797e62
+Source2:	http://michalj.alternatywa.info/psi/patches/emergency.png
+
 URL:		http://radioemiter.pl/~pedrito/public/jabber/psi-pedrito/
 BuildRequires:	libstdc++-devel
 BuildRequires:	cyrus-sasl-devel
@@ -100,9 +102,7 @@ install psi/psi.desktop $RPM_BUILD_ROOT%{_desktopdir}
 install psi/iconsets/system/default/icon_48.png $RPM_BUILD_ROOT%{_pixmapsdir}/psi.png
 install psi/iconsets/roster/stellar-icq/online.png $RPM_BUILD_ROOT%{_pixmapsdir}/psi-stellar.png
 install psi/lang/*.qm $RPM_BUILD_ROOT%{_datadir}/psi
-%if %{with external_patches}
-install %{SOURCE4} $RPM_BUILD_ROOT%{_datadir}/psi/iconsets/roster/default/indicator.png
-%endif
+install %{SOURCE2} $RPM_BUILD_ROOT%{_datadir}/psi/iconsets/system/default/
 install psi/libpsi/psiwidgets/*.so $RPM_BUILD_ROOT%{_libdir}/qt/plugins-mt/designer
 
 rm -rf $RPM_BUILD_ROOT%{_datadir}/psi/COPYING $RPM_BUILD_ROOT%{_datadir}/psi/README
