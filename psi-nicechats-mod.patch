@@ -1065,3 +1065,19 @@ diff -ru -X exclude psi-clean/src/psi_profiles.cpp psi/src/psi_profiles.cpp
  			}
  
  			tag = findSubTag(p_lnf, "fonts", &found);
+--- psi/src/chatdlg.cpp~	2004-07-26 19:36:46.367773000 +0000
++++ psi/src/chatdlg.cpp	2004-07-26 19:49:09.363820432 +0000
+@@ -849,8 +849,11 @@
+ 	}
+ 
+ 	QString timestr;
+-	QDateTime time = m.timeStamp();
+-	timestr = time.time().toString(LocalDate);
++        if(option.showTimeStamps)
++        {
++          QDateTime time = m.timeStamp();
++	  timestr = QString("(") + time.time().toString(LocalDate) + ") ";
++        }
+ 
+ 	int y = d->log->contentsHeight() - d->log->visibleHeight();
+ 	if(y < 0)
