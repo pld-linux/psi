@@ -10,6 +10,7 @@ Release:	2
 License:	GPL
 Group:		Applications/Communications
 Source0:	http://dl.sourceforge.net/psi/%{name}-%{version}.tar.bz2
+# Source0-md5:	4e18ea341dca70556d0dc1baf026ef86
 Source2:	%{name}.desktop
 # Translation files ftom http://psi.sourceforge.net/
 Source3:	%{name}_cz.ts
