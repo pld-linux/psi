@@ -9,7 +9,7 @@ Version:	0.9.3
 Release:	3
 License:	GPL v2
 Group:		Applications/Communications
-Source0:	http://osdn.dl.sourceforge.net/psi/%{name}-%{version}.tar.bz2
+Source0:	http://dl.sourceforge.net/psi/%{name}-%{version}.tar.bz2
 # Source0-md5:	d20f3bb530235a246bc2d92308089744
 Source1:	%{name}-richlistview.cpp
 Source2:	%{name}-richlistview.h
