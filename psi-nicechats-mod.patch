@@ -12,9 +12,9 @@ diff -ru -X exclude psi-clean/src/chatdlg.cpp psi/src/chatdlg.cpp
 +
 +	d->log->setPaletteForegroundColor(option.color[cChatMessage]);
 +	d->mle->setPaletteForegroundColor(option.color[cChatMessage]);
- }
  
- void ChatDlg::optionsUpdate()
+ 	/*QBrush brush;
+    	brush.setPixmap( QPixmap( option.chatBgImage ) );
 @@ -739,7 +746,7 @@
  		y = 0;
  	bool atBottom = (d->log->contentsY() < y - 32) ? false: true;
