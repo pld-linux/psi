@@ -12,8 +12,7 @@ Version:	0.9.2
 Release:	0.%{snap}.0.1
 License:	GPL
 Group:		Applications/Communications
-#Source0:	http://dl.sourceforge.net/%{name}/%{name}-%{version}.tar.bz2
-Source0:	http://toya.net.pl/~loc/PLD/%{name}/%{name}-snap-%{snap}.tar.bz2
+Source0:	%{name}-snap-%{snap}.tar.bz2
 # Source0-md5:	9fcc132eda84966021a8fee7643f1988
 Patch0:		%{name}-certs.patch
 Patch1:		%{name}-desktop.patch
