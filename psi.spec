@@ -4,7 +4,7 @@ Summary:	PSI Jabber client
 Summary(pl):	PSI - klient Jabbera
 Name:		psi
 Version:	0.8.7
-Release:	0.7
+Release:	0.8
 License:	GPL
 Group:		Applications/Communications
 Source0:	ftp://ftp.sourceforge.net/pub/sourceforge/psi/%{name}-%{version}.tar.bz2
@@ -23,8 +23,8 @@ Patch1:		%{name}-paths.patch
 Patch2:		%{name}-certs.patch
 URL:		http://psi.affinix.com/
 BuildRequires:	qt-devel >= 3.0.5
-%{!?_without_qssl:BuildRequires:	qssl-devel >= 1.0}
-%{!?_without_qssl:Requires:        qssl >= 1.0} 
+%{!?_without_qssl:BuildRequires:	qssl-devel >= 1.0-2}
+%{!?_without_qssl:Requires:        qssl >= 1.0-2} 
 
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
