@@ -1,0 +1,14 @@
+diff -ru -X exclude psi-clean/src/psicon.cpp psi/src/psicon.cpp
+--- psi-clean/src/psicon.cpp	2004-08-09 21:10:21.000000000 +0200
++++ psi/src/psicon.cpp	2004-08-22 13:38:55.000000000 +0200
+@@ -915,8 +912,8 @@
+ 
+ void PsiCon::setToggles(bool tog_offline, bool tog_away, bool tog_agents, bool tog_hidden, bool tog_self)
+ {
+-	if(d->listEnabled.count() > 1)
+-		return;
++//	if(d->listEnabled.count() > 1)
++//		return;
+ 
+ 	d->mainwin->cvlist->setShowOffline(tog_offline);
+ 	d->mainwin->cvlist->setShowAway(tog_away);

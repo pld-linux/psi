@@ -1,0 +1,1600 @@
+diff -urN -x *.o -x CVS -x .gdb_history -x Makefile -x conf.log -x conf.pri -x extra.pri -x *.moc -x *.dylib -x moc_* -x disk -x *.dmg* -x .ui -x .moc -x *.out -x config.h -x Info.plist -x *.app -x .DS_Store -x .#* psi.clean/psi/src/adhoc.cpp psi.rc/psi/src/adhoc.cpp
+--- psi.clean/psi/src/adhoc.cpp	Thu Jan  1 01:00:00 1970
++++ psi.rc/psi/src/adhoc.cpp	Tue Dec 28 23:07:13 2004
+@@ -0,0 +1,893 @@
++/*
++ * adhoc.cpp - Client & Server implementation of JEP-50 (Ad-Hoc Commands)
++ * Copyright (C) 2005  Remko Troncon
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version 2
++ * of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this library; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ *
++ */
++
++#include <qcombobox.h>
++#include <qmessagebox.h>
++#include <qpushbutton.h>
++#include <qlayout.h>
++
++#include "adhoc.h"
++#include "psiaccount.h"
++
++#include "xmpp_xmlcommon.h"
++#include "xmpp_tasks.h"
++#include "xmpp_xdata.h"
++#include "xdata_widget.h"
++
++using namespace XMPP;
++
++#define AHC_NS "http://jabber.org/protocol/commands"
++#define XMPPSTANZA_NS "urn:ietf:params:xml:ns:xmpp-stanzas"
++
++// -------------------------------------------------------------------------- 
++// AHCommand: The class representing an Ad-Hoc command request or reply.
++// -------------------------------------------------------------------------- 
++
++AHCommand::AHCommand(const QString& node, const QString& sessionId, Action action) : node_(node), hasData_(false), status_(NoStatus), defaultAction_(NoAction), action_(action), sessionId_(sessionId)
++{ 
++}
++	
++AHCommand::AHCommand(const QString& node, XData data, const QString& sessionId, Action action) : node_(node), hasData_(true), data_(data), status_(NoStatus), defaultAction_(NoAction), action_(action), sessionId_(sessionId)
++{ 
++}
++
++AHCommand::AHCommand(const QDomElement& q) : hasData_(false), defaultAction_(NoAction)
++{
++	// Parse attributes
++	QString status = q.attribute("status");
++	setStatus(string2status(status));
++	node_ = q.attribute("node");
++	action_ = string2action(q.attribute("action"));
++	sessionId_ = q.attribute("sessionid");
++
++	// Parse the body
++	for (QDomNode n = q.firstChild(); !n.isNull(); n = n.nextSibling()) {
++		QDomElement e = n.toElement();
++		if (e.isNull())
++			continue;
++
++		QString tag = e.tagName();
++
++		// A form
++		if (tag == "x" && e.attribute("xmlns") =="jabber:x:data") {
++			data_.fromXml(e);
++			hasData_ = true;
++		}
++
++		// Actions
++		else if (tag == "actions") {
++			QString execute = e.attribute("execute");
++			if (!execute.isEmpty()) 
++				setDefaultAction(string2action(execute));
++
++			for (QDomNode m = e.firstChild(); !m.isNull(); m.nextSibling()) {
++				Action a = string2action(m.toElement().tagName());
++				if (a == Prev || a == Next || a == Complete)
++					actions_ += a;
++			}
++		}
++	}
++}
++
++QDomElement AHCommand::toXml(QDomDocument* doc, bool submit) const
++{
++	QDomElement command = doc->createElement("command");
++	command.setAttribute("xmlns", AHC_NS);
++	if (status_ != NoStatus) 
++		command.setAttribute("status",status2string(status()));
++	if (hasData()) 
++		command.appendChild(data().toXml(doc, submit));
++	if (action_ != Execute) 
++		command.setAttribute("action",action2string(action_));
++	command.setAttribute("node", node_);
++	if (!sessionId_.isEmpty())
++		command.setAttribute("sessionid", sessionId_);
++		
++	return command;
++}
++
++
++AHCommand AHCommand::formReply(const AHCommand& c, const XData& data)
++{
++	AHCommand r(c.node(), data, c.sessionId());
++	r.setStatus(AHCommand::Executing);
++	return r;
++}
++
++AHCommand AHCommand::formReply(const AHCommand& c, const XData& data, const QString& sessionId)
++{
++	AHCommand r(c.node(), data, sessionId);
++	r.setStatus(AHCommand::Executing);
++	return r;
++}
++
++AHCommand AHCommand::canceledReply(const AHCommand& c) 
++{
++	AHCommand r(c.node(), c.sessionId());
++	r.setStatus(Canceled);
++	return r;
++}
++
++AHCommand AHCommand::completedReply(const AHCommand& c) 
++{
++	AHCommand r(c.node(), c.sessionId());
++	r.setStatus(Completed);
++	return r;
++}
++	
++//AHCommand AHCommand::errorReply(const AHCommand& c, const AHCError& error)
++//{
++//	AHCommand r(c.node(), c.sessionId());
++//	r.setError(error);
++//	return r;
++//}
++
++void AHCommand::setStatus(Status s)
++{
++	status_ = s;
++}
++
++void AHCommand::setError(const AHCError& e)
++{
++	error_ = e;
++}
++
++void AHCommand::setDefaultAction(Action a)
++{
++	defaultAction_ = a;
++}
++
++QString AHCommand::status2string(Status status)
++{
++	QString s;
++	switch (status) {
++		case Executing : s = "executing"; break;
++		case Completed : s = "completed"; break;
++		case Canceled : s = "canceled"; break;
++		case NoStatus : s = ""; break;
++	}
++	return s;
++}
++
++QString AHCommand::action2string(Action action) 
++{
++	QString s;
++	switch (action) {
++		case Prev : s = "prev"; break;
++		case Next : s = "next"; break;
++		case Cancel : s = "cancel"; break;
++		case Complete : s = "complete"; break;
++		default: break;
++	}
++	return s;
++}
++	
++AHCommand::Action AHCommand::string2action(const QString& s)
++{
++	if (s == "prev") 
++		return Prev;
++	else if (s == "next") 
++		return Next;
++	else if (s == "complete") 
++		return Complete;
++	else if (s == "cancel") 
++		return Cancel;
++	else 
++		return Execute;
++}
++
++AHCommand::Status AHCommand::string2status(const QString& s)
++{
++	if (s == "canceled")
++		return Canceled;
++	else if (s == "completed")
++		return Completed;
++	else if (s == "executing")
++		return Executing;
++	else 
++		return NoStatus;
++}
++
++
++// -------------------------------------------------------------------------- 
++// AHCError: The class representing an Ad-Hoc command error
++// -------------------------------------------------------------------------- 
++
++AHCError::AHCError(ErrorType t) : type_(t)
++{
++}
++
++AHCError::AHCError(const QDomElement& e) : type_(None)
++{
++	QString errorGeneral = "", errorSpecific = "";
++
++	for(QDomNode n = e.firstChild(); !n.isNull(); n = n.nextSibling()) {
++		QDomElement i = n.toElement();
++		if(i.isNull())
++			continue;
++		
++		QString tag = i.tagName();
++		
++		if ((tag == "bad-request" || tag == "not-allowed" || tag == "forbidden" || tag == "forbidden" || tag == "item-not-found" || tag == "feature-not-implemented") && e.attribute("xmlns") == XMPPSTANZA_NS) {
++			errorGeneral = tag;
++		}
++		else if ((tag == "malformed-action" || tag == "bad-action" || tag == "bad-locale" || tag == "bad-payload" || tag == "bad-sessionid" || tag == "session-expired") && e.attribute("xmlns") == AHC_NS) {
++			errorSpecific = tag;
++		}
++	}
++
++	type_ = strings2error(errorGeneral, errorSpecific);
++}
++	
++QDomElement AHCError::toXml(QDomDocument* doc) const
++{
++	QDomElement err = doc->createElement("error");
++
++	// Error handling
++	if (type_ != None) {
++		QString desc, specificCondition = "";
++		switch (type_) {
++			case MalformedAction:
++				desc = "bad-request";
++				specificCondition = "malformed-action";
++				break;
++			case BadAction:
++				desc = "bad-request";
++				specificCondition = "bad-action";
++				break;
++			case BadLocale:
++				desc = "bad-request";
++				specificCondition = "bad-locale";
++				break;
++			case BadPayload:
++				desc = "bad-request";
++				specificCondition = "bad-payload";
++				break;
++			case BadSessionID:
++				desc = "bad-request";
++				specificCondition = "bad-sessionid";
++				break;
++			case SessionExpired:
++				desc = "not-allowed";
++				specificCondition = "session-expired";
++				break;
++			case Forbidden:
++				desc = "forbidden";
++				break;
++			case ItemNotFound:
++				desc = "item-not-found";
++				break;
++			case FeatureNotImplemented:
++				desc = "feature-not-implemented";
++				break;
++			case None:
++				break;
++		}
++
++		// General error condition
++		QDomElement generalElement = doc->createElement(desc);
++		generalElement.setAttribute("xmlns", XMPPSTANZA_NS);
++		err.appendChild(generalElement);
++		
++		// Specific error condition
++		if (!specificCondition.isEmpty()) {
++			QDomElement generalElement = doc->createElement(specificCondition);
++			generalElement.setAttribute("xmlns", AHC_NS);
++			err.appendChild(generalElement);
++		}
++	}
++
++	return err;
++}
++
++AHCError::ErrorType AHCError::strings2error(const QString& g, const QString& s)
++{
++	if (s == "malformed-action")
++		return MalformedAction;
++	if (s == "bad-action")
++		return BadAction;
++	if (s == "bad-locale")
++		return BadLocale;
++	if (s == "bad-payload")
++		return BadPayload;
++	if (s == "bad-sessionid")
++		return BadSessionID;
++	if (s == "session-expired")
++		return SessionExpired;
++	if (g == "forbidden")
++		return Forbidden;
++	if (g == "item-not-found")
++		return ItemNotFound;
++	if (g == "feature-not-implemented")
++		return FeatureNotImplemented;
++	return None;
++}
++
++QString AHCError::error2description(const AHCError& e)
++{
++	QString desc;
++	switch (e.type()) {
++		case MalformedAction:
++			desc = QString("The responding JID does not understand the specified action");
++			break;
++		case BadAction:
++			desc = QString("The responding JID cannot accept the specified action");
++			break;
++		case BadLocale:
++			desc = QString("The responding JID cannot accept the specified language/locale");
++			break;
++		case BadPayload:
++			desc = QString("The responding JID cannot accept the specified payload (eg the data form did not provide one or more required fields)");
++			break;
++		case BadSessionID:
++			desc = QString("The responding JID cannot accept the specified sessionid");
++			break;
++		case SessionExpired:
++			desc = QString("The requesting JID specified a sessionid that is no longer active (either because it was completed, canceled, or timed out)");
++			break;
++		case Forbidden:
++			desc = QString("The requesting JID is not allowed to execute the command");
++			break;
++		case ItemNotFound:
++			desc = QString("The responding JID cannot find the requested command node");
++			break;
++		case FeatureNotImplemented:
++			desc = QString("The responding JID does not support Ad-hoc commands");
++			break;
++		case None:
++			break;
++	}
++	return desc;
++}
++
++// -------------------------------------------------------------------------- 
++// AHCommandServer: The server-side implementation of an Ad-hoc command.
++// -------------------------------------------------------------------------- 
++
++AHCommandServer::AHCommandServer(AHCServerManager* manager) : manager_(manager)
++{
++	manager_->addServer(this);
++}
++
++
++// -------------------------------------------------------------------------- 
++// JT_AHCServer: Task to handle ad-hoc command requests
++// -------------------------------------------------------------------------- 
++
++class JT_AHCServer : public Task
++{
++	Q_OBJECT
++
++public:
++	JT_AHCServer(Task*, AHCServerManager*);
++	bool take(const QDomElement& e);
++	void sendReply(const AHCommand&, const Jid& to, const QString& id);
++
++protected:
++	bool commandListQuery(const QDomElement& e);
++	bool commandExecuteQuery(const QDomElement& e);
++	void sendCommandList(const QString& to, const QString& from, const QString& id);
++
++private:
++	AHCServerManager* manager_;
++};
++
++
++JT_AHCServer::JT_AHCServer(Task* t, AHCServerManager* manager) : Task(t), manager_(manager)
++{
++}
++
++bool JT_AHCServer::take(const QDomElement& e)
++{
++	// Check if it's a query
++	if (e.tagName() != "iq")
++		return false;
++
++	return (commandListQuery(e) || commandExecuteQuery(e));
++}
++
++bool JT_AHCServer::commandListQuery(const QDomElement& e)
++{
++	if (e.attribute("type") == "get") {
++		bool found;
++		QDomElement q = findSubTag(e, "query", &found);
++		if (found && q.attribute("xmlns") == "http://jabber.org/protocol/disco#items" && q.attribute("node") == AHC_NS) {
++			sendCommandList(e.attribute("from"),e.attribute("to"),e.attribute("id"));
++			return true;
++		}
++	}
++	
++	return false;
++}
++
++bool JT_AHCServer::commandExecuteQuery(const QDomElement& e)
++{
++	if (e.attribute("type") == "set") {
++		bool found;
++		QDomElement q = findSubTag(e, "command", &found);
++		if (found && q.attribute("xmlns") == AHC_NS) {
++			AHCommand command(q);
++			manager_->execute(command, Jid(e.attribute("from")), e.attribute("id"));
++			return true;
++		} 
++		else 
++			return false;
++	}
++	return false;
++}
++
++void JT_AHCServer::sendCommandList(const QString& to, const QString& from, const QString& id) 
++{
++	// Create query element 
++	QDomElement iq = createIQ(doc(), "result", to, id);
++	QDomElement query = doc()->createElement("query");
++	query.setAttribute("xmlns", "http://jabber.org/protocol/disco#items");
++	query.setAttribute("node", AHC_NS);
++	iq.appendChild(query);
++
++	// Add all commands
++	AHCServerManager::ServerList l = manager_->commands(Jid(to));
++	for (AHCommandServer* c = l.first(); c; c = l.next()) {
++		QDomElement command = doc()->createElement("item");
++		command.setAttribute("jid",from);
++		command.setAttribute("name",c->name());
++		command.setAttribute("node",c->node());
++		query.appendChild(command);
++	}
++
++	// Send the message
++	send(iq);
++}
++	
++void JT_AHCServer::sendReply(const AHCommand& c, const Jid& to, const QString& id)
++{
++	// if (c.error().type() != AHCError::None) {
++		QDomElement iq = createIQ(doc(), "result", to.full(), id);
++		QDomElement command = c.toXml(doc(), false);
++		iq.appendChild(command);
++		send(iq);
++	// }
++	// else {
++	// }
++}
++
++// -------------------------------------------------------------------------- 
++
++AHCServerManager::AHCServerManager(PsiAccount *pa) : pa_(pa)
++{
++	server_task_ = new JT_AHCServer(pa_->client()->rootTask(), this);
++}
++
++void AHCServerManager::addServer(AHCommandServer* server)
++{
++	servers_.append(server);
++}
++
++AHCServerManager::ServerList AHCServerManager::commands(const Jid& j) const 
++{
++	ServerList list;
++	for (ServerList::ConstIterator it = servers_.begin(); it != servers_.end(); ++it) {
++		if ((*it)->isAllowed(j)) 
++			list.append(*it);
++	}
++	return list;
++}
++
++
++void AHCServerManager::execute(const AHCommand& command, const Jid& requester, QString id)
++{
++	AHCommandServer* c = findServer(command.node());
++
++	// Check if the command is provided
++	if (!c) {
++		//server_task_->sendReply(AHCommand::errorReply(command,AHCError(AHCError::ItemNotFound)), requester, id);
++		return;
++	}
++
++	// Check if the requester is allowed to execute the command
++	if (c->isAllowed(requester)) {
++		if (command.action() == AHCommand::Cancel) {
++			c->cancel(command);
++			server_task_->sendReply(AHCommand::canceledReply(command), requester, id);
++		}
++		else
++			// Execute the command & send back the response
++			server_task_->sendReply(c->execute(command), requester, id);
++	}
++	else {
++		//server_task_->sendReply(AHCommand::errorReply(command,AHCError(AHCError::Forbidden)), requester, id);
++		return;
++	}
++}
++
++
++AHCommandServer* AHCServerManager::findServer(const QString& node) const
++{
++	for (ServerList::ConstIterator it = servers_.begin(); it != servers_.end(); ++it) {
++		if ((*it)->node() == node) 
++			return (*it);
++	}
++	return 0;
++}
++
++
++// -------------------------------------------------------------------------- 
++
++// -------------------------------------------------------------------------- 
++// JT_AHCGetList: A Task to retreive the available commands of a client
++// -------------------------------------------------------------------------- 
++
++class JT_AHCGetList : public Task
++{
++public:
++	JT_AHCGetList(Task* t, const Jid& j);
++
++	void onGo();
++	bool take(const QDomElement &x);
++	
++	const QValueList<AHCommandItem>& commands() const { return commands_; }
++
++private:
++	Jid receiver_;
++	QValueList<AHCommandItem> commands_;
++};
++
++
++JT_AHCGetList::JT_AHCGetList(Task* t, const Jid& j) : Task(t), receiver_(j)
++{
++}
++
++void JT_AHCGetList::onGo()
++{
++	QDomElement e = createIQ(doc(), "get", receiver_.full(), id());
++	QDomElement q = doc()->createElement("query");
++	q.setAttribute("xmlns", "http://jabber.org/protocol/disco#items");
++	q.setAttribute("node", AHC_NS);
++	e.appendChild(q);
++	send(e);
++}
++
++bool JT_AHCGetList::take(const QDomElement& e)
++{
++	if(!iqVerify(e, receiver_, id())) {
++		return false;
++	}
++	
++	if (e.attribute("type") == "result") {
++		// Extract commands
++		commands_.clear();
++		bool found;
++		QDomElement commands = findSubTag(e, "query", &found);
++		if(found) {
++			for(QDomNode n = commands.firstChild(); !n.isNull(); n = n.nextSibling()) {
++				QDomElement i = n.toElement();
++				if(i.isNull())
++					continue;
++
++				if(i.tagName() == "item") {
++					AHCommandItem ci;
++					ci.node = i.attribute("node");
++					ci.name = i.attribute("name");
++					ci.jid = i.attribute("jid");
++					commands_ += ci;
++				}
++			}
++		}
++		setSuccess();
++		return true;
++	}
++	else {
++		setError(e);
++		return false;
++	}
++}
++
++
++// -------------------------------------------------------------------------- 
++
++// -------------------------------------------------------------------------- 
++// JT_AHCExecute: A task to execute a command
++// -------------------------------------------------------------------------- 
++
++class JT_AHCExecute : public Task
++{
++public:
++	JT_AHCExecute(Task* t, PsiAccount* pa, Jid j, const AHCommand&);
++
++	void onGo();
++	bool take(const QDomElement &x);
++	
++private:
++	Jid receiver_;
++	PsiAccount* account_;
++	AHCommand command_;
++};
++
++
++JT_AHCExecute::JT_AHCExecute(Task* t, PsiAccount* pa, Jid j, const AHCommand& command) : Task(t), receiver_(j), account_(pa), command_(command)
++{
++}
++
++void JT_AHCExecute::onGo()
++{
++	QDomElement e = createIQ(doc(), "set", receiver_.full(), id());
++	e.appendChild(command_.toXml(doc(),true));
++	send(e);
++}
++
++bool JT_AHCExecute::take(const QDomElement& e)
++{
++	if(!iqVerify(e, receiver_, id())) {
++		return false;
++	}
++	
++	// Result of a command
++	if (e.attribute("type") == "result") {
++		bool found;
++		QDomElement i = findSubTag(e, "command", &found);
++		if (found) {
++			AHCommand c(i);
++			if (c.status() == AHCommand::Executing) {
++				AHCFormDlg *w = new AHCFormDlg(c,receiver_,account_);
++				w->show();
++			}
++			setSuccess();
++			return true;
++		}
++	}
++	// Error
++	/*else if (e.attribute("type") == "set") {
++		AHCError err(e);
++		if (err.type() != None) {
++			QMessageBox::critical(0, tr("Error"), AHCommand::error2description(err.type()), QMessageBox::Ok, QMessageBox::NoButton);
++		}
++		return true;
++	}*/
++	setError(e);
++	return false;
++}
++
++// -------------------------------------------------------------------------- 
++
++// -------------------------------------------------------------------------- 
++// AHCommandDlg
++// -------------------------------------------------------------------------- 
++
++AHCommandDlg::AHCommandDlg(PsiAccount* pa, const Jid& receiver) : pa_(pa), receiver_(receiver)
++{
++	QVBoxLayout *vb = new QVBoxLayout(this, 11, 6);
++
++	// Command list + Buttons
++	QLabel* lb_commands = new QLabel(tr("Command:"),this);
++	vb->addWidget(lb_commands);
++	QHBoxLayout *hb1 = new QHBoxLayout(vb);
++	cb_commands = new QComboBox(this);
++	hb1->addWidget(cb_commands);
++	/*pb_info = new QPushButton(tr("Info"), this);
++	hb1->addWidget(pb_info);*/
++	pb_execute = new QPushButton(tr("Execute"), this);
++	hb1->addWidget(pb_execute);
++	connect(pb_execute, SIGNAL(clicked()), SLOT(executeCommand()));
++
++	// Bottom row
++	QHBoxLayout *hb2 = new QHBoxLayout(vb);
++
++	// Refresh button
++	pb_refresh = new QPushButton(tr("Refresh"), this);
++	hb2->addWidget(pb_refresh);
++	connect(pb_refresh, SIGNAL(clicked()), SLOT(refreshCommands()));
++
++	// Close button
++	pb_close = new QPushButton(tr("Close"), this);
++	hb2->addWidget(pb_close);
++	connect(pb_close, SIGNAL(clicked()), SLOT(close()));
++	pb_close->setDefault(true);
++	pb_close->setFocus();
++
++	setCaption(QString("Execute Command (%1)").arg(receiver.full()));
++
++	// Initialize other things
++	task_list_ = 0;
++
++	// Load commands
++	refreshCommands();
++}
++
++
++void AHCommandDlg::refreshCommands()
++{
++	cb_commands->clear();
++	pb_execute->setEnabled(false);
++	//pb_info->setEnabled(false);
++	if (task_list_)
++		disconnect(task_list_,SIGNAL(finished()),this,SLOT(listReceived));
++
++	task_list_= new JT_AHCGetList(pa_->client()->rootTask(),receiver_);
++	connect(task_list_,SIGNAL(finished()),SLOT(listReceived()));
++	task_list_->go(true);
++}
++
++void AHCommandDlg::listReceived()
++{
++	QValueList<AHCommandItem> l = task_list_->commands();
++	QValueList<AHCommandItem>::ConstIterator it;
++	for (it = l.begin(); it != l.end(); ++it) {
++		cb_commands->insertItem((*it).name);	
++		commands_.append(*it);
++	}
++	pb_execute->setEnabled(cb_commands->count()>0);
++	
++	// FIXME delete task_list_ ?;
++	task_list_ = 0;
++}
++
++void AHCommandDlg::executeCommand()
++{
++	if (cb_commands->count() > 0) {
++		Jid to(commands_[cb_commands->currentItem()].jid);
++		QString node = commands_[cb_commands->currentItem()].node;
++		JT_AHCExecute* t = new JT_AHCExecute(pa_->client()->rootTask(),pa_,to,AHCommand(node));
++		t->go(true);
++		close();
++	}
++}
++
++
++// -------------------------------------------------------------------------- 
++
++AHCFormDlg::AHCFormDlg(const AHCommand& r, const Jid& receiver, PsiAccount* account) : receiver_(receiver), account_(account)
++{
++	// Save node
++	node_ = r.node();
++	sessionId_ = r.sessionId();
++
++	QVBoxLayout *vb = new QVBoxLayout(this, 11, 6);
++
++	// Instructions
++	if (!r.data().instructions().isEmpty()) {
++		QLabel* lb_instructions = new QLabel(r.data().instructions(),this);
++		vb->addWidget(lb_instructions);
++	}
++	
++	// XData form
++	xdata_ = new XDataWidget(this);
++	xdata_->setFields(r.data().fields());
++	vb->addWidget(xdata_);
++
++	// Buttons
++	QHBoxLayout *hb = new QHBoxLayout(vb);
++	pb_prev = pb_next = 0;
++	if (r.actions().empty()) {
++		// Single stage dialog
++		pb_complete = new QPushButton(tr("Finish"),this);
++		connect(pb_complete,SIGNAL(clicked()),SLOT(doExecute()));
++		hb->addWidget(pb_complete);
++	}
++	else {
++		// Multi-stage dialog
++
++		// Previous
++		pb_prev = new QPushButton(tr("Previous"),this);
++		if (r.actions().contains(AHCommand::Prev)) {
++			if (r.defaultAction() == AHCommand::Prev) {
++				connect(pb_prev,SIGNAL(clicked()),SLOT(doExecute()));
++				pb_prev->setDefault(true);
++				pb_prev->setFocus();
++			}
++			else
++				connect(pb_prev,SIGNAL(clicked()),SLOT(doPrev()));
++			pb_prev->setEnabled(true);
++		}
++		else 
++			pb_prev->setEnabled(false);
++		hb->addWidget(pb_prev);
++
++		// Next
++		pb_next = new QPushButton(tr("Next"),this);
++		if (r.actions().contains(AHCommand::Next)) {
++			if (r.defaultAction() == AHCommand::Next) {
++				connect(pb_next,SIGNAL(clicked()),SLOT(doExecute()));
++				pb_next->setDefault(true);
++				pb_next->setFocus();
++			}
++			else
++				connect(pb_next,SIGNAL(clicked()),SLOT(doNext()));
++			pb_next->setEnabled(true);
++		}
++		else {
++			pb_next->setEnabled(false);
++		}
++		hb->addWidget(pb_next);
++		
++		// Complete
++		pb_complete = new QPushButton(tr("Finish"),this);
++		if (r.actions().contains(AHCommand::Complete)) {
++			if (r.defaultAction() == AHCommand::Complete) {
++				connect(pb_complete,SIGNAL(clicked()),SLOT(doExecute()));
++				pb_complete->setDefault(true);
++				pb_complete->setFocus();
++			}
++			else
++				connect(pb_complete,SIGNAL(clicked()),SLOT(doComplete()));
++			pb_complete->setEnabled(true);
++		}
++		else {
++			pb_complete->setEnabled(false);
++		}
++		hb->addWidget(pb_complete);
++	}
++	pb_cancel = new QPushButton(tr("Cancel"), this);
++	connect(pb_cancel, SIGNAL(clicked()),SLOT(doCancel()));
++	hb->addWidget(pb_cancel);
++
++	if (!r.data().title().isEmpty()) {
++		setCaption(QString("%1 (%2)").arg(r.data().title()).arg(receiver.full()));
++	}
++	else {
++		setCaption(QString("%1").arg(receiver.full()));
++	}
++}
++
++void AHCFormDlg::doPrev()
++{
++	JT_AHCExecute* t = new JT_AHCExecute(account_->client()->rootTask(),account_,receiver_,AHCommand(node_,data(),sessionId_,AHCommand::Prev));
++	t->go(true);
++	close();
++}
++
++void AHCFormDlg::doNext()
++{
++	JT_AHCExecute* t = new JT_AHCExecute(account_->client()->rootTask(),account_,receiver_,AHCommand(node_,data(),sessionId_,AHCommand::Next));
++	t->go(true);
++	close();
++}
++
++void AHCFormDlg::doExecute()
++{
++	JT_AHCExecute* t = new JT_AHCExecute(account_->client()->rootTask(),account_,receiver_,AHCommand(node_,data(),sessionId_));
++	t->go(true);
++	close();
++}
++
++void AHCFormDlg::doComplete()
++{
++	JT_AHCExecute* t = new JT_AHCExecute(account_->client()->rootTask(),account_,receiver_,AHCommand(node_,data(),sessionId_,AHCommand::Complete));
++	t->go(true);
++	close();
++}
++
++void AHCFormDlg::doCancel()
++{
++	JT_AHCExecute* t = new JT_AHCExecute(account_->client()->rootTask(),account_,receiver_,AHCommand(node_,sessionId_,AHCommand::Cancel));
++	t->go(true);
++	close();
++}
++
++XData AHCFormDlg::data() const
++{
++	XData x;
++	x.setFields(xdata_->fields());
++	x.setType(XData::Data_Submit);
++	return x;
++}
++
++// -------------------------------------------------------------------------- 
++
++#include "adhoc.moc"
+diff -urN -x *.o -x CVS -x .gdb_history -x Makefile -x conf.log -x conf.pri -x extra.pri -x *.moc -x *.dylib -x moc_* -x disk -x *.dmg* -x .ui -x .moc -x *.out -x config.h -x Info.plist -x *.app -x .DS_Store -x .#* psi.clean/psi/src/adhoc.h psi.rc/psi/src/adhoc.h
+--- psi.clean/psi/src/adhoc.h	Thu Jan  1 01:00:00 1970
++++ psi.rc/psi/src/adhoc.h	Tue Dec 28 23:06:24 2004
+@@ -0,0 +1,228 @@
++/*
++ * adhoc.h - Client & Server implementation of JEP-50 (Ad-Hoc Commands)
++ * Copyright (C) 2005  Remko Troncon
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version 2
++ * of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this library; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ *
++ */
++ 
++#ifndef ADHOC_H
++#define ADHOC_H
++
++#include <qdialog.h>
++#include <qstring.h>
++#include <qpair.h>
++#include <qmap.h>
++
++#include "xmpp.h"
++#include "xmpp_xdata.h"
++
++using namespace XMPP;
++
++class PsiAccount;
++class QObject;
++
++
++// -------------------------------------------------------------------------- 
++// General Ad-Hoc Commands classes
++// -------------------------------------------------------------------------- 
++
++class AHCError 
++{
++public:
++	enum ErrorType { 
++		None, MalformedAction, BadAction, BadLocale, 
++		BadPayload, BadSessionID, SessionExpired, Forbidden, ItemNotFound, 
++		FeatureNotImplemented 
++	};
++
++	AHCError(ErrorType = None);
++	AHCError(const QDomElement& e);	
++
++	ErrorType type() const { return type_; }
++	static QString error2description(const AHCError&);
++	QDomElement toXml(QDomDocument* doc) const;
++
++protected:
++	static ErrorType strings2error(const QString&, const QString&);
++
++private:
++	ErrorType type_;
++};
++
++
++class AHCommand 
++{
++public:
++	// Types
++	enum Action { NoAction, Execute, Prev, Next, Complete, Cancel };
++	enum Status { NoStatus, Completed, Executing, Canceled };
++	typedef QValueList<Action> ActionList;
++
++	// Constructors
++	AHCommand(const QString& node, const QString& sessionId = "", Action action = Execute);
++	AHCommand(const QString& node, XData data, const QString& sessionId = "", Action action = Execute);
++	AHCommand(const QDomElement &e);
++
++	// Inspectors
++	const QString& node() const { return node_; }
++	bool hasData() const { return hasData_; }
++	const XData& data() const { return data_; }
++	const ActionList& actions() const { return actions_; }
++	Action defaultAction() const { return defaultAction_; }
++	Status status() const { return status_; }
++	Action action() const { return action_; }
++	const QString& sessionId() const { return sessionId_; }
++	const AHCError& error() const { return error_; }
++
++	// XML conversion
++	QDomElement toXml(QDomDocument* doc, bool submit) const;
++
++	// Helper constructors
++	static AHCommand formReply(const AHCommand&, const XData&);
++	static AHCommand formReply(const AHCommand&, const XData&, const QString& sessionId);
++	static AHCommand canceledReply(const AHCommand&);
++	static AHCommand completedReply(const AHCommand&);
++	//static AHCommand errorReply(const AHCommand&, const AHCError&);
++	
++protected:
++	void setStatus(Status s);
++	void setError(const AHCError& e);
++	void setDefaultAction(Action a);
++
++	static QString action2string(Action);
++	static QString status2string(Status);
++	static Action string2action(const QString&);
++	static Status string2status(const QString&);
++
++private: 
++	QString node_;
++	bool hasData_;
++	XData data_;
++	Status status_;
++	Action defaultAction_;
++	ActionList actions_;
++	Action action_;
++	QString sessionId_;
++	AHCError error_;
++};
++
++	
++// -------------------------------------------------------------------------- 
++// Ad-Hoc Commands Server classes
++// -------------------------------------------------------------------------- 
++
++class AHCServerManager;
++class JT_AHCServer;
++class XDataWidget;
++
++class AHCommandServer
++{
++public:
++	AHCommandServer(AHCServerManager*);
++
++	virtual QString name() const = 0; 
++	virtual QString node() const = 0; 
++	virtual bool isAllowed(const Jid&) const { return true; }
++	virtual AHCommand execute(const AHCommand&) = 0;
++	virtual void cancel(const AHCommand&) { }
++
++protected:
++	AHCServerManager* manager() const { return manager_; }
++
++private:
++	AHCServerManager* manager_;
++};
++
++class AHCServerManager 
++{
++public:
++	AHCServerManager(PsiAccount* pa);
++	void addServer(AHCommandServer*);
++	
++	typedef QPtrList<AHCommandServer> ServerList;
++	ServerList commands(const Jid&) const;
++	void execute(const AHCommand& command, const Jid& requester, QString id);
++	PsiAccount* account() const { return pa_; }
++
++protected:
++	AHCommandServer* findServer(const QString& node) const;
++
++private:
++	PsiAccount* pa_;
++	JT_AHCServer* server_task_;
++	ServerList servers_;
++};
++
++// -------------------------------------------------------------------------- 
++
++// -------------------------------------------------------------------------- 
++// Ad-Hoc Commands Client Classes
++// -------------------------------------------------------------------------- 
++
++class QComboBox;
++class QPushButton;
++class JT_AHCGetList;
++	
++typedef struct { QString jid, node, name; } AHCommandItem;
++
++class AHCommandDlg : public QDialog
++{
++	Q_OBJECT
++
++public:
++	AHCommandDlg(PsiAccount*, const Jid& receiver);
++
++protected slots:
++	void refreshCommands();
++	void listReceived();
++	void executeCommand();
++
++private:
++	PsiAccount* pa_;
++	QPushButton *pb_execute, *pb_close, *pb_refresh /*,*pb_info*/;
++	Jid receiver_;
++	JT_AHCGetList* task_list_;
++	QComboBox* cb_commands;
++	QValueList<AHCommandItem> commands_;
++};
++
++
++class AHCFormDlg : public QDialog
++{
++	Q_OBJECT
++public:
++	AHCFormDlg(const AHCommand& r, const Jid& receiver, PsiAccount* account);
++
++protected:
++	XData data() const;
++
++protected slots:
++	void doPrev();
++	void doNext();
++	void doComplete();
++	void doExecute();
++	void doCancel();
++
++private:
++	QPushButton *pb_prev, *pb_next, *pb_complete, *pb_cancel;
++	XDataWidget *xdata_;
++	Jid receiver_;
++	QString node_;
++	PsiAccount* account_;
++	QString sessionId_;
++};
++
++#endif
+diff -urN -x *.o -x CVS -x .gdb_history -x Makefile -x conf.log -x conf.pri -x extra.pri -x *.moc -x *.dylib -x moc_* -x disk -x *.dmg* -x .ui -x .moc -x *.out -x config.h -x Info.plist -x *.app -x .DS_Store -x .#* psi.clean/psi/src/contactview.cpp psi.rc/psi/src/contactview.cpp
+--- psi.clean/psi/src/contactview.cpp	Fri Oct 29 19:00:38 2004
++++ psi.rc/psi/src/contactview.cpp	Tue Dec 28 01:12:36 2004
+@@ -1036,6 +1036,7 @@
+ 		int at_sendto = 0;
+ 		QPopupMenu *s2m = new QPopupMenu(&pm);
+ 		QPopupMenu *c2m = new QPopupMenu(&pm);
++		QPopupMenu *rc2m = new QPopupMenu(&pm);
+ 
+ 		/*if ( rl.isEmpty() ) {
+ 			d->cv->qa_send->addTo(&pm);
+@@ -1066,6 +1067,7 @@
+ 					rname = r.name();
+ 				s2m->insertItem(is->status(r.status()), rname, base_sendto+at_sendto++);
+ 				c2m->insertItem(is->status(r.status()), rname, base_sendto+at_sendto++);
++				rc2m->insertItem(is->status(r.status()), rname, base_sendto+at_sendto++);
+ 			}
+ 		}
+ 
+@@ -1084,6 +1086,10 @@
+ 				pm.setItemEnabled(18, false);
+ 			}
+ 		}
++		
++		// TODO: Add executeCommand() thing
++		if(!isPrivate) 
++			pm.insertItem(tr("E&xecute command"), rc2m, 25);
+ 
+ 		int base_hidden = base_sendto + at_sendto;
+ 		int at_hidden = 0;
+@@ -1381,10 +1387,14 @@
+ 			if(online)
+ 				actionSendFile(u->jid());
+ 		}
++		else if (x == 24) {
++			if(online)
++				actionExecuteCommand(u->jid());
++		}
+ 		else if(x >= base_sendto && x < base_hidden) {
+ 			int n = x - base_sendto;
+-			int res = n / 2;
+-			int type = n % 2;
++			int res = n / 3;
++			int type = n % 3;
+ 			QString rname = "";
+ 			//if(res > 0) {
+ 				const UserResource &r = rl[res];
+@@ -1401,6 +1411,8 @@
+ 				actionSendMessage(j);
+ 			else if(type == 1)
+ 				actionOpenChatSpecific(j);
++			else if (type == 2)
++				actionExecuteCommandSpecific(j);
+ 		}
+ 		else if(x >= base_hidden && x < base_gc) {
+ 			int n = 0;
+diff -urN -x *.o -x CVS -x .gdb_history -x Makefile -x conf.log -x conf.pri -x extra.pri -x *.moc -x *.dylib -x moc_* -x disk -x *.dmg* -x .ui -x .moc -x *.out -x config.h -x Info.plist -x *.app -x .DS_Store -x .#* psi.clean/psi/src/contactview.h psi.rc/psi/src/contactview.h
+--- psi.clean/psi/src/contactview.h	Wed Aug 18 03:35:35 2004
++++ psi.rc/psi/src/contactview.h	Tue Dec 28 01:00:34 2004
+@@ -109,6 +109,8 @@
+ 	void actionTest(const Jid &);
+ 	void actionSendFile(const Jid &);
+ 	void actionSendFiles(const Jid &, const QStringList &);
++	void actionExecuteCommand(const Jid &);
++	void actionExecuteCommandSpecific(const Jid &);
+ 	void actionDisco(const Jid &, const QString &);
+ 	void actionInvite(const Jid &, const QString &);
+ 	void actionAssignKey(const Jid &);
+diff -urN -x *.o -x CVS -x .gdb_history -x Makefile -x conf.log -x conf.pri -x extra.pri -x *.moc -x *.dylib -x moc_* -x disk -x *.dmg* -x .ui -x .moc -x *.out -x config.h -x Info.plist -x *.app -x .DS_Store -x .#* psi.clean/psi/src/psiaccount.cpp psi.rc/psi/src/psiaccount.cpp
+--- psi.clean/psi/src/psiaccount.cpp	Wed Dec  8 15:42:39 2004
++++ psi.rc/psi/src/psiaccount.cpp	Tue Dec 28 16:30:07 2004
+@@ -35,6 +35,8 @@
+ #include<qfileinfo.h>
+ 
+ #include"psicon.h"
++#include"adhoc.h"
++#include"rc.h"
+ #include"profiles.h"
+ #include"im.h"
+ //#include"xmpp_client.h"
+@@ -300,6 +302,9 @@
+ 	BlockTransportPopupList *blockTransportPopupList;
+ 	int userCounter;
+ 
++	// Ad-hoc commands
++	AHCServerManager* ahcManager;
++
+ 	// Avatars
+ 	//AvatarFactory* avatarFactory;
+ 
+@@ -459,11 +464,19 @@
+ 	connect(d->cp, SIGNAL(actionTest(const Jid &)),SLOT(actionTest(const Jid &)));
+ 	connect(d->cp, SIGNAL(actionSendFile(const Jid &)),SLOT(actionSendFile(const Jid &)));
+ 	connect(d->cp, SIGNAL(actionSendFiles(const Jid &, const QStringList&)),SLOT(actionSendFiles(const Jid &, const QStringList&)));
++	connect(d->cp, SIGNAL(actionExecuteCommand(const Jid &)),SLOT(actionExecuteCommand(const Jid &)));
++	connect(d->cp, SIGNAL(actionExecuteCommandSpecific(const Jid &)),SLOT(actionExecuteCommandSpecific(const Jid &)));
+ 	connect(d->cp, SIGNAL(actionDisco(const Jid &, const QString &)),SLOT(actionDisco(const Jid &, const QString &)));
+ 	connect(d->cp, SIGNAL(actionInvite(const Jid &, const QString &)),SLOT(actionInvite(const Jid &, const QString &)));
+ 	connect(d->cp, SIGNAL(actionAssignKey(const Jid &)),SLOT(actionAssignKey(const Jid &)));
+ 	connect(d->cp, SIGNAL(actionUnassignKey(const Jid &)),SLOT(actionUnassignKey(const Jid &)));
+ 
++	// Initialize Adhoc Commands server
++	d->ahcManager = new AHCServerManager(this);
++	new RCSetStatusServer(d->ahcManager);
++	//new RCForwardServer(d->ahcManager);
++	new RCSetOptionsServer(d->ahcManager, d->psi);
++
+ 	// restore cached roster
+ 	for(Roster::ConstIterator it = acc.roster.begin(); it != acc.roster.end(); ++it)
+ 		client_rosterItemUpdated(*it);
+@@ -2248,6 +2261,26 @@
+ 		FileRequestDlg *w = new FileRequestDlg(j2, d->psi, this, l);
+ 		w->show();
+ 	}
++}
++
++void PsiAccount::actionExecuteCommand(const Jid& j)
++{
++	printf("Non-specific\n");
++	Jid j2 = j;
++	if(j.resource().isEmpty()) {
++		UserListItem *u = find(j);
++		if(u && u->isAvailable())
++			j2.setResource((*u->userResourceList().priority()).name());
++	}
++
++	AHCommandDlg *w = new AHCommandDlg(this,j2);
++	w->show();
++}
++
++void PsiAccount::actionExecuteCommandSpecific(const Jid& j)
++{
++	AHCommandDlg *w = new AHCommandDlg(this,j);
++	w->show();
+ }
+ 
+ void PsiAccount::actionDefault(const Jid &j)
+diff -urN -x *.o -x CVS -x .gdb_history -x Makefile -x conf.log -x conf.pri -x extra.pri -x *.moc -x *.dylib -x moc_* -x disk -x *.dmg* -x .ui -x .moc -x *.out -x config.h -x Info.plist -x *.app -x .DS_Store -x .#* psi.clean/psi/src/psiaccount.h psi.rc/psi/src/psiaccount.h
+--- psi.clean/psi/src/psiaccount.h	Wed Aug 18 03:35:35 2004
++++ psi.rc/psi/src/psiaccount.h	Tue Dec 28 00:58:26 2004
+@@ -263,6 +263,8 @@
+ 	void actionInvite(const Jid &, const QString &);
+ 	void actionSendFile(const Jid &);
+ 	void actionSendFiles(const Jid &, const QStringList&);
++	void actionExecuteCommand(const Jid& j);
++	void actionExecuteCommandSpecific(const Jid& j);
+ 	void featureActivated(QString feature, Jid jid, QString node);
+ 
+ 	void actionAssignKey(const Jid &);
+diff -urN -x *.o -x CVS -x .gdb_history -x Makefile -x conf.log -x conf.pri -x extra.pri -x *.moc -x *.dylib -x moc_* -x disk -x *.dmg* -x .ui -x .moc -x *.out -x config.h -x Info.plist -x *.app -x .DS_Store -x .#* psi.clean/psi/src/rc.cpp psi.rc/psi/src/rc.cpp
+--- psi.clean/psi/src/rc.cpp	Thu Jan  1 01:00:00 1970
++++ psi.rc/psi/src/rc.cpp	Tue Dec 28 23:05:51 2004
+@@ -0,0 +1,220 @@
++/*
++ * rc.cpp - Implementation of JEP-146 (Remote Controlling Clients)
++ * Copyright (C) 2005  Remko Troncon
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version 2
++ * of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this library; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ *
++ */
++
++#include "common.h"
++#include "iconaction.h"
++#include "mainwin.h"
++#include "psiaccount.h"
++#include "psiactionlist.h"
++#include "psicon.h"
++#include "rc.h"
++#include "xmpp_xdata.h"
++
++using namespace XMPP;
++
++bool RCCommandServer::isAllowed(const Jid& j) const
++{
++	return manager()->account()->jid().compare(j,false);
++}
++
++AHCommand RCSetStatusServer::execute(const AHCommand& c)
++{
++	// Check if the session ID is correct
++	//if (c.sessionId() != "") 
++	//	return AHCommand::errorReply(c,AHCError::AHCError(AHCError::BadSessionID));
++
++	if (!c.hasData()) {
++		// Initial set status form
++		XData form;
++		form.setTitle(QObject::QObject::tr("Set Status"));
++		form.setInstructions(QObject::tr("Choose the status and status message"));
++		form.setType(XData::Data_Form);
++		XData::FieldList fields;
++
++		XData::Field type_field;
++		type_field.setType(XData::Field::Field_Hidden);
++		type_field.setVar("FORM_TYPE");
++		type_field.setValue(QStringList("http://jabber.org/protocol/rc"));
++		type_field.setRequired(false);
++		fields += type_field;
++		
++		XData::Field status_field;
++		status_field.setType(XData::Field::Field_ListSingle);
++		status_field.setVar("status");
++		status_field.setLabel(QObject::tr("Status"));
++		status_field.setRequired(true);
++		status_field.setValue(QStringList("online"));
++		XData::Field::OptionList status_options;
++		XData::Field::Option chat_option;
++		chat_option.label = QObject::tr("Chat");
++		chat_option.value = "chat";
++		status_options += chat_option;
++		XData::Field::Option online_option;
++		online_option.label = QObject::tr("Online");
++		online_option.value = "online";
++		status_options += online_option;
++		XData::Field::Option away_option;
++		away_option.label = QObject::tr("Away");
++		away_option.value = "away";
++		status_options += away_option;
++		XData::Field::Option xa_option;
++		xa_option.label = QObject::tr("Extended Away");
++		xa_option.value = "xa";
++		status_options += xa_option;
++		XData::Field::Option dnd_option;
++		dnd_option.label = QObject::tr("Do Not Disturb");
++		dnd_option.value = "dnd";
++		status_options += dnd_option;
++		XData::Field::Option invisible_option;
++		invisible_option.label = QObject::tr("Invisible");
++		invisible_option.value = "invisible";
++		status_options += invisible_option;
++		XData::Field::Option offline_option;
++		offline_option.label = QObject::tr("Offline");
++		offline_option.value = "offline";
++		status_options += offline_option;
++		status_field.setOptions(status_options);
++		fields += status_field;
++		
++		XData::Field priority_field;
++		priority_field.setType(XData::Field::Field_TextSingle);
++		priority_field.setLabel(QObject::tr("Priority"));
++		priority_field.setVar("status-priority");
++		priority_field.setRequired(false);
++		priority_field.setValue(QStringList(QString::number(manager()->account()->status().priority())));
++		fields += priority_field;
++
++		XData::Field statusmsg_field;
++		statusmsg_field.setType(XData::Field::Field_TextMulti);
++		statusmsg_field.setLabel(QObject::tr("Message"));
++		statusmsg_field.setVar("status-message");
++		statusmsg_field.setRequired(false);
++		fields += statusmsg_field;
++
++		form.setFields(fields);
++		
++		return AHCommand::formReply(c, form);
++	}
++	else {
++		// Set the status
++		Status s;
++		bool foundStatus;	
++		XData::FieldList fl = c.data().fields();
++		for (unsigned int i=0; i < fl.count(); i++) {
++			if (fl[i].var() == "status" && !(fl[i].value().isEmpty())) {
++				foundStatus = true;
++				QString show = fl[i].value().first();
++				if (show == "away" || show == "dnd" || show == "xa") 
++					s.setShow(show);
++				else if (show == "offline") 
++					s.setIsAvailable(false);
++				else if (show == "invisible") 
++					s.setIsInvisible(true);
++			}
++			else if (fl[i].var() == "status-message") {
++				s.setStatus(fl[i].value().first());
++			}
++			else if (fl[i].var() == "status-priority") {
++				s.setPriority(fl[i].value().first().toInt());
++			}
++		}
++		if (foundStatus) {
++			manager()->account()->setStatus(s);
++		}
++		return AHCommand::completedReply(c);
++	}
++}
++
++
++AHCommand RCSetOptionsServer::execute(const AHCommand& c)
++{
++	if (!c.hasData()) {
++		// Initial set options form
++		XData form;
++		form.setTitle(QObject::QObject::tr("Set Options"));
++		form.setInstructions(QObject::tr("Set the desired options"));
++		form.setType(XData::Data_Form);
++		XData::FieldList fields;
++
++		XData::Field type_field;
++		type_field.setType(XData::Field::Field_Hidden);
++		type_field.setVar("FORM_TYPE");
++		type_field.setValue(QStringList("http://jabber.org/protocol/rc"));
++		type_field.setRequired(false);
++		fields += type_field;
++		
++		XData::Field sounds_field;
++		sounds_field.setType(XData::Field::Field_Boolean);
++		sounds_field.setLabel(QObject::tr("Play Sounds"));
++		sounds_field.setVar("sounds");
++		sounds_field.setValue(QStringList((useSound ? "1" : "0")));
++		sounds_field.setRequired(false);
++		fields += sounds_field;
++		
++		XData::Field auto_offline_field;
++		auto_offline_field.setType(XData::Field::Field_Boolean);
++		auto_offline_field.setLabel(QObject::tr("Automatically Go Offline when Idle"));
++		auto_offline_field.setVar("auto-offline");
++		auto_offline_field.setValue(QStringList((option.use_asOffline ? "1" : "0")));
++		auto_offline_field.setRequired(false);
++		fields += auto_offline_field;
++		
++		XData::Field auto_auth_field;
++		auto_auth_field.setType(XData::Field::Field_Boolean);
++		auto_auth_field.setLabel(QObject::tr("Auto-authorize Contacts"));
++		auto_auth_field.setVar("auto-auth");
++		auto_auth_field.setValue(QStringList((option.autoAuth ? "1" : "0")));
++		auto_auth_field.setRequired(false);
++		fields += auto_auth_field;
++		
++		form.setFields(fields);
++		
++		return AHCommand::formReply(c, form);
++	}
++	else {
++		// Set the options
++		XData::FieldList fl = c.data().fields();
++		for (unsigned int i=0; i < fl.count(); i++) {
++			if (fl[i].var() == "sounds") {
++				QString v =  fl[i].value().first();
++				IconAction* soundact = psiCon_->actionList()->suitableActions(PsiActionList::ActionsType( PsiActionList::Actions_MainWin | PsiActionList::Actions_Common)).action("menu_play_sounds");
++				if (v == "1") 
++					soundact->setOn(true);
++				else if (v == "0") 
++					soundact->setOn(false);
++			}
++			else if (fl[i].var() == "auto-offline") {
++				QString v =  fl[i].value().first();
++				if (v == "1") 
++					option.use_asOffline = true;
++				else if (v == "0") 
++					option.use_asOffline = false;
++			}
++			else if (fl[i].var() == "auto-auth") {
++				QString v =  fl[i].value().first();
++				if (v == "1") 
++					option.autoAuth = true;
++				else if (v == "0") 
++					option.autoAuth = false;
++			}
++		}
++		return AHCommand::completedReply(c);
++	}
++}
+diff -urN -x *.o -x CVS -x .gdb_history -x Makefile -x conf.log -x conf.pri -x extra.pri -x *.moc -x *.dylib -x moc_* -x disk -x *.dmg* -x .ui -x .moc -x *.out -x config.h -x Info.plist -x *.app -x .DS_Store -x .#* psi.clean/psi/src/rc.h psi.rc/psi/src/rc.h
+--- psi.clean/psi/src/rc.h	Thu Jan  1 01:00:00 1970
++++ psi.rc/psi/src/rc.h	Tue Dec 28 19:59:35 2004
+@@ -0,0 +1,69 @@
++/*
++ * rc.h - Implementation of JEP-146 (Remote Controlling Clients)
++ * Copyright (C) 2005  Remko Troncon
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version 2
++ * of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this library; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ *
++ */
++
++#ifndef RC_H
++#define RC_H
++
++#include "adhoc.h"
++
++class PsiCon;
++
++class RCCommandServer : public AHCommandServer 
++{
++public:
++	RCCommandServer(AHCServerManager* m) : AHCommandServer(m) { }
++	virtual QString node() const 
++		{ return QString("http://jabber.org/protocol/rc#") + rcNode(); }
++	virtual QString rcNode() const = 0;
++	virtual bool isAllowed(const Jid&) const;
++
++};
++
++class RCSetStatusServer : public RCCommandServer
++{
++public:
++	RCSetStatusServer(AHCServerManager* m) : RCCommandServer(m) { }
++	virtual QString name() const { return "Set Status"; }
++	virtual QString rcNode() const { return "set-status"; }
++	virtual AHCommand execute(const AHCommand&);
++};
++
++/*class RCForwardServer : public RCCommandServer
++{
++public:
++	RCForwardServer(AHCServerManager* m) : RCCommandServer(m) { }
++	virtual QString name() const { return "Forward Messages"; }
++	virtual QString rcNode() const { return "forward"; }
++	virtual AHCommand execute(const AHCommand& c) { return AHCommand::completedReply(c); }
++};*/
++
++class RCSetOptionsServer : public RCCommandServer
++{
++public:
++	RCSetOptionsServer(AHCServerManager* m, PsiCon* c) : RCCommandServer(m), psiCon_(c) { }
++	virtual QString name() const { return "Set Options"; }
++	virtual QString rcNode() const { return "set-options"; }
++	virtual AHCommand execute(const AHCommand& c);
++
++private:
++	PsiCon* psiCon_;
++};
++
++#endif
+diff -urN -x *.o -x CVS -x .gdb_history -x Makefile -x conf.log -x conf.pri -x extra.pri -x *.moc -x *.dylib -x moc_* -x disk -x *.dmg* -x .ui -x .moc -x *.out -x config.h -x Info.plist -x *.app -x .DS_Store -x .#* psi.clean/psi/src/src.pro psi.rc/psi/src/src.pro
+--- psi.clean/psi/src/src.pro	Fri Dec 10 01:31:07 2004
++++ psi.rc/psi/src/src.pro	Sat Dec 25 21:50:57 2004
+@@ -128,7 +128,9 @@
+ 	$$PSI_CPP/actionlist.h \
+ 	$$PSI_CPP/psiactionlist.h \
+ 	$$PSI_CPP/xdata_widget.h \
+-	$$PSI_CPP/xmpp_xdata.h
++	$$PSI_CPP/xmpp_xdata.h \
++	$$PSI_CPP/adhoc.h \
++	$$PSI_CPP/rc.h
+ 
+ # Source files
+ SOURCES += \
+@@ -177,7 +179,9 @@
+ 	$$PSI_CPP/actionlist.cpp \
+ 	$$PSI_CPP/psiactionlist.cpp \
+ 	$$PSI_CPP/xdata_widget.cpp \
+-	$$PSI_CPP/xmpp_xdata.cpp
++	$$PSI_CPP/xmpp_xdata.cpp \
++	$$PSI_CPP/adhoc.cpp \
++	$$PSI_CPP/rc.cpp
+ 
+ # Qt Designer interfaces
+ INTERFACES = \
