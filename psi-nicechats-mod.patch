@@ -1,10 +1,11 @@
 diff -ru -X exclude psi-clean/src/chatdlg.cpp psi/src/chatdlg.cpp
 --- psi-clean/src/chatdlg.cpp	Tue Jan 06 17:24:54 2004
 +++ psi/src/chatdlg.cpp	Sat Mar 27 11:47:06 2004
-@@ -506,6 +507,12 @@
- 
+@@ -506,7 +507,13 @@
  	// update the widget icon
+ #ifdef Q_WS_MAC
  	setIcon(IconsetFactory::icon("psi/chat"));
+ #endif
 +
 +	d->log->setPaletteBackgroundColor(option.color[cChatBG]);
 +	d->mle->setPaletteBackgroundColor(option.color[cChatBG]);
@@ -41,17 +42,16 @@ diff -ru -X exclude psi-clean/src/chatdlg.cpp psi/src/chatdlg.cpp
  
  	// figure out the encryption state
  	bool encChanged = false;
-@@ -786,9 +793,12 @@
+@@ -786,8 +793,12 @@
  	}
  
  	QString timestr;
 -	QDateTime time = m.timeStamp();
--	//timestr.sprintf("%02d:%02d:%02d", time.time().hour(), time.time().minute(), time.time().second());
 -	timestr = time.time().toString(LocalDate);
 +	if(option.showTimeStamps)
 +	{
 +		QDateTime time = m.timeStamp();
-+//		timestr.sprintf("(%02d:%02d:%02d) ", time.time().hour(), time.time().minute(), time.time().second());
++		//timestr.sprintf("(%02d:%02d:%02d) ", time.time().hour(), time.time().minute(), time.time().second());
 +		timestr = QString("(") + time.time().toString(LocalDate) + ") ";
 +	}
  
@@ -930,10 +930,9 @@ diff -ru -X exclude psi-clean/src/options/opt_appearance.cpp psi/src/options/opt
  	connect(bg_color, SIGNAL(clicked(int)), SLOT(chooseColor(int)));
  
  	QString s = tr("Specifies the text color for a contact name in the main window when that user is \"%1\".");
-@@ -114,6 +120,18 @@
- 
- 	QWhatsThis::add(d->ck_newHeadings,
- 		tr("Toggles on new, smaller group headings."));
+@@ -114,3 +120,15 @@
+ 	QWhatsThis::add(d->pb_cAnimBack,
+ 		tr("Specifies the background animation color for nicks."));
 +	QWhatsThis::add(d->pb_cChatMessage,
 +		tr("Specifies the color for chat message text."));
 +	QWhatsThis::add(d->pb_cChatSys,
@@ -946,9 +945,7 @@ diff -ru -X exclude psi-clean/src/options/opt_appearance.cpp psi/src/options/opt
 +		tr("Specifies the color for spooled chat messages."));
 +	QWhatsThis::add(d->pb_cChatBG,
 +		tr("Specifies the color for the chat window."));
- 
- 	return w;
- }
+ 	
 @@ -130,7 +148,7 @@
  	for (n = 0; n < 3; ++n)
  		opt->font[n] = le_font[n]->text();
@@ -1027,9 +1024,9 @@ diff -ru -X exclude psi-clean/src/psi_profiles.cpp psi/src/psi_profiles.cpp
  	prefs.showGroupCounts = true;
  	prefs.smallChats = false;
 @@ -413,6 +414,12 @@
- 	prefs.color[cGroupBack] = QColor("#FFFFFF");
  	prefs.color[cAnimFront] = QColor("#FF0000");
  	prefs.color[cAnimBack] 	= QColor("#000000");
+ #endif
 +	prefs.color[cChatMessage]=QColor("#000000");
 +	prefs.color[cChatSys]   = QColor("#444444");
 +	prefs.color[cChatTo]    = QColor("#ff4444");
