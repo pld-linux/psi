@@ -13,7 +13,6 @@ Source0:	http://dl.sourceforge.net/%{name}/%{name}-%{version}.tar.bz2
 # Source0-md5:	7057b61518e1b1ebd732a95c265a3b76
 Source1:	%{name}-langpack-%{version}.tar.bz2
 # Source1-md5:	77f5d5544758c846839932fc9b5e9996
-Source2:	%{name}.desktop
 Patch0:		%{name}-certs.patch
 Patch1:		%{name}-desktop.patch
 Patch2:		%{name}-home_etc.patch
@@ -69,7 +68,7 @@ install -d $RPM_BUILD_ROOT{%{_desktopdir},%{_pixmapsdir}}
 QTDIR=%{_prefix} %{__make} install \
 	INSTALL_ROOT=$RPM_BUILD_ROOT
 
-install -c %{SOURCE2} $RPM_BUILD_ROOT%{_desktopdir}
+install -c psi.desktop $RPM_BUILD_ROOT%{_desktopdir}
 install -c iconsets/system/default/icon_48.png $RPM_BUILD_ROOT%{_pixmapsdir}/psi.png
 install -c lang/*.qm $RPM_BUILD_ROOT%{_datadir}/psi
 
