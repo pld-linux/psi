@@ -1,0 +1,160 @@
+diff -ru -X exclude iris-clean/xmpp-im/client.cpp iris/xmpp-im/client.cpp
+--- iris-clean/xmpp-im/client.cpp	Wed Nov 19 19:29:18 2003
++++ iris/xmpp-im/client.cpp	Sun Nov 30 17:41:14 2003
+@@ -764,10 +764,27 @@
+ 
+ 	// unavailable?  remove the resource
+ 	if(!s.isAvailable()) {
+-		if(found) {
+-			(*rit).setStatus(s);
+-			debug(QString("Client: Removing resource from [%1]: name=[%2]\n").arg(i->jid().full()).arg(j.resource()));
+-			resourceUnavailable(j, *rit);
++		Resource r;
++		if(!found) {
++			//if (!s.status().isEmpty()) {
++				r = Resource(j.resource(), s);
++				i->resourceList() += r;
++				debug(QString("Client: Adding resource to [%1]: name=[%2]\n").arg(i->jid().full()).arg(j.resource()));
++				resourceAvailable(j, r);
++		} 
++		else {
++				(*rit).setStatus(s);
++				r = *rit;
++				debug(QString("Client: Updating resource to [%1]: name=[%2]\n").arg(i->jid().full()).arg(j.resource()));
++				resourceAvailable(j, r);			
++		}
++		
++		rit = i->resourceList().find(j.resource());
++		found = (rit == i->resourceList().end()) ? false: true;
++		
++ 		if(found) {
++ 			(*rit).setStatus(s);
++ 			debug(QString("Client: Removing resource from [%1]: name=[%2]\n").arg(i->jid().full()).arg(j.resource())); 	resourceUnavailable(j, *rit);
+ 			i->resourceList().remove(rit);
+ 			i->setLastUnavailableStatus(s);
+ 		}
+diff -ru -X exclude psi-clean/src/common.h psi/src/common.h
+--- psi-clean/src/common.h	Sun Nov 30 16:37:12 2003
++++ psi/src/common.h	Sun Nov 30 17:41:14 2003
+@@ -134,6 +134,7 @@
+ 	QStringList gcHighlights, gcNickColors;
+ 
+ 	bool clNewHeadings;
++	bool clStIndicator;
+ 
+ 	// passive popups
+ 	bool ppIsOn;
+diff -ru -X exclude psi-clean/src/contactview.cpp psi/src/contactview.cpp
+--- psi-clean/src/contactview.cpp	Tue Nov 04 07:12:56 2003
++++ psi/src/contactview.cpp	Sun Nov 30 17:41:14 2003
+@@ -2241,6 +2241,21 @@
+ 					x += 24;
+ 				}
+ 			}
++
++			bool ind = false;
++			if(!d->u->userResourceList().isEmpty() && option.clStIndicator) {
++				UserResourceList srl = d->u->userResourceList();
++
++				for(UserResourceList::ConstIterator rit = srl.begin(); rit != srl.end(); ++rit)
++					if(!(*rit).status().status().isEmpty()) { ind = true; break; }
++				
++			} 
++			else if(!d->u->lastUnavailableStatus().status().isEmpty() && option.clStIndicator)
++				ind = true;
++			if(ind) {
++				const QPixmap &pix = IconsetFactory::icon("psi/statInd");
++				p->drawPixmap(pixmap(column)->width()-pix.width(), height() - pix.height(), pix);
++			}
+ 		}
+ 	}
+ 	else if ( d->type == Group || d->type == Profile ) {
+diff -ru -X exclude psi-clean/src/options/opt_appearance-ui.ui psi/src/options/opt_appearance-ui.ui
+--- psi-clean/src/options/opt_appearance-ui.ui	Thu Nov 27 13:09:12 2003
++++ psi/src/options/opt_appearance-ui.ui	Sun Nov 30 17:40:02 2003
+@@ -28,6 +28,14 @@
+             </property>
+             <property name="text">
+                 <string>Small group headings in roster</string>
++            </property>
++        </widget>
++        <widget class="QCheckBox">
++            <property name="name">
++                <cstring>ck_statusIndicator</cstring>
++            </property>
++            <property name="text">
++                <string>Show indicator for text statuses</string>
+             </property>
+         </widget>
+         <widget class="QGroupBox">
+diff -ru -X exclude psi-clean/src/options/opt_appearance.cpp psi/src/options/opt_appearance.cpp
+--- psi-clean/src/options/opt_appearance.cpp	Thu Nov 27 13:09:12 2003
++++ psi/src/options/opt_appearance.cpp	Sun Nov 30 17:42:24 2003
+@@ -114,5 +114,8 @@
+ 	QWhatsThis::add(d->pb_cAnimBack,
+ 		tr("Specifies the background animation color for nicks."));
+ 
++	QWhatsThis::add(d->ck_statusIndicator,
++		tr("Displays an indicator by the contact name if the contact entered a descriptive text status line."));
++
+	QWhatsThis::add(d->ck_newHeadings,
+ 		tr("Toggles on new, smaller group headings."));
+@@ -125,6 +127,7 @@
+ 
+ 	OptAppearanceUI *d = (OptAppearanceUI *)w;
+ 	opt->clNewHeadings = d->ck_newHeadings->isChecked();
++	opt->clStIndicator = d->ck_statusIndicator->isChecked();
+ 
+ 	int n;
+ 	for (n = 0; n < 3; ++n)
+@@ -141,6 +144,7 @@
+ 
+ 	OptAppearanceUI *d = (OptAppearanceUI *)w;
+ 	d->ck_newHeadings->setChecked( opt->clNewHeadings );
++	d->ck_statusIndicator->setChecked( opt->clStIndicator );
+ 
+ 	int n;
+ 	for (n = 0; n < 3; ++n)
+diff -ru -X exclude psi-clean/src/psi_profiles.cpp psi/src/psi_profiles.cpp
+--- psi-clean/src/psi_profiles.cpp	Wed Nov 26 19:25:12 2003
++++ psi/src/psi_profiles.cpp	Sun Nov 30 17:41:14 2003
+@@ -399,6 +399,8 @@
+ 	prefs.font[fRoster] = QApplication::font().toString();
+ 	prefs.font[fMessage] = QApplication::font().toString();
+ 	prefs.font[fChat] = QApplication::font().toString();
++	
++	prefs.clStIndicator = TRUE;
+ 
+ 	prefs.clNewHeadings = false;
+ 
+@@ -717,6 +719,7 @@
+ 		p.appendChild(p_lnf);
+ 
+ 		p_lnf.appendChild(textTag(doc, "newHeadings", prefs.clNewHeadings));
++		p_lnf.appendChild(textTag(doc, "statusIndicator", prefs.clStIndicator));
+ 
+ 		{
+ 			QDomElement tag = doc.createElement("colors");
+@@ -1177,6 +1180,7 @@
+ 			bool found;
+ 
+ 			readBoolEntry(p_lnf, "newHeadings", &prefs.clNewHeadings);
++			readBoolEntry(p_lnf, "statusIndicator", &prefs.clStIndicator);
+ 
+ 			QDomElement tag = findSubTag(p_lnf, "colors", &found);
+ 			if(found) {
+diff -ru -X exclude psi-clean/src/chatdlg.cpp psi/src/chatdlg.cpp
+--- psi-clean/src/chatdlg.cpp	Tue Jan 06 17:24:54 2004
++++ psi/src/chatdlg.cpp	Sun Feb 01 23:44:30 2004
+@@ -366,8 +366,10 @@
+ 			u = ul.first();
+ 			if(rname.isEmpty()) {
+ 				// use priority
+-				if(!u->isAvailable())
++				if(!u->isAvailable()){
+ 					status = STATUS_OFFLINE;
++					statusString = u->lastUnavailableStatus().status();
++				}
+ 				else {
+ 					const UserResource &r = *u->userResourceList().priority();
+ 					status = makeSTATUS(r.status());
