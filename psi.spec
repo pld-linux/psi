@@ -109,6 +109,8 @@ chcieliby napisaæ w³asne okna dialogowe albo poprawiæ obecne.
 %patch0 -p1
 %patch1 -p1
 %{?with_home_etc:%patch2 -p1}
+#	jpc
+%patch10 -p1
 #	SKaZi
 %patch20 -p1
 %patch21 -p1
