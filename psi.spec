@@ -1,3 +1,7 @@
+#
+# Conditional build:
+# _with_addons		- enables additional GUI features
+#
 Summary:	PSI - Jabber client
 Summary(pl):	PSI - klient Jabbera
 Name:		psi
@@ -10,6 +14,7 @@ Source0:	http://dl.sourceforge.net/%{name}/%{name}-%{version}.tar.bz2
 Source2:	%{name}.desktop
 Patch0:		%{name}-paths.patch
 Patch1:		%{name}-certs.patch
+Patch2:		%{name}-additional_features.patch
 URL:		http://psi.affinix.com/
 BuildRequires:	qt-devel >= 3.1.0
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
@@ -31,6 +36,7 @@ katalogu $DATADIR/certs lub ~/.psi/certs.
 %setup  -q
 %patch0 -p1
 %patch1 -p1
+%{?_with_addons:%patch2 -p1}
 perl -pi -e "s/QString PROG_VERSION = \"0.9\";/QString PROG_VERSION = \"0.9-%{release}\";/g" src/common.cpp
 perl -pi -e "s,/usr/local/share/psi,/usr/share/psi,g" src/common.cpp
 
