@@ -35,8 +35,8 @@ URL:		http://psi.affinix.com/
 BuildRequires:	libstdc++-devel
 BuildRequires:	cyrus-sasl-devel
 BuildRequires:	openssl-devel >= 0.9.7c
-BuildRequires:	/usr/bin/qmake
-BuildRequires:	qt-devel >= 3.1.2
+BuildRequires:	qmake
+BuildRequires:	qt-devel >= 3.3.2-5
 BuildRequires:	qt-linguist
 Requires:	qt-plugin-qca-tls >= 1:1.1
 Conflicts:	qt-plugin-ssl = 1.0
