@@ -167,28 +167,26 @@ diff -ru -X exclude psi-clean/src/options/opt_appearance-ui.ui psi/src/options/o
 diff -ru -X exclude psi-clean/src/options/opt_appearance.cpp psi/src/options/opt_appearance.cpp
 --- psi-clean/src/options/opt_appearance.cpp	Sat May 01 18:08:20 2004
 +++ psi/src/options/opt_appearance.cpp	Fri May 28 10:27:02 2004
-@@ -148,6 +148,9 @@
- 	QWhatsThis::add(d->pb_cAnimBack,
- 		tr("Specifies the background animation color for nicks."));
- 
+@@ -148,4 +148,7 @@
+ 	QWhatsThis::add(d->pb_cDND,
+ 		tr("do not disturb"));
 +	QWhatsThis::add(d->ck_statusIndicator,
 +		tr("Displays an indicator by the contact name if the contact entered a descriptive text status line."));
 +
- 	QWhatsThis::add(d->ck_newHeadings,
- 		tr("Toggles on new, smaller group headings."));
+ 	QWhatsThis::add(d->pb_cGroupBack,
+ 		tr("Specifies the background color for a group name in the main window."));
+@@ -161,5 +164,6 @@
  
-@@ -161,6 +164,7 @@
- 
- 	OptAppearanceUI *d = (OptAppearanceUI *)w;
- 	opt->clNewHeadings = d->ck_newHeadings->isChecked();
+-	//OptAppearanceUI *d = (OptAppearanceUI *)w;
++	OptAppearanceUI *d = (OptAppearanceUI *)w;
 +	opt->clStIndicator = d->ck_statusIndicator->isChecked();
  	//opt->avatarsChatdlgEnabled = d->ck_avatarsChatdlg->isChecked(); // Avatars
  
  	int n;
-@@ -177,6 +181,7 @@
+@@ -177,5 +181,6 @@
  
- 	OptAppearanceUI *d = (OptAppearanceUI *)w;
- 	d->ck_newHeadings->setChecked( opt->clNewHeadings );
+-	//OptAppearanceUI *d = (OptAppearanceUI *)w;
++	OptAppearanceUI *d = (OptAppearanceUI *)w;
 +	d->ck_statusIndicator->setChecked( opt->clStIndicator );
  	//d->ck_avatarsChatdlg->setChecked( opt->avatarsChatdlgEnabled ); // Avatars
  

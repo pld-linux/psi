@@ -930,10 +930,9 @@ diff -ru -X exclude psi-clean/src/options/opt_appearance.cpp psi/src/options/opt
  	connect(bg_color, SIGNAL(clicked(int)), SLOT(chooseColor(int)));
  
  	QString s = tr("Specifies the text color for a contact name in the main window when that user is \"%1\".");
-@@ -114,4 +120,16 @@
- 
- 	QWhatsThis::add(d->ck_newHeadings,
- 		tr("Toggles on new, smaller group headings."));
+@@ -114,3 +120,15 @@
+ 	QWhatsThis::add(d->pb_cAnimBack,
+ 		tr("Specifies the background animation color for nicks."));
 +	QWhatsThis::add(d->pb_cChatMessage,
 +		tr("Specifies the color for chat message text."));
 +	QWhatsThis::add(d->pb_cChatSys,
@@ -1025,9 +1024,9 @@ diff -ru -X exclude psi-clean/src/psi_profiles.cpp psi/src/psi_profiles.cpp
  	prefs.showGroupCounts = true;
  	prefs.smallChats = false;
 @@ -413,6 +414,12 @@
- 	prefs.color[cGroupBack] = QColor("#FFFFFF");
  	prefs.color[cAnimFront] = QColor("#FF0000");
  	prefs.color[cAnimBack] 	= QColor("#000000");
+ #endif
 +	prefs.color[cChatMessage]=QColor("#000000");
 +	prefs.color[cChatSys]   = QColor("#444444");
 +	prefs.color[cChatTo]    = QColor("#ff4444");
