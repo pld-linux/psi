@@ -29,11 +29,11 @@ Patch12:	%{name}-icondef.xml_status_indicator.patch
 Patch13:	%{name}-timestamps.patch
 URL:		http://psi.affinix.com/
 BuildRequires:	libstdc++-devel
+BuildRequires:	cyrus-sasl-devel
 BuildRequires:	openssl-devel >= 0.9.7c
 BuildRequires:	qt-devel >= 3.1.2
 Requires:	qt-plugin-qca-tls >= 1:1.1
 Conflicts:	qt-plugin-ssl = 1.0
-Requires:	cyrus-sasl-devel
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_plugindir %{_libdir}/qt/plugins-mt/crypto
