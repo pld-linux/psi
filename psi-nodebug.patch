@@ -1,0 +1,11 @@
+--- psi-0.9.3./psi/src/src.pro	2004-07-27 01:42:41.000000000 +0200
++++ psi-0.9.3/psi/src/src.pro	2004-07-27 01:46:40.468669072 +0200
+@@ -6,7 +6,7 @@
+ TEMPLATE = app
+ CONFIG  += qt thread x11
+ 
+-CONFIG += debug
++#CONFIG += debug
+ #CONFIG += use_crash
+ #DEFINES += GPG_DEBUG
+ 
