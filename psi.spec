@@ -10,10 +10,12 @@ License:	GPL
 Group:		Applications/Communications
 Source0:	ftp://ftp.sourceforge.net/pub/sourceforge/psi/%{name}-%{version}.tar.bz2
 Source1:        ftp://ftp.sourceforge.net/pub/sourceforge/psi/qssl-%{_qssl_version}.tar.bz2
+Source2:	%{name}.desktop
 Patch0:		%{name}-include.patch
 Patch1:		%{name}-qssl-include.patch
 Patch2:		%{name}-resourcesdir.patch
 Patch3:		%{name}-plugin.patch
+Patch4:		%{name}-certs.patch
 URL:		http://psi.affinix.com/
 BuildRequires:	qt-devel >= 3.0.5
 %{?!_without_qssl:BuildRequires: openssl-devel}
@@ -39,6 +41,7 @@ PSI - klient Jabbera.
 %endif
 %patch2 -p1
 %patch3 -p1
+%patch4 -p1
 
 %build
 QTDIR=%{_prefix}
@@ -59,14 +62,18 @@ qmake qssl.pro
 %install
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT{%{_bindir},%{_datadir}/psi/{image,iconsets,sound}}
+install -d %{_applnkdir}/Network/Communications
+
 %if %{?_without_qssl:0}%{?!_without_qssl:1}
 install -d $RPM_BUILD_ROOT%{_libdir}
 %endif
+
 install src/psi $RPM_BUILD_ROOT%{_bindir}/
 
 install image/*.png %{buildroot}%{_datadir}/psi/image
 cp -r iconsets/* %{buildroot}%{_datadir}/psi/iconsets
 install sound/* %{buildroot}%{_datadir}/psi/sound
+install %{name}.desktop %{_applnkdir}/Network/Communications
 
 %if %{?_without_qssl:0}%{?!_without_qssl:1}
 install qssl-%{_qssl_version}/libqssl.so %{buildroot}%{_libdir}
@@ -81,7 +88,4 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/*
 %{_datadir}/*
 %{?!_without_qssl:%{_libdir}/*}
-#%{_applnkdir}/Network/Communications/*.desktop
-#%{_pixmapsdir}/*/*/apps/*.png
-#%{_datadir}/%{name}/msg.wav
-#%{_datadir}/%{name}/images/*
+%{_applnkdir}/Network/Communications/%{name}.desktop
