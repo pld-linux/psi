@@ -1,20 +1,15 @@
-# _without_qssl        - without ssl plugin
-%define 	_qssl_version	1.0
-
 Summary:	PSI Jabber client
 Summary(pl):	PSI - klient Jabbera
 Name:		psi
 Version:	0.8.7
-Release:	0
+Release:	0.1
 License:	GPL
 Group:		Applications/Communications
 Source0:	ftp://ftp.sourceforge.net/pub/sourceforge/psi/%{name}-%{version}.tar.bz2
-Source1:        ftp://ftp.sourceforge.net/pub/sourceforge/psi/qssl-%{_qssl_version}.tar.bz2
 Source2:	%{name}.desktop
 Patch0:		%{name}-include.patch
-Patch1:		%{name}-qssl-include.patch
-Patch2:		%{name}-plugin.patch
-Patch3:		%{name}-certs.patch
+Patch1:		%{name}-plugin.patch
+Patch2:		%{name}-certs.patch
 URL:		http://psi.affinix.com/
 BuildRequires:	qt-devel >= 3.0.5
 %{?!_without_qssl:BuildRequires: openssl-devel}
@@ -37,57 +32,29 @@ która powoduje ¿e certyfikaty SSL poszukiwane s± w katalogu $DATADIR/certs
 lub ~/.psi/certs.
 
 %prep
-%setup -q -a 0
-%if %{?_without_qssl:0}%{?!_without_qssl:1}
-%setup -q -a 1
-%endif
+%setup  -q
 %patch0 -p1
-%if %{?_without_qssl:0}%{?!_without_qssl:1}
-%patch1 -p1
-%endif
+%patch1 -p1 -b .wiget
 %patch2 -p1
-%patch3 -p1
 
 %build
 QTDIR=%{_prefix}
 export QTDIR
 QMAKESPEC=%{_datadir}/qt/mkspecs/linux-g++
 export QMAKESPEC
-LIBDIR=%{_datadir}/psi
-export LIBDIR
 
-./configure
-
-cd src
-qmake psi.pro
-%{__make}
-
-%if %{?_without_qssl:0}%{?!_without_qssl:1}
-cd ../qssl-%{_qssl_version}
-qmake qssl.pro
-%{__make}
-%endif
+./configure --prefix %{_prefix} --libdir %{_datadir}/psi --qtdir $QTDIR
+make
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT%{_bindir} \
-	$RPM_BUILD_ROOT%{_datadir}/psi/{image,iconsets,sound} \
-	$RPM_BUILD_ROOT%{_applnkdir}/Network/Communications
+install -d $RPM_BUILD_ROOT%{_applnkdir}/Network/Communications \
+	$RPM_BUILD_ROOT%{_libdir}/psi
 
-%if %{?_without_qssl:0}%{?!_without_qssl:1}
-install -d $RPM_BUILD_ROOT%{_libdir}
-%endif
+make install INSTALL_ROOT=$RPM_BUILD_ROOT
 
-install src/psi $RPM_BUILD_ROOT%{_bindir}/
 
-install image/*.png $RPM_BUILD_ROOT%{_datadir}/psi/image
-cp -r iconsets/* $RPM_BUILD_ROOT%{_datadir}/psi/iconsets
-install sound/* $RPM_BUILD_ROOT%{_datadir}/psi/sound
 install %{SOURCE2} $RPM_BUILD_ROOT%{_applnkdir}/Network/Communications
-
-%if %{?_without_qssl:0}%{?!_without_qssl:1}
-install qssl-%{_qssl_version}/libqssl.so %{buildroot}%{_libdir}
-%endif
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -97,5 +64,5 @@ rm -rf $RPM_BUILD_ROOT
 %doc README
 %attr(755,root,root) %{_bindir}/*
 %{_datadir}/psi
-%{?!_without_qssl:%{_libdir}/*}
+%{_libdir}/psi
 %{_applnkdir}/Network/Communications/%{name}.desktop
