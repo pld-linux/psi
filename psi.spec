@@ -2,7 +2,7 @@ Summary:	PSI - Jabber client
 Summary(pl):	PSI - klient Jabbera
 Name:		psi
 Version:	0.9.3
-Release:	1
+Release:	2
 License:	GPL v2
 Group:		Applications/Communications
 Source0:	http://osdn.dl.sourceforge.net/psi/%{name}-%{version}.tar.bz2
@@ -46,9 +46,8 @@ Patch24:	%{name}-nicechats-mod.patch
 Patch25:	%{name}-roster-rich.patch
 Patch26:	%{name}-icondef.xml_status_indicator.patch
 Patch27:	%{name}-settoggles-fix.patch
-Patch28:	%{name}-wrong_mainwin_pos_gnome-fix.patch
-Patch29:	%{name}-group_openclose_single_click-mod.patch
-Patch30:	%{name}-empty_group-fix.patch
+Patch28:	%{name}-group_openclose_single_click-mod.patch
+Patch29:	%{name}-empty_group-fix.patch
 URL:		http://psi.affinix.com/
 BuildRequires:	libstdc++-devel
 BuildRequires:	cyrus-sasl-devel
@@ -107,7 +106,6 @@ chcieliby napisaæ w³asne okna dialogowe albo poprawiæ obecne.
 %patch27 -p1
 %patch28 -p1
 %patch29 -p1
-%patch30 -p1
 
 %{__perl} -pi -e "s/QString PROG_VERSION = \"0.9.3\";/QString PROG_VERSION = \"0.9.3-%{release}\";/g" src/common.cpp
 %{__perl} -pi -e "s,/usr/local/share/psi,%{_datadir}/psi,g" src/common.cpp
