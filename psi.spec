@@ -143,7 +143,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc README TODO README.rich-roster
+%doc ChangeLog README README.rich-roster TODO 
 %attr(755,root,root) %{_bindir}/*
 %dir %{_datadir}/psi
 %{_datadir}/psi/certs
