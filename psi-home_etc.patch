@@ -1,7 +1,7 @@
-diff -Nru psi-0.9.orig/src/common.cpp psi-0.9/src/common.cpp
---- psi-0.9.orig/src/common.cpp	2003-11-19 12:27:37.000000000 +0100
-+++ psi-0.9/src/common.cpp	2003-11-19 12:39:22.000000000 +0100
-@@ -1356,7 +1356,8 @@
+diff -aurN psi-0.9.1.orig/src/common.cpp psi-0.9.1/src/common.cpp
+--- psi-0.9.1.orig/src/common.cpp	2004-01-02 02:23:05.000000000 +0100
++++ psi-0.9.1/src/common.cpp	2004-02-13 20:05:35.261388472 +0100
+@@ -1283,7 +1283,8 @@
  
  QString getHomeDir()
  {
@@ -11,7 +11,7 @@ diff -Nru psi-0.9.orig/src/common.cpp psi-0.9/src/common.cpp
  	if(!proghome.exists()) {
  		QDir home = QDir::home();
  		home.mkdir(".psi");
-@@ -1447,7 +1448,8 @@
+@@ -1374,7 +1375,8 @@
  
  QString getHomeDir()
  {
