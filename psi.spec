@@ -3,6 +3,7 @@
 %bcond_without home_etc		# Disable the HOME_ETC patch
 #
 Summary:	PSI - Jabber client
+Summary(de):	PSI - ein Instant Messaging Client-Programm für das Jabber
 Summary(pl):	PSI - klient Jabbera
 Name:		psi
 Version:	0.9.3
@@ -79,6 +80,10 @@ PSI is a communicator for the Jabber open messaging system. It is
 based on the Qt library. It supports SSL encrypted connections. The
 default behaviour for SSL was changed so that it looks for SSL
 certificates in $DATADIR/certs or in ~/.psi/certs.
+
+%description -l de
+Psi ist ein Instant Messaging (IM) Client-Programm für das Jabber
+(XMPP) Protokoll, welches das Qt Toolkit nutzt.
 
 %description -l pl
 PSI jest komunikatorem dla otwartego systemu wiadomo¶ci Jabber. Zosta³
