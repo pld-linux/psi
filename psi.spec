@@ -1,5 +1,5 @@
 #
-%define         snap 20040321
+%define		snap 20040322
 #
 Summary:	PSI - Jabber client
 Summary(pl):	PSI - klient Jabbera
@@ -9,7 +9,9 @@ Release:	0.%{snap}.1
 License:	GPL
 Group:		Applications/Communications
 Source0:	%{name}-snap-%{snap}.tar.bz2
-# Source0-md5:	30905deb1bad7531e51caf7d24b80541
+# Source0-md5:	a38fa61c1dbe0d2bb86a7d7186411cfa
+Source1:	%{name}-richlistview.cpp
+Source2:	%{name}-richlistview.h
 Patch0:		%{name}-certs.patch
 Patch1:		%{name}-desktop.patch
 Patch2:		%{name}-home_etc.patch
@@ -19,6 +21,10 @@ Patch5:		%{name}-no_default_status_text-mod.patch
 Patch6:		%{name}-no_online_status-mod.patch
 Patch7:		%{name}-status_history-add.patch
 Patch8:		%{name}-offline_status-add.patch
+Patch9:		%{name}-icon_buttons_big_return-mod.patch
+Patch10:	%{name}-nicechats-mod.patch
+Patch11:	%{name}-rich_CV-SID.patch
+Patch12:	%{name}-CV-doublebuffer.patch
 URL:		http://psi.affinix.com/
 BuildRequires:	libstdc++-devel
 BuildRequires:	openssl-devel >= 0.9.7c
@@ -77,10 +83,17 @@ Jest to wersja rozwojowa (CVS).
 %patch6 -p0
 %patch7 -p0
 %patch8 -p0
+%patch9 -p0
+%patch10 -p0
+%patch11 -p0
+%patch12 -p0
 
 %{__perl} -pi -e "s/QString PROG_VERSION = \"0.9.1-CVS\";/QString PROG_VERSION = \"0.9.2-%{snap}\";/g" psi/src/common.cpp
 %{__perl} -pi -e "s,/usr/local/share/psi,%{_datadir}/psi,g" psi/src/common.cpp
 %{__perl} -pi -e 's/CONFIG \+= debug//g' psi/src/src.pro
+
+cp %{SOURCE1} psi/src/richlistview.cpp
+cp %{SOURCE2} psi/src/richlistview.h
 
 %build
 cd psi
