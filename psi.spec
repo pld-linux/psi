@@ -37,15 +37,15 @@ Patch3:		%{name}-nodebug.patch
 #	from jpc
 Patch10:	%{name}-customos.patch
 #	from SKaZi
-Patch20:        %{name}-status_indicator-add.patch
-Patch21:        %{name}-no_online_status-mod.patch
-Patch22:        %{name}-status_history-add.patch
-Patch23:        %{name}-icon_buttons_big_return-mod.patch
-Patch24:        %{name}-nicechats-mod.patch
-Patch25:        %{name}-roster-rich.patch
-Patch26:        %{name}-icondef.xml_status_indicator.patch
-Patch27:        %{name}-settoggles-fix.patch
-Patch28:        %{name}-wrong_mainwin_pos_gnome-fix.patch
+Patch20:	%{name}-status_indicator-add.patch
+Patch21:	%{name}-no_online_status-mod.patch
+Patch22:	%{name}-status_history-add.patch
+Patch23:	%{name}-icon_buttons_big_return-mod.patch
+Patch24:	%{name}-nicechats-mod.patch
+Patch25:	%{name}-roster-rich.patch
+Patch26:	%{name}-icondef.xml_status_indicator.patch
+Patch27:	%{name}-settoggles-fix.patch
+Patch28:	%{name}-wrong_mainwin_pos_gnome-fix.patch
 Patch29:	%{name}-group_openclose_single_click-mod.patch
 URL:		http://psi.affinix.com/
 BuildRequires:	libstdc++-devel
