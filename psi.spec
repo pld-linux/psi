@@ -36,6 +36,8 @@ Conflicts:	qt-plugin-ssl = 1.0
 Requires:	cyrus-sasl-devel
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
+%define		_plugindir %{_libdir}/qt/plugins-mt/crypto
+
 %description
 PSI is a communicator for the Jabber open messaging system. It is
 based on the QT library. It supports SSL encrypted connections. The
@@ -53,7 +55,20 @@ katalogu $DATADIR/certs lub ~/.psi/certs.
 
 Jest to wersja rozwojowa (CVS) z ³atkami SKaZiego.
 
-%define		_plugindir %{_libdir}/qt/plugins-mt/crypto
+%package -n qt-designer-psiwidgets
+Summary:	Psi widgets collection for Qt Designer
+Summary(pl):	Kolekcja widgetów Psi do wykorzystania w Projektancie Qt
+License:	GPL v2
+Group:		X11/Development/Libraries
+
+%description -n qt-designer-psiwidgets
+This is a package of widgets, that are used in Psi You may be interested in it,
+if you want to develop custom dialogs, or hack existing ones.
+
+%description -n qt-designer-psiwidgets -l pl
+Pakiet ten zawiera wtyczke dla programu Qt Designer, bed±c± zbiorem widgetów
+u¿ytych w programie Psi. Moze Ci siê przydaæ, jesli chcia³by¶ na[pisaæ w³asne
+okna dialogowe itp. albo poprawiæ obecne.
 
 %package -n qt-plugin-qca-tls
 Summary:	Qt Cryptographic Architecture (QCA) SSL/TLS plugin
@@ -65,7 +80,7 @@ Group:		Libraries
 
 %description -n qt-plugin-qca-tls
 A plugin to provide SSL/TLS capability to programs that utilize the Qt
-Cryptographic Architecture (QCA).
+Cryptographic Architecture (QCA).	
 
 This is a development version (CVS).
 
@@ -199,7 +214,7 @@ install psi/lang/*.qm $RPM_BUILD_ROOT%{_datadir}/psi
 install psi/indicator.png $RPM_BUILD_ROOT%{_datadir}/psi/iconsets/roster/default/indicator.png
 install psi/libpsi/psiwidgets/*.so $RPM_BUILD_ROOT%{_libdir}/qt/plugins-mt/designer
 
-rm -rf $RPM_BUILD_ROOT%{_datadir}/psi/designer
+#rm -rf $RPM_BUILD_ROOT%{_datadir}/psi/designer
 rm $RPM_BUILD_ROOT%{_datadir}/psi/COPYING $RPM_BUILD_ROOT%{_datadir}/psi/README
 
 %clean
@@ -209,7 +224,6 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %doc psi/README psi/TODO psi/README.rich-roster
 %attr(755,root,root) %{_bindir}/*
-%attr(755,root,root) %{_libdir}/qt/plugins-mt/designer/libpsiwidgets.so
 %dir %{_datadir}/psi
 %{_datadir}/psi/certs
 %{_datadir}/psi/iconsets
@@ -238,6 +252,11 @@ rm -rf $RPM_BUILD_ROOT
 %lang(zh) %{_datadir}/psi/psi_zh.qm
 %{_desktopdir}/*.desktop
 %{_pixmapsdir}/*.png
+
+%files -n qt-designer-psiwidgets
+%doc psi/libpsi/psiwidgets/README
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_libdir}/qt/plugins-mt/designer/libpsiwidgets.so
 
 %files -n qt-plugin-qca-tls
 %defattr(644,root,root,755)
