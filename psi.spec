@@ -1,50 +1,53 @@
-#
-# Conditional build:
-%bcond_with	square_timestamps	# this is how they used to be
-#
 Summary:	PSI - Jabber client
 Summary(pl):	PSI - klient Jabbera
 Name:		psi
-Version:	0.9.2
-Release:	3
+Version:	0.9.3
+Release:	0.1
 License:	GPL
 Group:		Applications/Communications
-Source0:	http://dl.sourceforge.net/%{name}/%{name}-%{version}.tar.bz2
-# Source0-md5:	e29f90aea7d839f2a70e4a6e77e95a70
+Source0:	http://osdn.dl.sourceforge.net/%{name}/%{name}-%{version}.tar.bz2
+# Source0-md5:	d20f3bb530235a246bc2d92308089744
 Source1:	%{name}-richlistview.cpp
 Source2:	%{name}-richlistview.h
 Source3:	%{name}-roster-rich.README
 Source4:	%{name}-indicator.png
-Source10:	%{name}_de.qm
-# Source10-md5:	c9799f489966a288b2f477ad4ea49ecf
-Source11:	%{name}_fi.qm
-# Source11-md5:	b203c264862d1dd9feaa0884b137c300
+Source10:	%{name}_ee.qm
+# Source10-md5:	9747ae62d0401b65ccea3531bdc148e0
+Source11:	%{name}_es.qm
+# Source11-md5:	125353103949ff1de2bc31b6bcfdf489
 Source12:	%{name}_fr.qm
-# Source12-md5:	f5029a111460a57d18e2d6f44975f9a8
-Source13:	%{name}_nl.qm
-# Source13-md5:	52927ee59a2a7fd9f94db154dde97451
-Source14:	%{name}_pl.qm
-# Source14-md5:	c0f39f92cf458d57e9dca7e28b943948
-Source15:	%{name}_sk.qm
-# Source15-md5: 539b37a7b94a07fce2a217e4197ede09
-Source16:	%{name}_sw.qm
-# Source16-md5:	49d98283f443a2d5e6473c5cf19e7690
-Source17:	%{name}_zh.qm
-# Source17-md5: 5b6245e14bcef3dc2c78c83bf61d719f
+# Source12-md5:	2109223681611cd89b1a348bb87ab143
+Source13:	%{name}_mk.qm
+# Source13-md5:	2fbdee2069447e31982fffed14bbd5fa
+Source14:	%{name}_nl.qm
+# Source14-md5:	31048975699e64f9e6dc4213714b0e0d
+Source15:	%{name}_pl.qm
+# Source15-md5:	fbafd2e4002eb84c728cd9e701e73e0c
+Source16:	%{name}_ru.qm
+# Source16-md5:	1b82151552f658e9b94ed6bb4537628d
+Source17:	%{name}_vi.qm
+# Source17-md5:	4d66fd44e634f2d5a7118c2c149c6614
+Source18:	%{name}_zh.qm
+# Source18-md5:	76dc27b07962e8e61b57f53e7c5b2a0d
+#	from PLD
 Patch0:		%{name}-certs.patch
 Patch1:		%{name}-desktop.patch
 Patch2:		%{name}-home_etc.patch
-Patch3:		%{name}-customos.patch
-Patch4:		%{name}-status_indicator-add.patch
-Patch5:		%{name}-no_default_status_text-mod.patch
-Patch6:		%{name}-no_online_status-mod.patch
-Patch7:		%{name}-status_history-add.patch
-Patch8:		%{name}-offline_status-add.patch
-Patch9:		%{name}-icon_buttons_big_return-mod.patch
-Patch10:	%{name}-nicechats-mod.patch
-Patch11:	%{name}-roster-rich.patch
-Patch12:	%{name}-icondef.xml_status_indicator.patch
-Patch13:	%{name}-timestamps.patch
+Patch3:		%{name}-timestamps.patch
+#	from jpc
+Patch10:	%{name}-customos.patch
+#	from SKaZi
+Patch20:        %{name}-status_indicator-add.patch
+Patch21:        %{name}-no_online_status-mod.patch
+Patch22:	%{name}-no_default_status_text-mod.patch
+Patch23:        %{name}-status_history-add.patch
+Patch24:	%{name}-offline_status-add.patch
+Patch25:        %{name}-icon_buttons_big_return-mod.patch
+Patch26:        %{name}-nicechats-mod.patch
+Patch27:        %{name}-roster-rich.patch
+Patch28:        %{name}-icondef.xml_status_indicator.patch
+Patch29:        %{name}-settoggles-fix.patch
+Patch30:        %{name}-wrong_mainwin_pos_gnome-fix.patch
 URL:		http://psi.affinix.com/
 BuildRequires:	libstdc++-devel
 BuildRequires:	cyrus-sasl-devel
@@ -71,21 +74,26 @@ katalogu $DATADIR/certs lub ~/.psi/certs.
 
 %prep
 %setup -q
+#	PLD
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
-%patch3 -p1
-%patch4 -p1
-%patch5 -p1
-%patch6 -p1
-%patch7 -p1
-%patch8 -p1
-%patch9 -p1
+#	jpc
 %patch10 -p1
-%patch11 -p1
-%patch12 -p1
-%{?with_square_timestamps:%patch13 -p2}
-%{__perl} -pi -e "s/QString PROG_VERSION = \"0.9.2\";/QString PROG_VERSION = \"0.9.2-%{release}\";/g" src/common.cpp
+#	SKaZi
+#%patch20 -p1
+%patch21 -p1
+#%patch22 -p1
+%patch23 -p1
+#%patch24 -p1
+%patch25 -p1
+%patch26 -p1
+%patch27 -p1
+#%patch28 -p1
+%patch29 -p1
+%patch30 -p1
+
+%{__perl} -pi -e "s/QString PROG_VERSION = \"0.9.3\";/QString PROG_VERSION = \"0.9.3-%{release}\";/g" src/common.cpp
 # %{__perl} -pi -e "s,/usr/local/share/psi,%{_datadir}/psi,g" src/common.cpp
 # %{__perl} -pi -e 's/CONFIG \+= debug//g' src/src.pro
 
@@ -123,7 +131,7 @@ install iconsets/system/default/icon_48.png $RPM_BUILD_ROOT%{_pixmapsdir}/psi.pn
 install iconsets/roster/stellar-icq/online.png $RPM_BUILD_ROOT%{_pixmapsdir}/psi-stellar.png
 install indicator.png $RPM_BUILD_ROOT%{_datadir}/psi/iconsets/roster/default/indicator.png
 
-for i in %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13} %{SOURCE14} %{SOURCE15} %{SOURCE16} %{SOURCE17}; do
+for i in %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13} %{SOURCE14} %{SOURCE15} %{SOURCE16} %{SOURCE17} %{SOURCE18}; do
 	install $i $RPM_BUILD_ROOT%{_datadir}/psi/
 done
 
@@ -141,13 +149,14 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/psi/certs
 %{_datadir}/psi/iconsets
 %{_datadir}/psi/sound
-%lang(de) %{_datadir}/psi/psi_de.qm
-%lang(fi) %{_datadir}/psi/psi_fi.qm
+%lang(ee) %{_datadir}/psi/psi_ee.qm
+%lang(es) %{_datadir}/psi/psi_es.qm
 %lang(fr) %{_datadir}/psi/psi_fr.qm
+%lang(mk) %{_datadir}/psi/psi_mk.qm
 %lang(nl) %{_datadir}/psi/psi_nl.qm
 %lang(pl) %{_datadir}/psi/psi_pl.qm
-%lang(sk) %{_datadir}/psi/psi_sk.qm
-%lang(sw) %{_datadir}/psi/psi_sw.qm
+%lang(ru) %{_datadir}/psi/psi_ru.qm
+%lang(vi) %{_datadir}/psi/psi_vi.qm
 %lang(zh) %{_datadir}/psi/psi_zh.qm
 %{_desktopdir}/*.desktop
 %{_pixmapsdir}/*.png
