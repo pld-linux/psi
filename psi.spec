@@ -4,7 +4,7 @@ Summary:	PSI - Jabber client
 Summary(pl):	PSI - klient Jabbera
 Name:		psi
 Version:	0.9.2
-Release:	0.%{snap}.1
+Release:	0.%{snap}.2
 License:	GPL
 Group:		Applications/Communications
 Source0:	%{name}-snap-%{snap}.tar.bz2
@@ -80,7 +80,7 @@ Jest to wersja rozwojowa (CVS).
 %patch1 -p0
 %patch2 -p0
 %patch3 -p0
-#%patch4 -p0
+%patch4 -p0
 %patch5 -p0
 %patch6 -p0
 %patch7 -p0
@@ -164,6 +164,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/*
 %dir %{_datadir}/psi
 %{_datadir}/psi/certs
+%{_datadir}/psi/designer
 %{_datadir}/psi/iconsets
 %{_datadir}/psi/sound
 %lang(ar) %{_datadir}/psi/psi_ar.qm
