@@ -1,6 +1,6 @@
-diff -aurN psi-0.9.1-test1.orig/psi.desktop psi-0.9.1-test1/psi.desktop
---- psi-0.9.1-test1.orig/psi.desktop	2003-03-13 01:27:46.000000000 +0100
-+++ psi-0.9.1-test1/psi.desktop	2003-12-10 20:18:30.612412888 +0100
+diff -urN psi-old/psi.desktop psi/psi.desktop
+--- psi-old/psi.desktop	2004-02-15 20:23:12.345620888 +0100
++++ psi/psi.desktop	2004-02-15 20:23:29.850959672 +0100
 @@ -1,10 +1,12 @@
  [Desktop Entry]
 -Encoding=UTF-8

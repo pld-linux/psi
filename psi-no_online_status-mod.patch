@@ -1,0 +1,23 @@
+diff -ru psi/src/psiaccount.cpp psi-smk2/src/psiaccount.cpp
+--- psi/src/psiaccount.cpp	2003-06-17 05:46:02.000000000 +0200
++++ psi-smk2/src/psiaccount.cpp	2003-06-19 23:48:40.000000000 +0200
+@@ -1043,8 +1043,8 @@
+ 	Status s = _s;
+ 	s.setPriority(d->acc.priority);
+ 
+-	if(s.status().isEmpty())
+-		s.setStatus(status2txt(makeSTATUS(s)));
++//	if(s.status().isEmpty())
++//		s.setStatus(status2txt(makeSTATUS(s)));
+ 
+ 	//printf("setting status to [%s]\n", s.status().latin1());
+ 
+@@ -1551,7 +1551,7 @@
+ 	}
+ 	else {
+ 		if(x == STATUS_ONLINE && !option.askOnline) {
+-			setStatus(Status());
++			setStatus(Status("","",0,true));
+ 		}
+ 		else if(x == STATUS_INVISIBLE){
+ 			Status s("","",0,true);

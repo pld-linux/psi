@@ -1,0 +1,191 @@
+diff -urN psi-old/src/common.h psi/src/common.h
+--- psi-old/src/common.h	2004-02-18 16:45:00.564143280 +0100
++++ psi/src/common.h	2004-02-18 16:46:26.719045744 +0100
+@@ -93,6 +93,8 @@
+ 	int defaultAction;
+ 	int incomingAs;
+ 	VarList sp; //status message presets
++	int recentStatusLimit;
++	bool storePresets;
+ 	QStringList recentStatus; //recent status messages
+ 
+ 	int asAway, asXa, asOffline;
+diff -urN psi-old/src/psi_profiles.cpp psi/src/psi_profiles.cpp
+--- psi-old/src/psi_profiles.cpp	2004-02-18 16:45:00.650130208 +0100
++++ psi/src/psi_profiles.cpp	2004-02-18 16:46:26.791034800 +0100
+@@ -397,6 +397,8 @@
+ 	prefs.sp.set(QObject::tr("Out for the night"), QObject::tr("Out for the night."));
+ 	prefs.sp.set(QObject::tr("Greece"), QObject::tr("I have gone to a far away place.  I will be back someday!"));
+ 	prefs.recentStatus.clear();
++	prefs.recentStatusLimit = 5;
++	prefs.storePresets = true;
+ 
+ 	prefs.color[cOnline]    = QColor("#0060C0");
+ 	prefs.color[cListBack]  = QColor("#C0C0C0");
+@@ -754,7 +756,12 @@
+ 			p_pres.appendChild(prefs.sp.toXml(doc, "statuspresets"));
+ 		}
+ 		{
+-			p_pres.appendChild(stringListToXml(doc, "recentstatus",prefs.recentStatus));
++			QDomElement e;
++			
++			e = stringListToXml(doc, "recentstatus",prefs.recentStatus);
++			e.setAttribute("limit", prefs.recentStatusLimit);
++			setBoolAttribute(e, "storePresets", prefs.storePresets);
++			p_pres.appendChild(e);
+ 		}
+ 	}
+ 
+@@ -1230,7 +1237,14 @@
+ 			tag = findSubTag(p_pres, "statuspresets", &found);
+ 			if(found)
+ 				prefs.sp.fromXml(tag);
+-			xmlToStringList(p_pres, "recentstatus", &prefs.recentStatus);
++			tag = findSubTag(p_pres, "recentstatus", &found);
++			if(found){
++				if(tag.hasAttribute("limit"))
++					prefs.recentStatusLimit = tag.attribute("limit").toInt();
++				if(tag.hasAttribute("storePresets"))
++					readBoolAttribute(tag, "storePresets", &prefs.storePresets);
++				xmlToStringList(p_pres, "recentstatus", &prefs.recentStatus);
++			}
+ 		}
+ 
+ 		QDomElement p_lnf = findSubTag(p, "lookandfeel", &found);
+diff -urN psi-old/src/statusdlg.cpp psi/src/statusdlg.cpp
+--- psi-old/src/statusdlg.cpp	2004-02-18 16:45:00.699122760 +0100
++++ psi/src/statusdlg.cpp	2004-02-18 16:46:26.792034648 +0100
+@@ -72,6 +72,8 @@
+ public:
+ 	Private() {}
+ 
++	int recentNum;
++	QString newStatus;
+ 	PsiCon *psi;
+ 	PsiAccount *pa;
+ 	Status s;
+@@ -88,6 +90,7 @@
+ 	d->pa = 0;
+ 	d->psi->dialogRegister(this);
+ 	d->s = s;
++	d->recentNum = -1;
+ 
+ 	setCaption(CAP(tr("Set Status: All accounts")));
+ 	init();
+@@ -101,6 +104,7 @@
+ 	d->pa = pa;
+ 	d->pa->dialogRegister(this);
+ 	d->s = s;
++	d->recentNum = -1;
+ 
+ 	setCaption(CAP(tr("Set Status: %1").arg(d->pa->name())));
+ 	init();
+@@ -159,6 +163,8 @@
+ 	d->te->setTextFormat(PlainText);
+ 	d->te->setText(d->s.status());
+ 	d->te->selectAll();
++	d->te->installEventFilter( this );
++	d->newStatus = d->te->text();
+ 	connect(pb1, SIGNAL(clicked()), SLOT(doButton()));
+ 	connect(pb2, SIGNAL(clicked()), SLOT(cancel()));
+ 	d->te->setFocus();
+@@ -185,6 +191,37 @@
+ 		e->ignore();
+ }
+ 
++bool StatusSetDlg::eventFilter( QObject *o, QEvent *e )
++{
++	if ( e->type() == QEvent::KeyPress ) {
++		QKeyEvent *ke = (QKeyEvent*)e;
++		if(ke->key() == Key_Up && (ke->state() & AltButton) )
++			return historySelect(-1);
++		else if(ke->key() == Key_Down && (ke->state() & AltButton) )
++			return historySelect(1);
++	}
++	return FALSE; 
++}
++
++bool StatusSetDlg::historySelect(int offs)
++{
++	// d->recentNum == -1 is new status (not saved yet)
++	if(d->recentNum == -1 && offs > 0)
++		d->newStatus = d->te->text();
++	else if(d->recentNum == 0 && offs < 0){
++		d->te->setText(d->newStatus);
++		d->recentNum += offs;
++		return TRUE;
++	}
++
++	if((d->recentNum + offs < 0) || (d->recentNum + offs >= (int)option.recentStatus.count()))
++		return FALSE;
++
++	d->recentNum += offs;
++	d->te->setText(option.recentStatus[d->recentNum]);	
++	return TRUE;
++}
++
+ void StatusSetDlg::doButton()
+ {
+ 	// Save preset
+@@ -220,6 +257,17 @@
+ 	int type = combomap[d->cb_type->currentItem()];
+ 	QString str = d->te->text();
+ 
++	// save recent if not saved yet else bring to front
++	if(!str.isEmpty()){
++		option.recentStatus.remove(str);
++		// if status is from preset, don't save it unless storePresets = "true" (config.xml)
++		if(option.storePresets || option.sp.findByData(str) == option.sp.end())
++			option.recentStatus.push_front(str);
++	}
++	// trim 
++	if((int)option.recentStatus.size() > option.recentStatusLimit)
++		option.recentStatus.pop_back();
++	
+ 	set(makeStatus(type, str));
+ 	close();
+ }
+diff -urN psi-old/src/statusdlg.h psi/src/statusdlg.h
+--- psi-old/src/statusdlg.h	2004-02-18 16:45:00.511151336 +0100
++++ psi/src/statusdlg.h	2004-02-18 16:46:26.824029784 +0100
+@@ -47,6 +47,8 @@
+ 
+ protected:
+ 	void keyPressEvent(QKeyEvent *);
++	bool eventFilter(QObject *, QEvent *);
++	bool historySelect(int);
+ 
+ signals:
+ 	void set(const Status &);
+diff -urN psi-old/src/varlist.cpp psi/src/varlist.cpp
+--- psi-old/src/varlist.cpp	2004-02-18 16:45:00.622134464 +0100
++++ psi/src/varlist.cpp	2004-02-18 16:46:26.856024920 +0100
+@@ -105,6 +105,17 @@
+ 	return it;
+ }
+ 
++VarList::Iterator VarList::findByData(const QString &data)
++{
++	VarList::Iterator it;
++	for(it = begin(); it != end(); ++it) {
++		if((*it).data() == data)
++			break;
++	}
++
++	return it;
++}
++
+ VarList::Iterator VarList::findByNum(int x)
+ {
+ 	int n = 0;
+diff -urN psi-old/src/varlist.h psi/src/varlist.h
+--- psi-old/src/varlist.h	2004-02-18 16:45:00.623134312 +0100
++++ psi/src/varlist.h	2004-02-18 16:46:26.886020360 +0100
+@@ -53,6 +53,7 @@
+ 	const QString & get(const QString &);
+ 
+ 	VarList::Iterator findByKey(const QString &);
++	VarList::Iterator findByData(const QString &);
+ 	VarList::Iterator findByNum(int);
+ 
+ 	QStringList varsToStringList();
