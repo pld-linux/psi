@@ -58,13 +58,13 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
 PSI is a communicator for the Jabber open messaging system. It is
-based on the QT library. It supports SSL encrypted connections. The
+based on the Qt library. It supports SSL encrypted connections. The
 default behaviour for SSL was changed so that it looks for SSL
 certificates in $DATADIR/certs or in ~/.psi/certs.
 
 %description -l pl
 PSI jest komunikatorem dla otwartego systemu wiadomo¶ci Jabber. Zosta³
-stworzony w oparciu o bibliotekê QT. PSI wspiera po³±czenia szyfrowane
+stworzony w oparciu o bibliotekê Qt. PSI wspiera po³±czenia szyfrowane
 SSL. W stosunku do domy¶lnego zachowania komunikatora zosta³a
 wprowadzona zmiana, która powoduje ¿e certyfikaty SSL s± poszukiwane w
 katalogu $DATADIR/certs lub ~/.psi/certs.
