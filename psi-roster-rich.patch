@@ -1,0 +1,285 @@
+diff -ru -X exclude psi-clean/src/common.h psi/src/common.h
+--- psi-clean/src/common.h	Thu Mar 04 22:04:00 2004
++++ psi/src/common.h	Thu Apr 01 14:09:06 2004
+@@ -84,6 +84,7 @@
+ 	QString defaultRosterIconset;
+ 	QMap<QString, QString> serviceRosterIconset;
+ 	QMap<QString, QString> customRosterIconset;
++	QMap<QString, QString> customRosterTemplate;
+ 
+ 	bool useleft, singleclick, askOnline, popupMsgs, popupChats, popupHeadlines, raise;
+ 	bool alwaysOnTop, noAwaySound, noAwayPopup, noUnlistedPopup, rosterAnim, autoVersion, autoVCardOnLogin, xmlConsoleOnLogin;
+diff -ru -X exclude psi-clean/src/contactview.cpp psi/src/contactview.cpp
+--- psi-clean/src/contactview.cpp	Sun Mar 21 15:45:20 2004
++++ psi/src/contactview.cpp	Thu Apr 01 14:29:02 2004
+@@ -1684,7 +1684,7 @@
+ };
+ 
+ ContactView::ContactView(QWidget *parent, const char *name)
+-:QListView(parent, name, QListView::WRepaintNoErase | QListView::WResizeNoErase), QToolTip(viewport())
++:QListView(parent, name, 0/* these are default for QLView QListView::WRepaintNoErase | QListView::WResizeNoErase*/), QToolTip(viewport())
+ {
+ 	d = new Private(this);
+ 
+@@ -2176,7 +2176,7 @@
+ };
+ 
+ ContactViewItem::ContactViewItem(const QString &profileName, ContactProfile *cp, ContactView *parent)
+-:QListViewItem(parent)
++:RichListViewItem(parent)
+ {
+ 	d = new Private(this, cp);
+ 	d->type = Profile;
+@@ -2191,7 +2191,7 @@
+ }
+ 
+ ContactViewItem::ContactViewItem(const QString &groupName, int groupType, ContactProfile *cp, ContactView *parent)
+-:QListViewItem(parent)
++:RichListViewItem(parent)
+ {
+ 	d = new Private(this, cp);
+ 	d->type = Group;
+@@ -2207,7 +2207,7 @@
+ }
+ 
+ ContactViewItem::ContactViewItem(const QString &groupName, int groupType, ContactProfile *cp, ContactViewItem *parent)
+-:QListViewItem(parent)
++:RichListViewItem(parent)
+ {
+ 	d = new Private(this, cp);
+ 	d->type = Group;
+@@ -2226,7 +2226,7 @@
+ }
+ 
+ ContactViewItem::ContactViewItem(UserListItem *u, ContactProfile *cp, ContactViewItem *parent)
+-:QListViewItem(parent)
++:RichListViewItem(parent)
+ {
+ 	d = new Private(this, cp);
+ 	d->cp = cp;
+@@ -2245,6 +2250,8 @@
+ 
+ 	if(!parent->isVisible())
+ 		setVisible(false);
++	else
++		setup();
+ }
+ 
+ ContactViewItem::~ContactViewItem()
+@@ -2346,6 +2346,95 @@
+ 	p->fillRect(0, 0, w, h, cg.base());
+ }
+ 
++QString jid2template(const Jid &jid)
++{
++	QString templ = "";
++	QMapIterator<QString, QString> it = option.customRosterTemplate.begin();
++	for ( ; it != option.customRosterTemplate.end(); ++it) {
++		QRegExp rx = QRegExp(it.key());
++		if ( rx.search(jid.userHost()) != -1 ) {
++			templ = it.data();
++			break;
++		}
++	}
++	return templ;
++}
++
++QString ContactViewItem::expandTemplate(int column)
++{	
++	QString txt;
++	// default template (best case), skip all regexes
++	if(!d->u ||  (txt = jid2template(d->u->jid())).isEmpty())
++		return RichListViewItem::expandTemplate(column);
++
++	QString ins;
++	QRegExp repl;
++
++	repl.setCaseSensitive(FALSE);
++	// contact name (default)
++	ins = expandEntities(text(column));
++	repl.setPattern("<text>"); txt.replace(repl, ins);
++	if(!ins.isEmpty()){
++		repl.setPattern("<!text>"); txt.replace(repl, QString("<br>") + ins);
++	}
++	// jid
++	ins = expandEntities(d->u->jid().bare());
++	repl.setPattern("<jid>"); txt.replace(repl, ins);
++	if(!ins.isEmpty()){
++		repl.setPattern("<!jid>"); txt.replace(repl, QString("<br>") + ins);
++	}
++	// subscription
++	ins = d->u->subscription().toString();
++	repl.setPattern("<subscription>"); txt.replace(repl, ins);
++	if(!ins.isEmpty()){
++		repl.setPattern("<!subscription>"); txt.replace(repl, QString("<br>") + ins);
++	}
++	// resource dependent
++	UserResourceList srl = d->u->userResourceList();
++	if(!srl.isEmpty()){
++		srl.sort();
++		const UserResource &r = *(srl.begin());
++		// status description
++		ins = linkify(expandEntities(r.status().status().stripWhiteSpace()));
++		if(option.useEmoticons)
++			ins = emoticonify(ins);
++		ins.replace("\n", "<br>");
++		repl.setPattern("<status_msg>"); txt.replace(repl, ins);
++		if(!ins.isEmpty()){
++			repl.setPattern("<!status_msg>"); txt.replace(repl, QString("<br>") + ins);
++		}
++		// resource name
++		ins = r.name();
++		if(ins.isEmpty())
++			ins = QObject::tr("[blank]");
++		repl.setPattern("<resource>"); txt.replace(repl, ins);
++		repl.setPattern("<!resource>"); txt.replace(repl, QString("<br>") + ins);
++		// priority
++		ins = QString("%1").arg(r.priority());
++		repl.setPattern("<priority>"); txt.replace(repl, ins);
++		if(!ins.isEmpty()){
++			repl.setPattern("<!priority>"); txt.replace(repl, QString("<br>") + ins);
++		}
++		// version
++		ins = expandEntities(r.versionString());
++		repl.setPattern("<version>"); txt.replace(repl, ins);
++		if(!ins.isEmpty()){
++			repl.setPattern("<!version>"); txt.replace(repl, QString("<br>") + ins);
++		}
++	}
++	// ... TODO
++
++	// nothing left (worst case), use default
++	repl.setMinimal(TRUE);
++	repl.setPattern("<.*>");
++	QString out = txt;
++	out.remove(repl);
++	if(out.stripWhiteSpace().isEmpty())
++		return RichListViewItem::expandTemplate(column);
++
++	return txt;
++}
++
+ void ContactViewItem::paintCell(QPainter *p, const QColorGroup & cg, int column, int width, int alignment)
+ {
+ 	if ( d->type == Contact ) {
+@@ -2363,11 +2452,12 @@
+ 			xcg.setColor(QColorGroup::HighlightedText, d->animateNickColor ? option.color[cAnimFront] : option.color[cAnimBack]);
+ 		}
+ 
+-		QListViewItem::paintCell(p, xcg, column, width, alignment);
++		RichListViewItem::paintCell(p, xcg, column, width, alignment);
+ 
+-		QFontMetrics fm(p->font());
++//		QFontMetrics fm(p->font());
+ 		const QPixmap *pix = pixmap(column);
+-		int x = fm.width(text(column)) + (pix ? pix->width() : 0) + 8;
++//		int x = fm.width(text(column)) + (pix ? pix->width() : 0) + 8;
++		int x = widthUsed();
+ 
+ 		if ( d->u ) {
+ 			UserResourceList::ConstIterator it = d->u->priority();
+@@ -2784,6 +2874,7 @@
+ 	if(needUpdate)
+ 		updatePosition();
+ 
++	setup();
+ 	repaint();
+ }
+ 
+diff -ru -X exclude psi-clean/src/contactview.h psi/src/contactview.h
+--- psi-clean/src/contactview.h	Sun Mar 21 15:45:24 2004
++++ psi/src/contactview.h	Thu Apr 01 14:09:06 2004
+@@ -23,6 +23,7 @@
+ 
+ #include<qobject.h>
+ #include<qlistview.h>
++#include<richlistview.h>
+ #include<qtooltip.h>
+ #include<qvaluelist.h>
+ #include"xmpp.h"
+@@ -238,7 +239,7 @@
+ };
+ 
+ // ContactViewItem: an entry in the ContactView (profile, group, or contact)
+-class ContactViewItem : public QObject, public QListViewItem
++class ContactViewItem : public QObject, public RichListViewItem
+ {
+ 	Q_OBJECT
+ public:
+@@ -302,6 +303,7 @@
+ 	void dragEntered();
+ 	void dragLeft();
+ 	void dropped(QDropEvent *);
++	virtual QString expandTemplate(int column = 0);
+ 
+ private:
+ 	class Private;
+diff -ru -X exclude psi-clean/src/psi_profiles.cpp psi/src/psi_profiles.cpp
+--- psi-clean/src/psi_profiles.cpp	Sun Mar 21 15:47:06 2004
++++ psi/src/psi_profiles.cpp	Thu Apr 01 14:09:06 2004
+@@ -549,6 +549,8 @@
+ 
+ 	prefs.customRosterIconset.clear();
+ 
++	prefs.customRosterTemplate.clear();
++
+ 	// roster sorting
+ 	prefs.rosterContactSortStyle = Options::ContactSortStyle_Status;
+ 	prefs.rosterGroupSortStyle   = Options::GroupSortStyle_Alpha;
+@@ -643,6 +645,19 @@
+ 					name = "rank";
+ 				sorting.appendChild(textTag(doc, "account", name));
+ 			}
++			{
++				QDomElement templates = doc.createElement("templates");
++				p_roster.appendChild(templates);
++
++				QMapIterator<QString, QString> it = prefs.customRosterTemplate.begin();
++				for ( ; it != prefs.customRosterTemplate.end(); ++it) {
++					QDomElement item = doc.createElement("item");
++					templates.appendChild(item);
++
++					item.setAttribute("regExp", it.key());
++					item.setAttribute("template", it.data());
++				}
++			}
+ 		}
+ 		{
+ 			QDomElement p_misc = doc.createElement("misc");
+@@ -1125,6 +1140,17 @@
+ 						prefs.rosterAccountSortStyle = Options::AccountSortStyle_Rank;
+ 					else
+ 						prefs.rosterAccountSortStyle = Options::AccountSortStyle_Alpha;
++				}
++				QDomElement templates = findSubTag(p_roster, "templates", &found);
++				if (found) {
++					prefs.customRosterTemplate.clear();
++					for (QDomNode n = templates.firstChild(); !n.isNull(); n = n.nextSibling()) {
++						QDomElement i = n.toElement();
++						if ( i.isNull() )
++							continue;
++
++						prefs.customRosterTemplate[i.attribute("regExp")] = i.attribute("template");
++					}
+ 				}
+ 			}
+ 
+diff -ru -X exclude psi-clean/src/src.pro psi/src/src.pro
+--- psi-clean/src/src.pro	Sun Mar 21 15:48:44 2004
++++ psi/src/src.pro	Thu Apr 01 14:09:06 2004
+@@ -81,6 +81,7 @@
+ 
+ # Header files
+ HEADERS += \
++	$$PSI_CPP/richlistview.h \
+ 	$$PSI_CPP/varlist.h \
+ 	$$PSI_CPP/profiles.h \
+ 	$$PSI_CPP/profiledlg.h \
+@@ -125,6 +126,7 @@
+ 
+ # Source files
+ SOURCES += \
++	$$PSI_CPP/richlistview.cpp \
+ 	$$PSI_CPP/varlist.cpp \
+ 	$$PSI_CPP/psi_profiles.cpp \
+ 	$$PSI_CPP/profiledlg.cpp \
