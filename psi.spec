@@ -6,7 +6,7 @@ Summary:	PSI - Jabber client
 Summary(pl):	PSI - klient Jabbera
 Name:		psi
 Version:	0.9
-Release:	1
+Release:	2
 License:	GPL
 Group:		Applications/Communications
 Source0:	http://dl.sourceforge.net/%{name}/%{name}-%{version}.tar.bz2
@@ -15,10 +15,15 @@ Source2:	%{name}.desktop
 Patch0:		%{name}-paths.patch
 Patch1:		%{name}-certs.patch
 Patch2:		%{name}-additional_features.patch
+Patch3:		%{name}-pld.patch
 URL:		http://psi.affinix.com/
 BuildRequires:	qt-devel >= 3.1.0
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 Conflicts:	qt-plugin-ssl = 1.0
+
+# Uncomment for Ra
+# %define		_desktopdir	%{_applnkdir}/Network/Communications/
+# %define		_prefix		/usr/X11R6
 
 %description
 PSI is communicator for Jabber open messaging system. It is based on
@@ -38,6 +43,7 @@ katalogu $DATADIR/certs lub ~/.psi/certs.
 %patch0 -p1
 %patch1 -p1
 %{?_with_addons:%patch2 -p1}
+%patch3 -p1
 perl -pi -e "s/QString PROG_VERSION = \"0.9\";/QString PROG_VERSION = \"0.9-%{release}\";/g" src/common.cpp
 perl -pi -e "s,/usr/local/share/psi,/usr/share/psi,g" src/common.cpp
 
