@@ -37,6 +37,9 @@ Patch30:	%{name}-wrong_mainwin_pos_gnome-fix.patch
 #       from Remko Troncon:
 # http://www.cs.kuleuven.ac.be/~remko/psi/rc/ (downloaded on 2005-01-02 18:38)
 Patch100:	%{name}-adhoc_and_rc.patch
+#       from Psi forums:
+# http://www.uni-bonn.de/~nieuwenh/libTeXFormula.diff
+Patch200:	%{name}-libTeXFormula.patch
 URL:		http://psi.affinix.com/
 BuildRequires:	libstdc++-devel
 BuildRequires:	cyrus-sasl-devel
@@ -86,7 +89,7 @@ napisaæ w³asne okna dialogowe itp. albo poprawiæ obecne.
 
 %prep
 %setup -q -c %{name}-%{version}
-%setup -q -D -a 5
+%setup -q -D -a 5 -c %{name}-%{version}
 #       PLD:
 %patch0 -p0
 %patch1 -p0
@@ -107,6 +110,9 @@ napisaæ w³asne okna dialogowe itp. albo poprawiæ obecne.
 %patch30 -p0
 #       Other:
 %patch100 -p1
+cd psi
+%patch200 -p0
+cd ..
 
 sed -i \
 	's/QString PROG_VERSION = .*/QString PROG_VERSION = "0.9.3-%{snap}";/g' \
