@@ -107,7 +107,7 @@ rm -rf $RPM_BUILD_ROOT
 %lang(it) %{_datadir}/psi/translations/psi_it.qm
 %lang(pt) %{_datadir}/psi/translations/psi_pt.qm
 %lang(pt_BR) %{_datadir}/psi/translations/psi_ptbr.qm
-%lang(se) %{_datadir}/psi/translations/psi_se.qm
+%lang(sv) %{_datadir}/psi/translations/psi_se.qm
 %lang(zh) %{_datadir}/psi/translations/psi_zh.qm
 
 %{_libdir}/psi
