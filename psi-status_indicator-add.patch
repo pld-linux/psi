@@ -161,7 +161,7 @@ diff -urN psi-0.9.3.orig/src/options/opt_appearance.cpp psi-0.9.3/src/options/op
 +	OptAppearanceUI *d = (OptAppearanceUI *)w;
  	//d->ck_avatarsChatdlg->setChecked( opt->avatarsChatdlgEnabled ); // Avatars
 -
-+	opt->clStIndicator = d->ck_statusIndicator->isChecked();
++	d->ck_statusIndicator->setChecked( opt->clStIndicator );
 +	
  	int n;
  	for (n = 0; n < 4; ++n)
