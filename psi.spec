@@ -2,13 +2,20 @@ Summary:	PSI Jabber client
 Summary(pl):	PSI - klient Jabbera
 Name:		psi
 Version:	0.8.7
-Release:	0.1
+Release:	0.2
 License:	GPL
 Group:		Applications/Communications
 Source0:	ftp://ftp.sourceforge.net/pub/sourceforge/psi/%{name}-%{version}.tar.bz2
 Source2:	%{name}.desktop
 # Translation files ftom http://psi.sourceforge.net/
-Source3:	%{name}-translations-20021128.tar.bz2
+Source3:	%{name}_cz.ts
+Source4:	%{name}_de.ts
+Source5:	%{name}_es.ts
+Source6:	%{name}_fr.ts
+Source7:	%{name}_mk.ts
+Source8:	%{name}_nl.ts
+Source9:	%{name}_pl.ts
+Source10:	%{name}_ru.ts
 Patch0:		%{name}-include.patch
 Patch1:		%{name}-plugin.patch
 Patch2:		%{name}-certs.patch
@@ -49,7 +56,8 @@ export QMAKESPEC
 make
 
 cd src
-tar -jxvf %{SOURCE3} .
+cp %{SOURCE3} %{SOURCE4} %{SOURCE5} %{SOURCE6} %{SOURCE7} %{SOURCE8} \
+	%{SOURCE9} %{SOURCE10} .
 lrelease psi.pro
 cd ..
 
