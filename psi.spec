@@ -1,16 +1,12 @@
-#
-# Conditional build:
-# _without_qssl 	Disable qssl support
-#
 Summary:	PSI - Jabber client
 Summary(pl):	PSI - klient Jabbera
 Name:		psi
-Version:	0.8.7
-Release:	3
+Version:	0.9
+Release:	0.1
 License:	GPL
 Group:		Applications/Communications
-Source0:	http://heanet.dl.sourceforge.net/sourceforge/psi/%{name}-%{version}.tar.bz2
-# Source0-md5:	4e18ea341dca70556d0dc1baf026ef86	
+Source0:	http://dl.sourceforge.net/%{name}/%{name}-%{version}.tar.bz2
+# Source0-md5:	bf3aaa7fa8a1efdff9f96fa718366aa8
 Source2:	%{name}.desktop
 # Translation files ftom http://psi.sourceforge.net/
 Source3:	%{name}_cz.ts
@@ -23,13 +19,14 @@ Source9:	%{name}_pl.ts
 Source10:	%{name}_ru.ts
 Source11:       %{name}_br.ts
 Source12:	%{name}_fi.ts
-Patch0:		%{name}-include.patch
-Patch1:		%{name}-paths.patch
-Patch2:		%{name}-certs.patch
+Patch0:		%{name}-paths.patch
+Patch1:		%{name}-certs.patch
 URL:		http://psi.affinix.com/
 BuildRequires:	qt-devel >= 3.0.5
-%{!?_without_qssl:BuildRequires:	qt-plugin-ssl-devel >= 1.0-2}
+BuildRequires:	qt-plugin-ssl-devel >= 1.0-2
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
+
+%define _prefix /usr/X11R6
 
 %description
 PSI is communicator for Jabber open messaging system. It is based on
@@ -46,9 +43,8 @@ katalogu $DATADIR/certs lub ~/.psi/certs.
 
 %prep
 %setup  -q
-%{!?_without_qssl:%patch0 -p1}
+%patch0 -p1
 %patch1 -p1
-%patch2 -p1
 
 %build
 QTDIR=%{_prefix}
