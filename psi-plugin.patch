@@ -1,10 +1,10 @@
-diff -ru psi-0.8.6/src/main.cpp psi-0.8.6-AlchemyX/src/main.cpp
---- psi-0.8.6/src/main.cpp	Mon Jul  8 20:13:11 2002
-+++ psi-0.8.6-AlchemyX/src/main.cpp	Sat Nov 16 02:33:38 2002
-@@ -163,6 +165,6 @@
+--- psi-0.8.7/src/main.cpp.wiget	Wed Oct 30 11:09:34 2002
++++ psi-0.8.7/src/main.cpp	Wed Nov 27 15:40:53 2002
+@@ -167,7 +167,7 @@
+ 	// load SSL
  	dirs.clear();
  	dirs += g.pathHome;
-- 	dirs += g.pathBase;
+-	dirs += g.pathBase;
 +	dirs += "/usr/X11R6/lib/psi";
  	dirs += "";
  	Stream::loadSSL(dirs);
