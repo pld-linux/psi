@@ -1,11 +1,16 @@
 #
+# TODO:
+#   - correct iconsets to include indicator.png
+#     ftp://skazi.homeip.net/SkaZi/psi/patches/
+#     (*indicator.png, icondef.status_indicator.xml)
+#
 %define		snap 20040322
 #
 Summary:	PSI - Jabber client
 Summary(pl):	PSI - klient Jabbera
 Name:		psi
 Version:	0.9.2
-Release:	0.%{snap}.1
+Release:	0.%{snap}.3
 License:	GPL
 Group:		Applications/Communications
 Source0:	%{name}-snap-%{snap}.tar.bz2
@@ -23,7 +28,7 @@ Patch7:		%{name}-status_history-add.patch
 Patch8:		%{name}-offline_status-add.patch
 Patch9:		%{name}-icon_buttons_big_return-mod.patch
 Patch10:	%{name}-nicechats-mod.patch
-Patch11:	%{name}-rich_CV-SID.patch
+Patch11:	%{name}-rich_contactview-add.patch
 Patch12:	%{name}-CV-doublebuffer.patch
 URL:		http://psi.affinix.com/
 BuildRequires:	libstdc++-devel
