@@ -6,7 +6,7 @@ Summary:	PSI - Jabber client
 Summary(pl):	PSI - klient Jabbera
 Name:		psi
 Version:	0.9.2
-Release:	0.1
+Release:	0.2
 License:	GPL
 Group:		Applications/Communications
 Source0:	http://dl.sourceforge.net/%{name}/%{name}-%{version}.tar.bz2
@@ -69,9 +69,9 @@ katalogu $DATADIR/certs lub ~/.psi/certs.
 %patch11 -p1
 %patch12 -p1
 %{?with_square_timestamps:%patch13 -p1}
-%{__perl} -pi -e "s/QString PROG_VERSION = \"0.9.1\";/QString PROG_VERSION = \"0.9.1-%{release}\";/g" src/common.cpp
-%{__perl} -pi -e "s,/usr/local/share/psi,%{_datadir}/psi,g" src/common.cpp
-%{__perl} -pi -e 's/CONFIG \+= debug//g' src/src.pro
+%{__perl} -pi -e "s/QString PROG_VERSION = \"0.9.2\";/QString PROG_VERSION = \"0.9.2-%{release}\";/g" src/common.cpp
+# %{__perl} -pi -e "s,/usr/local/share/psi,%{_datadir}/psi,g" src/common.cpp
+# %{__perl} -pi -e 's/CONFIG \+= debug//g' src/src.pro
 
 cp %{SOURCE1} src/richlistview.cpp
 cp %{SOURCE2} src/richlistview.h
