@@ -1,6 +1,6 @@
-diff -ru psi-0.9.1-test1/src/psi_profiles.cpp psi-0.9.1-test1.orig/src/psi_profiles.cpp
---- psi-0.9.1-test1/src/psi_profiles.cp
-+++ psi-0.9.1-test1.orig/src/psi_profiles.cpp
+diff -ru psi-0.8.6/src/profiles.cpp psi-0.8.6-AlchemyX/src/profiles.cpp
+--- psi-0.8.6/src/profiles.cpp	Mon Jul  8 20:13:11 2002
++++ psi-0.8.6-AlchemyX/src/profiles.cpp	Tue Nov 26 19:29:33 2002
 @@ -470,7 +470,7 @@
  	prefs.onevent[eSend]    = g.pathBase + "/sound/send.wav";
  
