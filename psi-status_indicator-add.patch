@@ -118,12 +118,12 @@ diff -ru -X exclude psi-clean/src/contactview.cpp psi/src/contactview.cpp
 +				const QBitmap* imask = ipix.mask();
 +				bitBlt(&mask, (mask.width() - imask->width())/2, (mask.height() - imask->height())/2, 
 +					imask, 0, 0, imask->width(), imask->height(), 
-+					RasterOp::OrROP);
++					QPixmap::OrROP);
 +				out.setMask(mask);
 +			}
 +			bitBlt(&out, (out.width() - ipix.width())/2, (out.height() - ipix.height())/2, 
 +				&ipix, 0, 0, ipix.width(), ipix.height(), 
-+				RasterOp::CopyROP);
++				QPixmap::CopyROP);
 +		}
 +	}
 +	setPixmap(0, out);
