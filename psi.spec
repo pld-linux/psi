@@ -149,7 +149,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/psi/certs
 %{_datadir}/psi/iconsets
 %{_datadir}/psi/sound
-%lang(ee) %{_datadir}/psi/psi_ee.qm
+%lang(et) %{_datadir}/psi/psi_ee.qm
 %lang(es) %{_datadir}/psi/psi_es.qm
 %lang(fr) %{_datadir}/psi/psi_fr.qm
 %lang(mk) %{_datadir}/psi/psi_mk.qm
