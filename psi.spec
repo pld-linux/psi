@@ -4,7 +4,7 @@ Summary:	PSI - Jabber client
 Summary(pl):	PSI - klient Jabbera
 Name:		psi
 Version:	0.9.2
-Release:	0.%{snap}.2
+Release:	0.%{snap}.3
 License:	GPL
 Group:		Applications/Communications
 Source0:	%{name}-snap-%{snap}.tar.bz2
@@ -52,6 +52,8 @@ katalogu $DATADIR/certs lub ~/.psi/certs.
 
 Jest to wersja rozwojowa (CVS) z ³atkami SKaZiego.
 
+%define		_plugindir %{_libdir}/qt/plugins-mt/crypto
+
 %package -n qt-plugin-qca-tls
 Summary:	Qt Cryptographic Architecture (QCA) SSL/TLS plugin
 Summary(pl):	Wtyczka SSL/TLS dla Qt Cryptographic Architecture (QCA)
@@ -59,8 +61,6 @@ Version:	1.1
 Epoch:		1
 License:	GPL v2
 Group:		Libraries
-
-%define		_plugindir %{_libdir}/qt/plugins-mt/crypto
 
 %description -n qt-plugin-qca-tls
 A plugin to provide SSL/TLS capability to programs that utilize the Qt
@@ -70,6 +70,25 @@ This is a development version (CVS).
 
 %description -n qt-plugin-qca-tls -l pl
 Wtyczka pozwalaj±ca wykorzystaæ mo¿liwo¶ci SSL/TLS w programach
+korzystaj±cych z Qt Cryptographic Architecture (QCA).
+
+Jest to wersja rozwojowa (CVS).
+
+%package -n qt-plugin-qca-sasl
+Summary:	Qt Cryptographic Architecture (QCA) SASL plugin
+Summary(pl):	Wtyczka SASL dla Qt Cryptographic Architecture (QCA)
+Version:	1.0
+License:	GPL v2
+Group:		Libraries
+
+%description -n qt-plugin-qca-sasl
+A plugin to provide SASL capability to programs that utilize the Qt
+Cryptographic Architecture (QCA).
+
+This is a development version (CVS).
+
+%description -n qt-plugin-qca-sasl -l pl
+Wtyczka pozwalaj±ca wykorzystaæ mo¿liwo¶ci SASL w programach
 korzystaj±cych z Qt Cryptographic Architecture (QCA).
 
 Jest to wersja rozwojowa (CVS).
@@ -101,8 +120,10 @@ cp %{SOURCE3} psi/README.rich-roster
 cp %{SOURCE4} psi/indicator.png
 
 %build
-cd psi
+
 export QTDIR=%{_prefix}
+
+cd psi
 ./configure \
 	--prefix=%{_prefix}
 
@@ -116,12 +137,27 @@ lrelease lang/*.ts
 
 %{__make}
 
-cd ..
-cd qca/plugins/qca-tls
-
+cd ../qca/plugins/qca-tls
 ./configure
 
 qmake qca-tls.pro \
+	QMAKE_CXX="%{__cxx}" \
+	QMAKE_LINK="%{__cxx}" \
+	QMAKE_CXXFLAGS_RELEASE="%{rpmcflags}" \
+	QMAKE_RPATH=
+
+%{__make}
+
+cd ../qca-sasl
+
+# This dir contains bad qcextra file, so prepare good one
+sed -i \
+	's/target.path=.*/target.path=$QTDIR\/lib\/qt\/plugins-mt\/crypto/' \
+	qcextra
+
+./configure
+
+qmake qca-sasl.pro \
 	QMAKE_CXX="%{__cxx}" \
 	QMAKE_LINK="%{__cxx}" \
 	QMAKE_CXXFLAGS_RELEASE="%{rpmcflags}" \
@@ -133,7 +169,6 @@ cd ../../..
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT{%{_desktopdir},%{_pixmapsdir}}
 
 export QTDIR=%{_prefix}
 
@@ -145,13 +180,25 @@ cd ..
 cd qca/plugins/qca-tls
 %{__make} install \
 	INSTALL_ROOT=$RPM_BUILD_ROOT
+
+cd ../qca-sasl
+%{__make} install \
+	INSTALL_ROOT=$RPM_BUILD_ROOT
+
 cd ../../..
+
+install -d \
+	$RPM_BUILD_ROOT%{_libdir}/qt/plugins-mt/designer \
+	$RPM_BUILD_ROOT{%{_desktopdir},%{_pixmapsdir}}
 
 install psi/psi.desktop $RPM_BUILD_ROOT%{_desktopdir}
 install psi/iconsets/system/default/icon_48.png $RPM_BUILD_ROOT%{_pixmapsdir}/psi.png
 install psi/iconsets/roster/stellar-icq/online.png $RPM_BUILD_ROOT%{_pixmapsdir}/psi-stellar.png
 install psi/lang/*.qm $RPM_BUILD_ROOT%{_datadir}/psi
 install psi/indicator.png $RPM_BUILD_ROOT%{_datadir}/psi/iconsets/roster/default/indicator.png
+
+mv $RPM_BUILD_ROOT%{_datadir}/psi/designer/libpsiwidgets.so \
+	$RPM_BUILD_ROOT%{_libdir}/qt/plugins-mt/designer
 
 rm $RPM_BUILD_ROOT%{_datadir}/psi/COPYING $RPM_BUILD_ROOT%{_datadir}/psi/README
 
@@ -162,9 +209,9 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %doc psi/README psi/TODO psi/README.rich-roster
 %attr(755,root,root) %{_bindir}/*
+%attr(755,root,root) %{_libdir}/qt/plugins-mt/designer/libpsiwidgets.so
 %dir %{_datadir}/psi
 %{_datadir}/psi/certs
-%{_datadir}/psi/designer
 %{_datadir}/psi/iconsets
 %{_datadir}/psi/sound
 %lang(ar) %{_datadir}/psi/psi_ar.qm
@@ -195,4 +242,9 @@ rm -rf $RPM_BUILD_ROOT
 %files -n qt-plugin-qca-tls
 %defattr(644,root,root,755)
 %doc qca/plugins/qca-tls/README
-%attr(755,root,root) %{_plugindir}/*.so
+%attr(755,root,root) %{_plugindir}/libqca-tls.so
+
+%files -n qt-plugin-qca-sasl
+%defattr(644,root,root,755)
+%doc qca/plugins/qca-sasl/README
+%attr(755,root,root) %{_plugindir}/libqca-sasl.so
