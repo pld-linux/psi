@@ -1,0 +1,11 @@
+--- Makefile1	Sun Sep 29 16:01:59 2002
++++ Makefile	Sun Sep 29 16:02:11 2002
+@@ -16,7 +16,7 @@
+ CXXFLAGS = -pipe -Wall -W -O2 -march=i386 -D_REENTRANT  -DQT_NO_DEBUG -DQT_THREAD_SUPPORT
+ LEXFLAGS = 
+ YACCFLAGS= -d
+-INCPATH  = -I/usr/X11R6/include -I$(QTDIR)/include -I$(QTDIR)/share/qt/mkspecs/linux-g++
++INCPATH  = -I/usr/X11R6/include -I$(QTDIR)/include/qt -I$(QTDIR)/share/qt/mkspecs/linux-g++
+ LINK     = g++
+ LFLAGS   = 
+ LIBS     = $(SUBLIBS)  -Wl,-rpath,$(QTDIR)/lib  -L$(QTDIR)/lib  -L/usr/X11R6/lib -lXss -lz -lqt-mt -lpthread -lXext -lX11 -lm
