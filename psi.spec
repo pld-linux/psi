@@ -4,19 +4,20 @@
 #     ftp://skazi.homeip.net/SkaZi/psi/patches/
 #     (*indicator.png, icondef.status_indicator.xml)
 #
-%define		snap 20040322
+%define		snap 20040401
 #
 Summary:	PSI - Jabber client
 Summary(pl):	PSI - klient Jabbera
 Name:		psi
 Version:	0.9.2
-Release:	0.%{snap}.3
+Release:	0.%{snap}.1
 License:	GPL
 Group:		Applications/Communications
 Source0:	%{name}-snap-%{snap}.tar.bz2
-# Source0-md5:	a38fa61c1dbe0d2bb86a7d7186411cfa
+# Source0-md5:	be45470ad818eebc4f344935d93b4efd
 Source1:	%{name}-richlistview.cpp
 Source2:	%{name}-richlistview.h
+Source3:        %{name}-roster-rich.README
 Patch0:		%{name}-certs.patch
 Patch1:		%{name}-desktop.patch
 Patch2:		%{name}-home_etc.patch
@@ -28,8 +29,7 @@ Patch7:		%{name}-status_history-add.patch
 Patch8:		%{name}-offline_status-add.patch
 Patch9:		%{name}-icon_buttons_big_return-mod.patch
 Patch10:	%{name}-nicechats-mod.patch
-Patch11:	%{name}-rich_contactview-add.patch
-#Patch12:	%{name}-CV-doublebuffer.patch
+Patch11:	%{name}-roster-rich.patch
 URL:		http://psi.affinix.com/
 BuildRequires:	libstdc++-devel
 BuildRequires:	openssl-devel >= 0.9.7c
@@ -91,7 +91,6 @@ Jest to wersja rozwojowa (CVS).
 %patch9 -p0
 %patch10 -p0
 %patch11 -p0
-#%patch12 -p0
 
 %{__perl} -pi -e "s/QString PROG_VERSION = \"0.9.1-CVS\";/QString PROG_VERSION = \"0.9.2-%{snap}\";/g" psi/src/common.cpp
 %{__perl} -pi -e "s,/usr/local/share/psi,%{_datadir}/psi,g" psi/src/common.cpp
@@ -99,6 +98,7 @@ Jest to wersja rozwojowa (CVS).
 
 cp %{SOURCE1} psi/src/richlistview.cpp
 cp %{SOURCE2} psi/src/richlistview.h
+cp %{SOURCE3} psi/README.rich-roster
 
 %build
 cd psi
@@ -159,7 +159,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc psi/README psi/TODO
+%doc psi/README psi/TODO psi/README.rich-roster
 %attr(755,root,root) %{_bindir}/*
 %dir %{_datadir}/psi
 %{_datadir}/psi/designer
