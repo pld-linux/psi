@@ -1,4 +1,4 @@
-%define		_rel test1
+%define		_rel test2
 Summary:        PSI - Jabber client
 Summary(pl):    PSI - klient Jabbera
 Name:           psi
@@ -7,7 +7,9 @@ Release:        0.%{_rel}.1
 License:        GPL
 Group:          Applications/Communications
 Source0:        http://psi.affinix.com/beta/%{name}-%{version}-%{_rel}.tar.bz2
-# Source0-md5:	5822a69752d3450a21ad49b6d7137e0c
+# Source0-md5:	1776fa19bc67648db2a1b4ba1a743459
+Source1:	http://beta.jabberpl.org/komunikatory/psi/psi_pl.qm
+# Source1-md5:	7580db7813ca17d8cf00f1eab794dd1a
 Patch0:         %{name}-certs.patch
 Patch1:		%{name}-desktop.patch
 URL:            http://psi.affinix.com/
@@ -62,6 +64,8 @@ install -c psi.desktop $RPM_BUILD_ROOT%{_desktopdir}
 install -c iconsets/system/default/icon_48.png $RPM_BUILD_ROOT%{_pixmapsdir}/psi.png
 
 #rm -f $RPM_BUILD_ROOT%{_datadir}/psi/certs/*.pem
+
+install %{SOURCE1} $RPM_BUILD_ROOT%{_datadir}/%{name}/
 
 %clean
 rm -rf $RPM_BUILD_ROOT
