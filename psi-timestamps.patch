@@ -1,0 +1,14 @@
+diff -urN psi-0.9.2-old/psi/src/chatdlg.cpp psi-0.9.2/psi/src/chatdlg.cpp
+--- psi-0.9.2-old/psi/src/chatdlg.cpp	2004-05-08 16:11:36.154774576 +0200
++++ psi-0.9.2/psi/src/chatdlg.cpp	2004-05-08 16:12:12.107308960 +0200
+@@ -811,8 +811,8 @@
+ 	if(option.showTimeStamps)
+ 	{
+ 		QDateTime time = m.timeStamp();
+-//		timestr.sprintf("(%02d:%02d:%02d) ", time.time().hour(), time.time().minute(), time.time().second());
+-		timestr = QString("(") + time.time().toString(LocalDate) + ") ";
++		timestr.sprintf("] %02d:%02d:%02d [ ", time.time().hour(), time.time().minute(), time.time().second());
++//		timestr = QString("(") + time.time().toString(LocalDate) + ") ";
+ 	}
+ 
+ 	int y = d->log->contentsHeight() - d->log->visibleHeight();
