@@ -68,7 +68,7 @@ katalogu $DATADIR/certs lub ~/.psi/certs.
 %patch10 -p1
 %patch11 -p1
 %patch12 -p1
-%{?with_square_timestamps:%patch13 -p1}
+%{?with_square_timestamps:%patch13 -p2}
 %{__perl} -pi -e "s/QString PROG_VERSION = \"0.9.2\";/QString PROG_VERSION = \"0.9.2-%{release}\";/g" src/common.cpp
 # %{__perl} -pi -e "s,/usr/local/share/psi,%{_datadir}/psi,g" src/common.cpp
 # %{__perl} -pi -e 's/CONFIG \+= debug//g' src/src.pro
