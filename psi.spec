@@ -1,5 +1,7 @@
+#
 # Conditional build:
 %bcond_without home_etc		# Disable the HOME_ETC patch
+#
 Summary:	PSI - Jabber client
 Summary(pl):	PSI - klient Jabbera
 Name:		psi
