@@ -1,0 +1,288 @@
+diff -X exclude -Nur psi_cvs-2004.09.19/psi/src/chatdlg.cpp psi/psi/src/chatdlg.cpp
+--- psi_cvs-2004.09.19/psi/src/chatdlg.cpp	Wed Aug 18 03:35:36 2004
++++ psi/psi/src/chatdlg.cpp	Wed Sep 22 17:35:42 2004
+@@ -493,7 +493,7 @@
+ 				QString msg = tr("%1 is %2").arg(expandEntities(d->dispNick)).arg(status2txt(d->status));
+ 				if(!statusString.isEmpty()) {
+ 					QString ss = linkify(plain2rich(statusString));
+-					if(option.useEmoticons)
++					if(option.useEmoticons && option.emoticonsInChatDlg)
+ 						ss = emoticonify(ss);
+ 
+ 					msg += QString(" [%1]").arg(ss);
+@@ -887,7 +887,7 @@
+ 
+ 	txt = linkify(txt);
+ 
+-	if(option.useEmoticons)
++	if(option.useEmoticons && option.emoticonsInChatDlg)
+ 		txt = emoticonify(txt);
+ 
+ 	who = expandEntities(who);
+diff -X exclude -Nur psi_cvs-2004.09.19/psi/src/eventdlg.cpp psi/psi/src/eventdlg.cpp
+--- psi_cvs-2004.09.19/psi/src/eventdlg.cpp	Wed Aug 11 01:49:24 2004
++++ psi/psi/src/eventdlg.cpp	Wed Sep 22 17:36:28 2004
+@@ -1170,7 +1170,7 @@
+ 	else
+ 		d->lcd_count->hide();
+ 
+-	if ( option.useEmoticons )
++	if ( option.useEmoticons && option.emoticonsInEventDlg)
+ 		d->tb_icon->show();
+ 	else
+ 		d->tb_icon->hide();
+@@ -1497,7 +1497,7 @@
+ 		d->mle->moveCursor(QTextEdit::MoveHome, false);
+ 		d->mle->setTextFormat(RichText);
+ 
+-		if(option.useEmoticons)
++		if(option.useEmoticons && option.emoticonsInEventDlg)
+ 			txt = emoticonify(txt);
+ 
+ 		d->mle->setText("<qt>" + linkify(txt) + "</qt>");
+diff -X exclude -Nur psi_cvs-2004.09.19/psi/src/groupchatdlg.cpp psi/psi/src/groupchatdlg.cpp
+--- psi_cvs-2004.09.19/psi/src/groupchatdlg.cpp	Mon Aug  2 03:37:36 2004
++++ psi/psi/src/groupchatdlg.cpp	Wed Sep 22 17:37:08 2004
+@@ -1198,7 +1198,7 @@
+ 
+ 	txt = linkify(txt);
+ 
+-	if(option.useEmoticons)
++	if(option.useEmoticons && option.emoticonsInGroupChatDlg)
+ 		txt = emoticonify(txt);
+ 
+ 	if(emote) {
+@@ -1317,7 +1317,7 @@
+ 	f.fromString(option.font[fRoster]);
+ 	d->lv_users->QListView::setFont(f);
+ 
+-	if ( option.useEmoticons ) {
++	if ( option.useEmoticons && option.emoticonsInGroupChatDlg ) {
+ 		//d->tb_clear->show();
+ 		d->tb_icon->show();
+ 	}
+diff -X exclude -Nur psi_cvs-2004.09.19/psi/src/options/opt_iconset.cpp psi/psi/src/options/opt_iconset.cpp
+--- psi_cvs-2004.09.19/psi/src/options/opt_iconset.cpp	Fri Jan 16 23:20:22 2004
++++ psi/psi/src/options/opt_iconset.cpp	Wed Sep 22 20:15:08 2004
+@@ -459,6 +459,11 @@
+ 
+ 	IconsetEmoUI *d = (IconsetEmoUI *)w;
+ 	opt->useEmoticons = d->ck_useEmoticons->isChecked();
++	opt->emoticonsInChatDlg = d->ck_emotChat->isChecked();
++	opt->emoticonsInEventDlg = d->ck_emotEvent->isChecked();
++	opt->emoticonsInGroupChatDlg = d->ck_emotGroupChat->isChecked();
++	opt->emoticonsInPopup = d->ck_emotPopup->isChecked();
++	opt->emoticonsInToolTip = d->ck_emotTooltip->isChecked();
+ 
+ 	opt->emoticons.clear();
+ 	IconWidgetItem *item = (IconWidgetItem *)d->iss_emoticons->firstItem();
+@@ -483,6 +488,11 @@
+ 
+ 	IconsetEmoUI *d = (IconsetEmoUI *)w;
+ 	d->ck_useEmoticons->setChecked( opt->useEmoticons );
++	d->ck_emotChat->setChecked( opt->emoticonsInChatDlg );
++	d->ck_emotEvent->setChecked( opt->emoticonsInEventDlg );
++	d->ck_emotGroupChat->setChecked( opt->emoticonsInGroupChatDlg );
++	d->ck_emotPopup->setChecked( opt->emoticonsInPopup );
++	d->ck_emotTooltip->setChecked( opt->emoticonsInToolTip );
+ 
+ 	// fill in the iconset view
+ 	d->iss_emoticons->clear();
+@@ -515,6 +525,9 @@
+ 		d->ck_useEmoticons->setEnabled(false);
+ 		d->ck_useEmoticons->setPalette(customPal);
+ 
++		d->gbEmoticons->setEnabled(false);
++		d->gbEmoticons->setPalette(customPal);
++
+ 		d->groupBox9->setEnabled(false);
+ 		d->groupBox9->setPalette(customPal);
+ 
+@@ -557,6 +570,9 @@
+ 	else if ( e->type() == QEvent::User + 1 ) { // finish event
+ 		d->ck_useEmoticons->setEnabled(true);
+ 		d->ck_useEmoticons->unsetPalette();
++
++		d->gbEmoticons->setEnabled(true);
++		d->gbEmoticons->unsetPalette();
+ 
+ 		d->groupBox9->setEnabled(true);
+ 		d->groupBox9->unsetPalette();
+diff -X exclude -Nur psi_cvs-2004.09.19/psi/src/options/opt_iconset_emo.ui psi/psi/src/options/opt_iconset_emo.ui
+--- psi_cvs-2004.09.19/psi/src/options/opt_iconset_emo.ui	Sat Sep 13 23:12:32 2003
++++ psi/psi/src/options/opt_iconset_emo.ui	Wed Sep 22 20:15:38 2004
+@@ -8,8 +8,8 @@
+         <rect>
+             <x>0</x>
+             <y>0</y>
+-            <width>256</width>
+-            <height>195</height>
++            <width>280</width>
++            <height>440</height>
+         </rect>
+     </property>
+     <property name="caption">
+@@ -35,6 +35,67 @@
+         </widget>
+         <widget class="QGroupBox">
+             <property name="name">
++                <cstring>gbEmoticons</cstring>
++            </property>
++            <property name="sizePolicy">
++                <sizepolicy>
++                    <hsizetype>5</hsizetype>
++                    <vsizetype>4</vsizetype>
++                    <horstretch>0</horstretch>
++                    <verstretch>0</verstretch>
++                </sizepolicy>
++            </property>
++            <property name="title">
++                <string>Emoticons</string>
++            </property>
++            <grid>
++                <property name="name">
++                    <cstring>unnamed</cstring>
++                </property>
++                <widget class="QCheckBox" row="0" column="0">
++                    <property name="name">
++                        <cstring>ck_emotChat</cstring>
++                    </property>
++                    <property name="text">
++                        <string>In Chat dialog</string>
++                    </property>
++                </widget>
++                <widget class="QCheckBox" row="1" column="0">
++                    <property name="name">
++                        <cstring>ck_emotEvent</cstring>
++                    </property>
++                    <property name="text">
++                        <string>In Event dialog</string>
++                    </property>
++                </widget>
++                <widget class="QCheckBox" row="2" column="0">
++                    <property name="name">
++                        <cstring>ck_emotGroupChat</cstring>
++                    </property>
++                    <property name="text">
++                        <string>In Groupchat dialog</string>
++                    </property>
++                </widget>
++                <widget class="QCheckBox" row="0" column="1">
++                    <property name="name">
++                        <cstring>ck_emotPopup</cstring>
++                    </property>
++                    <property name="text">
++                        <string>In Popup</string>
++                    </property>
++                </widget>
++                <widget class="QCheckBox" row="1" column="1">
++                    <property name="name">
++                        <cstring>ck_emotTooltip</cstring>
++                    </property>
++                    <property name="text">
++                        <string>In Tooltip</string>
++                    </property>
++                </widget>
++            </grid>
++        </widget>       
++        <widget class="QGroupBox">
++            <property name="name">
+                 <cstring>groupBox9</cstring>
+             </property>
+             <property name="title">
+@@ -131,6 +192,12 @@
+         <receiver>groupBox9</receiver>
+         <slot>setEnabled(bool)</slot>
+     </connection>
++    <connection>
++        <sender>ck_useEmoticons</sender>
++        <signal>toggled(bool)</signal>
++        <receiver>gbEmoticons</receiver>
++        <slot>setEnabled(bool)</slot>
++    </connection>    
+ </connections>
+ <layoutdefaults spacing="6" margin="11"/>
+ <includehints>
+diff -X exclude -Nur psi_cvs-2004.09.19/psi/src/profiledlg.cpp psi/psi/src/profiledlg.cpp
+--- psi_cvs-2004.09.19/psi/src/profiledlg.cpp	Thu Nov 20 05:32:48 2003
++++ psi/psi/src/profiledlg.cpp	Wed Sep 22 21:13:52 2004
+@@ -322,6 +322,7 @@
+ 	UserProfile p;
+ 	p.prefs.defaultAction = bg_defAct->selected() == (QButton *)rb_message ? 0: 1;
+ 	p.prefs.useEmoticons = ck_useEmoticons->isChecked();
++	
+ 	p.toFile(pathToProfileConfig(name));
+ 
+ 	accept();
+diff -X exclude -Nur psi_cvs-2004.09.19/psi/src/psipopup.cpp psi/psi/src/psipopup.cpp
+--- psi_cvs-2004.09.19/psi/src/psipopup.cpp	Mon Jul  5 17:48:24 2004
++++ psi/psi/src/psipopup.cpp	Wed Sep 22 17:38:14 2004
+@@ -368,7 +368,7 @@
+ 		name = "<nobr>&lt;" + jid + "&gt;</nobr>";
+ 
+ 	QString statusString = plain2rich(status);
+-	if ( option.useEmoticons )
++	if ( option.useEmoticons && option.emoticonsInPopup )
+ 		statusString = emoticonify(statusString);
+ 
+ 	if ( !statusString.isEmpty() )
+diff -X exclude -Nur psi_cvs-2004.09.19/psi/src/userlist.cpp psi/psi/src/userlist.cpp
+--- psi_cvs-2004.09.19/psi/src/userlist.cpp	Wed Aug 18 03:35:36 2004
++++ psi/psi/src/userlist.cpp	Wed Sep 22 17:40:02 2004
+@@ -461,7 +461,7 @@
+ 					s = plain2rich(s);
+ 				if ( doLinkify )
+ 					s = linkify(s);
+-				if( option.useEmoticons && !doLinkify )
++				if( option.useEmoticons && option.emoticonsInToolTip && !doLinkify )
+ 					s = emoticonify(s);
+ 				str += QString("<br><nobr><u>%1</u></nobr><br>%2").arg(head).arg(s);
+ 			}
+--- psi-0.9.3/psi/src/common.h.orig	2005-01-27 16:04:53.253159936 +0100
++++ psi-0.9.3/psi/src/common.h	2005-01-27 16:06:51.961113584 +0100
+@@ -121,6 +121,7 @@
+ 
+ 	bool ignoreHeadline, ignoreNonRoster, excludeGroupChatsFromIgnore, scrollTo, keepSizes, useEmoticons, alertOpenChats;
+ 	bool raiseChatWindow, showSubjects, showCounter, chatSays, showTimeStamps, showGroupCounts, chatSoftReturn;
++	bool emoticonsInChatDlg, emoticonsInEventDlg, emoticonsInGroupChatDlg, emoticonsInPopup, emoticonsInToolTip;
+         bool useLaTeX;
+ 
+ 	QSize sizeEventDlg, sizeChatDlg;
+--- psi-0.9.3/psi/src/psi_profiles.cpp.orig	2005-01-27 16:04:53.287154768 +0100
++++ psi-0.9.3/psi/src/psi_profiles.cpp	2005-01-27 16:09:51.728784744 +0100
+@@ -388,6 +388,11 @@
+ 	prefs.asMessage = QObject::tr("Auto Status (idle)");
+ 	prefs.scrollTo = TRUE;
+ 	prefs.useEmoticons = false;
++	prefs.emoticonsInChatDlg = true;
++	prefs.emoticonsInEventDlg = true;
++	prefs.emoticonsInGroupChatDlg = true;
++	prefs.emoticonsInPopup = true;
++	prefs.emoticonsInToolTip = true;        
+ 	prefs.useLaTeX = true;
+ 	prefs.alertOpenChats = false;
+ 	prefs.raiseChatWindow = false;
+@@ -791,6 +796,11 @@
+ 			p_misc.appendChild(textTag(doc, "excludeGroupChatIgnore", prefs.excludeGroupChatsFromIgnore));
+ 			p_misc.appendChild(textTag(doc, "scrollTo", prefs.scrollTo));
+ 			p_misc.appendChild(textTag(doc, "useEmoticons", prefs.useEmoticons));
++			p_misc.appendChild(textTag(doc, "emoticonsInChatDlg", prefs.emoticonsInChatDlg));
++			p_misc.appendChild(textTag(doc, "emoticonsInEventDlg", prefs.emoticonsInEventDlg));
++			p_misc.appendChild(textTag(doc, "emoticonsInGroupChatDlg", prefs.emoticonsInGroupChatDlg));
++			p_misc.appendChild(textTag(doc, "emoticonsInPopup", prefs.emoticonsInPopup));
++			p_misc.appendChild(textTag(doc, "emoticonsInToolTip", prefs.emoticonsInToolTip));
+ 			p_misc.appendChild(textTag(doc, "useLaTeX", prefs.useLaTeX));
+ 			p_misc.appendChild(textTag(doc, "alertOpenChats", prefs.alertOpenChats));
+ 			p_misc.appendChild(textTag(doc, "raiseChatWindow", prefs.raiseChatWindow));
+@@ -1324,6 +1334,11 @@
+ 				readBoolEntry(tag, "excludeGroupChatIgnore", &prefs.excludeGroupChatsFromIgnore);
+ 				readBoolEntry(tag, "scrollTo", &prefs.scrollTo);
+ 				readBoolEntry(tag, "useEmoticons", &prefs.useEmoticons);
++				readBoolEntry(tag, "emoticonsInChatDlg", &prefs.emoticonsInChatDlg);
++				readBoolEntry(tag, "emoticonsInEventDlg", &prefs.emoticonsInEventDlg);
++				readBoolEntry(tag, "emoticonsInGroupChatDlg", &prefs.emoticonsInGroupChatDlg);
++				readBoolEntry(tag, "emoticonsInPopup", &prefs.emoticonsInPopup);
++				readBoolEntry(tag, "emoticonsInToolTip", &prefs.emoticonsInToolTip);
+ 				readBoolEntry(tag, "useLaTeX", &prefs.useLaTeX);
+ 				readBoolEntry(tag, "alertOpenChats", &prefs.alertOpenChats);
+ 				readBoolEntry(tag, "raiseChatWindow", &prefs.raiseChatWindow);

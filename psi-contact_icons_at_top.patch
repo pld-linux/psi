@@ -1,0 +1,152 @@
+diff -X exclude -Nur psi-mck/psi/src/common.h psi/psi/src/common.h
+--- psi-mck/psi/src/common.h	Sun Oct 10 12:51:58 2004
++++ psi/psi/src/common.h	Fri Oct 29 01:51:32 2004
+@@ -153,6 +153,7 @@
+ 
+ 	bool clNewHeadings;
+ 	bool clStIndicator;
++	bool clIconsAtTop;
+ 
+ 	// passive popups
+ 	bool ppIsOn;
+diff -X exclude -Nur psi-mck/psi/src/contactview.cpp psi/psi/src/contactview.cpp
+--- psi-mck/psi/src/contactview.cpp	Sat Sep 25 15:25:30 2004
++++ psi/psi/src/contactview.cpp	Fri Oct 29 02:14:46 2004
+@@ -2601,7 +2603,8 @@
+ 
+ 		if( d->indIcon ){
+ 			const QPixmap &ipix = d->indIcon->pixmap();
+-			p->drawPixmap((pix->width() - ipix.width())/2, (height() - ipix.height())/2, ipix);
++			const int yy = (option.clIconsAtTop)? y + pxh - ipix.height() : (height() - ipix.height())/2;
++			p->drawPixmap((pix->width() - ipix.width())/2, yy, ipix);
+ 		}
+ 	}
+ 	else if ( d->type == Group || d->type == Profile ) {
+diff -X exclude -Nur psi-mck/psi/src/options/opt_appearance-ui.ui psi/psi/src/options/opt_appearance-ui.ui
+--- psi-mck/psi/src/options/opt_appearance-ui.ui	Sat Sep 25 14:40:30 2004
++++ psi/psi/src/options/opt_appearance-ui.ui	Fri Oct 29 01:53:20 2004
+@@ -573,6 +573,14 @@
+                 <string>Show indicator for text statuses</string>
+             </property>
+         </widget>
++        <widget class="QCheckBox">
++            <property name="name">
++                <cstring>ck_iconsAtTop</cstring>
++            </property>
++            <property name="text">
++                <string>Align contact icons to top</string>
++            </property>
++        </widget>
+         <widget class="QGroupBox">
+             <property name="name">
+                 <cstring>groupBox12</cstring>
+diff -X exclude -Nur psi-mck/psi/src/psi_profiles.cpp psi/psi/src/psi_profiles.cpp
+--- psi-mck/psi/src/psi_profiles.cpp	Sun Oct 10 12:51:58 2004
++++ psi/psi/src/psi_profiles.cpp	Fri Oct 29 02:14:58 2004
+@@ -446,6 +446,7 @@
+ 	}
+ 
+ 	prefs.clStIndicator = TRUE;
++	prefs.clIconsAtTop = false;
+ 
+ 	// calculate the small font size
+ 	const int minimumFontSize = 7;
+@@ -930,6 +931,7 @@
+ 
+ 		p_lnf.appendChild(textTag(doc, "newHeadings", prefs.clNewHeadings));
+ 		p_lnf.appendChild(textTag(doc, "statusIndicator", prefs.clStIndicator));
++		p_lnf.appendChild(textTag(doc, "contactIconsAtTop", prefs.clIconsAtTop));		
+ 
+ 		{
+ 			QDomElement tag = doc.createElement("colors");
+@@ -1526,6 +1528,7 @@
+ 
+ 			readBoolEntry(p_lnf, "newHeadings", &prefs.clNewHeadings);
+ 			readBoolEntry(p_lnf, "statusIndicator", &prefs.clStIndicator);
++			readBoolEntry(p_lnf, "contactIconsAtTop", &prefs.clIconsAtTop);
+ 
+ 			QDomElement tag = findSubTag(p_lnf, "colors", &found);
+ 			if(found) {
+diff -X exclude -Nur psi-mck/psi/src/richlistview.cpp psi/psi/src/richlistview.cpp
+--- psi-mck/psi/src/richlistview.cpp	Mon Jul  5 20:50:00 2004
++++ psi/psi/src/richlistview.cpp	Fri Oct 29 02:35:52 2004
+@@ -3,6 +3,7 @@
+ #include <qpainter.h>
+ #include <qpixmap.h>
+ #include <qapplication.h>
++#include "common.h"
+ 
+ RichListViewItem::RichListViewItem( QListView * parent ):
+ QListViewItem(parent)
+@@ -58,8 +59,8 @@
+ 
+ 	h = QMAX( h, v_rt->height() );
+ 
+-    if ( h % 2 > 0 )
+-	h++;
++	if ( h % 2 > 0 )
++		++h;
+     setHeight( h );
+ }
+ 
+@@ -93,14 +94,17 @@
+ 	QRect pxrect;
+ 	int pxw = 0;
+ 	int pxh = 0;
++	const int y = 2;
+ 	if(px) {
+ 		pxw = px->width();
+ 		pxh = px->height();
+-		pxrect = QRect(r, (height() - pxh)/2, pxw, pxh);
++		const int yy = (option.clIconsAtTop)? y : (height() - pxh)/2;
++		pxrect = QRect(r, yy, pxw, pxh);
++		
+ 		r += pxw + lv->itemMargin();
+ 	}
+ 
+-	if(px)
++	if(px && !option.clIconsAtTop)
+ 		pxrect.moveTop((height() - pxh)/2);
+ 
+ 	// start drawing
+--- psi-mck/psi/src/contactview.cpp~	2005-01-27 15:49:23.062570400 +0100
++++ psi/psi/src/contactview.cpp	2005-01-27 15:54:19.813457408 +0100
+@@ -2594,16 +2594,18 @@
+ 
+ //		QFontMetrics fm(p->font());
+ 		const QPixmap *pix = pixmap(column);
++                int pxh = pix->height();
+ //		int x = fm.width(text(column)) + (pix ? pix->width() : 0) + 8;
+ 		int x = widthUsed();
++                const int y = 2;
+ 
+ 		if ( d->u ) {
+ 			UserResourceList::ConstIterator it = d->u->priority();
+ 			if(it != d->u->userResourceList().end()) {
+ 				if(d->u->isSecure((*it).name())) {
+ 					const QPixmap &pix = IconsetFactory::iconPixmap("psi/cryptoYes");
+-					int y = (height() - pix.height()) / 2;
+-					p->drawPixmap(x, y, pix);
++					const int yy = (option.clIconsAtTop)? y : (height() - pix.height()) / 2;
++					p->drawPixmap(x, yy, pix);
+ 					x += 24;
+ 				}
+ 			}
+--- psi-0.9.3/psi/src/options/opt_appearance.cpp.orig	2005-01-27 15:49:22.834605056 +0100
++++ psi-0.9.3/psi/src/options/opt_appearance.cpp	2005-01-27 15:58:15.251665360 +0100
+@@ -183,6 +183,7 @@
+ 
+ 	OptAppearanceUI *d = (OptAppearanceUI *)w;
+ 	opt->clStIndicator = d->ck_statusIndicator->isChecked();
++	opt->clIconsAtTop  = d->ck_iconsAtTop->isChecked();
+ 	//opt->avatarsChatdlgEnabled = d->ck_avatarsChatdlg->isChecked(); // Avatars
+ 
+ 	int n;
+@@ -200,6 +201,7 @@
+ 
+ 	OptAppearanceUI *d = (OptAppearanceUI *)w;
+ 	d->ck_statusIndicator->setChecked( opt->clStIndicator );
++	d->ck_iconsAtTop->setChecked( opt->clIconsAtTop );
+ 	//d->ck_avatarsChatdlg->setChecked( opt->avatarsChatdlgEnabled ); // Avatars
+ 
+ 	int n;
