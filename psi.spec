@@ -2,7 +2,7 @@
 # Conditional build:
 %bcond_with	square_timestamps	# this is how they used to be
 #
-%define		snap 20040611
+%define		snap 20040701
 #
 Summary:	PSI - Jabber client
 Summary(pl):	PSI - klient Jabbera
@@ -12,7 +12,7 @@ Release:	0.%{snap}.1
 License:	GPL
 Group:		Applications/Communications
 Source0:	%{name}-snap-%{snap}.tar.bz2
-# Source0-md5:	966314d7558e3317bf0abc263a87c2b2
+# Source0-md5:	2211e2f9fd098dbdaa90c5423afa8451
 Source1:	%{name}-richlistview.cpp
 Source2:	%{name}-richlistview.h
 Source3:	%{name}-roster-rich.README
@@ -206,8 +206,10 @@ cd qca/plugins/qca-tls
 	INSTALL_ROOT=$RPM_BUILD_ROOT
 
 cd ../qca-sasl
-%{__make} install \
-	INSTALL_ROOT=$RPM_BUILD_ROOT
+# The Makefile seems broken and I don't know why...
+#%{__make} install \
+#	INSTALL_ROOT=$RPM_BUILD_ROOT
+install libqca-sasl.so	$RPM_BUILD_ROOT%{_plugindir}
 
 cd ../../..
 
@@ -223,6 +225,7 @@ install psi/indicator.png $RPM_BUILD_ROOT%{_datadir}/psi/iconsets/roster/default
 install psi/libpsi/psiwidgets/*.so $RPM_BUILD_ROOT%{_libdir}/qt/plugins-mt/designer
 
 rm $RPM_BUILD_ROOT%{_datadir}/psi/COPYING $RPM_BUILD_ROOT%{_datadir}/psi/README
+rm -r $RPM_BUILD_ROOT%{_datadir}/psi/designer
 
 %clean
 rm -rf $RPM_BUILD_ROOT
