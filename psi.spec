@@ -12,8 +12,8 @@ Source0:	ftp://ftp.sourceforge.net/pub/sourceforge/psi/%{name}-%{version}.tar.bz
 Source1:        ftp://ftp.sourceforge.net/pub/sourceforge/psi/qssl-%{_qssl_version}.tar.bz2
 Patch0:		%{name}-include.patch
 Patch1:		%{name}-qssl-include.patch
-Patch2:		%{name}-plugin.patch
-Patch3:		%{name}-test.patch
+Patch2:		%{name}-resourcesdir.patch
+Patch3:		%{name}-plugin.patch
 URL:		http://psi.affinix.com/
 BuildRequires:	qt-devel >= 3.0.5
 %{?!_without_qssl:BuildRequires: openssl-devel}
@@ -30,9 +30,14 @@ PSI - klient Jabbera.
 
 %prep
 %setup -q -a 0
+%if %{?_without_qssl:0}%{?!_without_qssl:1}
 %setup -q -a 1
+%endif
 %patch0 -p1
+%if %{?_without_qssl:0}%{?!_without_qssl:1}
 %patch1 -p1
+%endif
+%patch2 -p1
 %patch3 -p1
 
 %build
@@ -43,22 +48,15 @@ export QMAKESPEC
 
 cd src
 qmake psi.pro
-patch -p0 < %{PATCH0}
-
-%if %{?_without_qssl:0}%{?!_without_qssl:1}
-patch -p0 < %{PATCH2}
-%endif
-
 %{__make}
 
 %if %{?_without_qssl:0}%{?!_without_qssl:1}
 bzip2 -dc %{SOURCE1}|tar x
 cd qssl-%{_qssl_version}
 qmake qssl.pro
-patch -p0 < %{PATCH1}
 %{__make}
-
 %endif
+
 %install
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT{%{_bindir},%{_datadir}/psi/{image,iconsets,sound}}
@@ -74,6 +72,7 @@ install sound/* %{buildroot}%{_datadir}/psi/sound
 %if %{?_without_qssl:0}%{?!_without_qssl:1}
 install src/qssl-%{_qssl_version}/libqssl.so %{buildroot}%{_libdir}
 %endif
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -83,7 +82,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/*
 %{_datadir}/*
 %{?!_without_qssl:%{_libdir}/*}
-#%{_applnkdir}/Network/Communications/*.desktop
-#%{_pixmapsdir}/*/*/apps/*.png
-#%{_datadir}/apps/%{name}/msg.wav
-#%{_datadir}/apps/%{name}/images/*
+%{_applnkdir}/Network/Communications/*.desktop
+%{_pixmapsdir}/*/*/apps/*.png
+%{_datadir}/apps/%{name}/msg.wav
+%{_datadir}/apps/%{name}/images/*
