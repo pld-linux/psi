@@ -60,9 +60,6 @@ export QMAKESPEC
 	CXXFLAGS="-pipe -Wall %{rpmcflags} -fno-exceptions -fno-rtti \
 	-D_REENTRANT %{?debug:-DQT_NO_DEBUG} -DQT_THREAD_SUPPORT"
 
-cp %{SOURCE3} %{SOURCE4} %{SOURCE5} %{SOURCE6} %{SOURCE7} \
-	%{SOURCE8} %{SOURCE9} %{SOURCE10} src
-
 cd src
 cp %{SOURCE3} %{SOURCE4} %{SOURCE5} %{SOURCE6} %{SOURCE7} %{SOURCE8} \
 	%{SOURCE9} %{SOURCE10} .
@@ -73,7 +70,7 @@ cd ..
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT%{_applnkdir}/Network/Communications \
 	$RPM_BUILD_ROOT%{_libdir}/psi \
-	$RPM_BUILD_ROOT%{_libdir}/translations
+	$RPM_BUILD_ROOT%{_datadir}/translations
 
 %{__make} install INSTALL_ROOT=$RPM_BUILD_ROOT
 
