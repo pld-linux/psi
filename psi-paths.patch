@@ -24,7 +24,7 @@ diff -ru psi-0.8.7/src/main.cpp psi-0.8.7-AlchemyX/src/main.cpp
  	dirs.clear();
  	dirs += g.pathHome;
  	dirs += g.pathBase;
-+	dirs += "/usr/X11R6/lib";
++	dirs += "/usr/X11R6/lib/psi";
  	dirs += "";
  	Stream::loadSSL(dirs);
  
