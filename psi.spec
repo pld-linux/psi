@@ -38,10 +38,12 @@ Patch26:	%{name}-roster-rich.patch
 Patch27:	%{name}-icondef.xml_status_indicator.patch
 Patch28:	%{name}-settoggles-fix.patch
 Patch29:	%{name}-empty_group-fix.patch
-Patch30:	%{name}-wrong_mainwin_pos_gnome-fix.patch
 #       from Remko Troncon:
 # http://www.cs.kuleuven.ac.be/~remko/psi/rc/ (downloaded on 2005-01-02 18:38)
 Patch100:	%{name}-adhoc_and_rc.patch
+# http://www.cs.kuleuven.ac.be/~remko/psi/ (downloaded on 2005-02-02 22:00)
+Patch101:	%{name}-rosteritems_iris.patch
+Patch102:	%{name}-rosteritems_psi.patch
 #       from Psi forums:
 # http://www.uni-bonn.de/~nieuwenh/libTeXFormula.diff
 Patch200:	%{name}-libTeXFormula.patch
@@ -120,12 +122,16 @@ napisaæ w³asne okna dialogowe itp. albo poprawiæ obecne.
 %patch27 -p0
 %patch28 -p0
 %patch29 -p0
-%patch30 -p0
 cp %{SOURCE1} psi/src/richlistview.cpp
 cp %{SOURCE2} psi/src/richlistview.h
 cp %{SOURCE3} psi/README.rich-roster
 #       Remko Troncon:
 %patch100 -p1
+cd iris
+%patch101 -p0
+cd ../psi
+%patch102 -p0
+cd ..
 #	Psi forums:
 cd psi
 %patch200 -p0
