@@ -13,7 +13,7 @@ diff -Nur psi-0.9-orig/src/common.cpp psi-0.9/src/common.cpp
  
  		// untested
  		{ LinuxSuSE,		OsUseName,	"/etc/rc.config.d",		"SuSE Linux"		},
-+		{ LinuxPLD,		OsUseName,	"/etc/pld-release",		"PLD Linux"		},
++		{ LinuxPLD,		OsUseName,	"/etc/pld-release",		"PLD Linux (Ra)"		},
  
  		{ LinuxNone,		OsUseName,	"",				""			}
  	};
