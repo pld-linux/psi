@@ -20,8 +20,8 @@ Patch3:		%{name}-customos.patch
 URL:		http://psi.affinix.com/
 BuildRequires:	qt-devel >= 3.1.2
 Requires:	qt-plugin-qca-tls >= 1:1.0
-BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 Conflicts:	qt-plugin-ssl = 1.0
+BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
 PSI is a communicator for the Jabber open messaging system. It is
@@ -37,7 +37,7 @@ wprowadzona zmiana, która powoduje ¿e certyfikaty SSL s± poszukiwane w
 katalogu $DATADIR/certs lub ~/.psi/certs.
 
 %prep
-%setup  -q -a1
+%setup -q -a1
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
@@ -65,12 +65,13 @@ qmake psi.pro \
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT{%{_desktopdir},%{_pixmapsdir}}
 
-QTDIR=%{_prefix} %{__make} install \
+QTDIR=%{_prefix} \
+%{__make} install \
 	INSTALL_ROOT=$RPM_BUILD_ROOT
 
-install -c psi.desktop $RPM_BUILD_ROOT%{_desktopdir}
-install -c iconsets/system/default/icon_48.png $RPM_BUILD_ROOT%{_pixmapsdir}/psi.png
-install -c lang/*.qm $RPM_BUILD_ROOT%{_datadir}/psi
+install psi.desktop $RPM_BUILD_ROOT%{_desktopdir}
+install iconsets/system/default/icon_48.png $RPM_BUILD_ROOT%{_pixmapsdir}/psi.png
+install lang/*.qm $RPM_BUILD_ROOT%{_datadir}/psi
 
 %clean
 rm -rf $RPM_BUILD_ROOT
