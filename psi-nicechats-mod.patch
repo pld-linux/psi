@@ -1,56 +1,20 @@
 diff -ru -X exclude psi-clean/src/chatdlg.cpp psi/src/chatdlg.cpp
---- psi-clean/src/chatdlg.cpp	Tue Dec 09 16:50:08 2003
-+++ psi/src/chatdlg.cpp	Mon Dec 15 20:49:08 2003
-@@ -112,6 +112,11 @@
- 	void updateCounter() {
- 		lcd_count->display((int)mle->text().length());
- 	}
-+
-+	void resetTextColor(const QColor & c) { // very quick & dirty fix
-+		if(c!=option.color[cChatMessage])
-+			mle->setColor(option.color[cChatMessage]); 
-+	}
- };
- 
- ChatDlg::ChatDlg(const Jid &jid, PsiAccount *pa)
-@@ -195,6 +200,7 @@
- 	d->mle = new ChatEdit(sp_bottom);
- 	vb3->addWidget(d->mle);
- 	connect(d->mle, SIGNAL(textChanged()), d, SLOT(updateCounter()));
-+	connect(d->mle, SIGNAL(currentColorChanged(const QColor&)), d, SLOT(resetTextColor(const QColor&)));
- 
- 	QValueList<int> list;
- 	list << 324;
-@@ -310,6 +316,9 @@
- 		else
- 			d->lcd_count->hide();
- 
-+		d->log->setPaper(QBrush(option.color[cChatBG]));
-+		d->mle->setPaper(QBrush(option.color[cChatBG]));
-+		d->mle->setColor(option.color[cChatMessage]);
- 		d->mle->setFocus();
- 	}
- }
-@@ -466,6 +475,10 @@
+--- psi-clean/src/chatdlg.cpp	Tue Jan 06 17:24:54 2004
++++ psi/src/chatdlg.cpp	Sat Mar 27 11:47:06 2004
+@@ -506,6 +507,12 @@
  
  	// update the widget icon
  	setIcon(IconsetFactory::icon("psi/chat"));
 +
-+	d->log->setPaper(QBrush(option.color[cChatBG]));
-+	d->mle->setPaper(QBrush(option.color[cChatBG]));
-+	d->mle->setColor(option.color[cChatMessage]);
++	d->log->setPaletteBackgroundColor(option.color[cChatBG]);
++	d->mle->setPaletteBackgroundColor(option.color[cChatBG]);
++
++	d->log->setPaletteForegroundColor(option.color[cChatMessage]);
++	d->mle->setPaletteForegroundColor(option.color[cChatMessage]);
  }
  
  void ChatDlg::optionsUpdate()
-@@ -666,6 +679,7 @@
- {
- 	appendMessage(d->m, true);
- 	d->mle->setText("");
-+	d->mle->setColor(option.color[cChatMessage]); // quick-fix
- }
- 
- void ChatDlg::encryptedMessageSent(int x, bool b)
-@@ -699,7 +713,7 @@
+@@ -739,7 +746,7 @@
  		y = 0;
  	bool atBottom = (d->log->contentsY() < y - 32) ? false: true;
  
@@ -59,7 +23,7 @@ diff -ru -X exclude psi-clean/src/chatdlg.cpp psi/src/chatdlg.cpp
  	if(atBottom)
  		deferredScroll();
  }
-@@ -710,14 +724,14 @@
+@@ -750,14 +757,14 @@
  
  	if(local) {
  		who = d->pa->nick();
@@ -77,21 +41,23 @@ diff -ru -X exclude psi-clean/src/chatdlg.cpp psi/src/chatdlg.cpp
  
  	// figure out the encryption state
  	bool encChanged = false;
-@@ -746,8 +760,11 @@
+@@ -786,9 +793,12 @@
  	}
  
  	QString timestr;
 -	QDateTime time = m.timeStamp();
--	timestr.sprintf("%02d:%02d:%02d", time.time().hour(), time.time().minute(), time.time().second());
+-	//timestr.sprintf("%02d:%02d:%02d", time.time().hour(), time.time().minute(), time.time().second());
+-	timestr = time.time().toString(LocalDate);
 +	if(option.showTimeStamps)
 +	{
 +		QDateTime time = m.timeStamp();
-+		timestr.sprintf("(%02d:%02d:%02d) ", time.time().hour(), time.time().minute(), time.time().second());
++//		timestr.sprintf("(%02d:%02d:%02d) ", time.time().hour(), time.time().minute(), time.time().second());
++		timestr = QString("(") + time.time().toString(LocalDate) + ") ";
 +	}
  
  	int y = d->log->contentsHeight() - d->log->visibleHeight();
  	if(y < 0)
-@@ -769,16 +786,19 @@
+@@ -809,16 +819,19 @@
  	if(option.useEmoticons)
  		txt = emoticonify(txt);
  
@@ -115,37 +81,31 @@ diff -ru -X exclude psi-clean/src/chatdlg.cpp psi/src/chatdlg.cpp
  	if(!m.subject().isEmpty()) {
  		d->log->append(QString("<b>") + tr("Subject:") + "</b> " + QString("%1").arg(expandEntities(m.subject())));
 diff -ru -X exclude psi-clean/src/common.h psi/src/common.h
---- psi-clean/src/common.h	Mon Dec 08 21:37:22 2003
-+++ psi/src/common.h	Mon Dec 15 20:48:56 2003
-@@ -66,14 +66,14 @@
+--- psi-clean/src/common.h	Thu Mar 04 23:04:00 2004
++++ psi/src/common.h	Sat Mar 27 11:25:56 2004
+@@ -67,14 +67,14 @@
  extern bool use_gpg, no_gpg_agent;
  
  // options stuff
 -enum { cOnline, cOffline, cAway, cDND, cGroupFore, cGroupBack, cListBack, cAnimFront, cAnimBack };
 +enum { cOnline, cOffline, cAway, cDND, cGroupFore, cGroupBack, cListBack, cAnimFront, cAnimBack, cChatMessage, cChatSys, cChatTo, cChatFrom, cChatSpool, cChatBG, colorLast };
- enum { fRoster, fMessage, fChat };
- enum { eMessage, eChat1, eChat2, eHeadline, eSystem, eOnline, eOffline, eSend };
+ enum { fRoster, fMessage, fChat, fPopup };
+ enum { eMessage, eChat1, eChat2, eHeadline, eSystem, eOnline, eOffline, eSend, eIncomingFT, eFTComplete };
  enum { dcClose, dcHour, dcDay, dcNever };
  
  struct Options
  {
 -	QColor color[9];
 +	QColor color[colorLast];
- 	QString font[3];
+ 	QString font[4];
  	int smallFontSize; // do not modify or save/load this value! it is calculated at run time!
  	int alertStyle;
-@@ -106,7 +106,7 @@
- 	QString customBrowser, customMailer;
- 
- 	bool ignoreHeadline, ignoreNonRoster, scrollTo, keepSizes, useEmoticons, alertOpenChats;
+@@ -109,1 +109,1 @@
 -	bool raiseChatWindow, showSubjects, showCounter, chatSays, chatSoftReturn, showGroupCounts;
 +	bool raiseChatWindow, showSubjects, showCounter, chatSays, showTimeStamps, showGroupCounts, chatSoftReturn;
- 
- 	QSize sizeEventDlg, sizeChatDlg;
- 	bool jidComplete, grabUrls, noGCSound;
 diff -ru -X exclude psi-clean/src/options/opt_appearance-ui.ui psi/src/options/opt_appearance-ui.ui
 --- psi-clean/src/options/opt_appearance-ui.ui	Thu Dec 11 17:44:18 2003
-+++ psi/src/options/opt_appearance-ui.ui	Mon Dec 15 20:48:56 2003
++++ psi/src/options/opt_appearance-ui.ui	Sat Mar 27 11:25:56 2004
 @@ -37,284 +37,525 @@
              <property name="title">
                  <string>Colors</string>
@@ -956,7 +916,7 @@ diff -ru -X exclude psi-clean/src/options/opt_appearance-ui.ui psi/src/options/o
                          <bool>true</bool>
 diff -ru -X exclude psi-clean/src/options/opt_appearance.cpp psi/src/options/opt_appearance.cpp
 --- psi-clean/src/options/opt_appearance.cpp	Tue Dec 02 15:28:58 2003
-+++ psi/src/options/opt_appearance.cpp	Mon Dec 15 20:48:56 2003
++++ psi/src/options/opt_appearance.cpp	Sat Mar 27 11:25:56 2004
 @@ -92,6 +92,12 @@
  	bg_color->insert(d->pb_cListBack, 6);
  	bg_color->insert(d->pb_cAnimFront, 7);
@@ -1009,7 +969,7 @@ diff -ru -X exclude psi-clean/src/options/opt_appearance.cpp psi/src/options/opt
  	}
 diff -ru -X exclude psi-clean/src/options/opt_chat-ui.ui psi/src/options/opt_chat-ui.ui
 --- psi-clean/src/options/opt_chat-ui.ui	Fri Dec 05 16:44:26 2003
-+++ psi/src/options/opt_chat-ui.ui	Mon Dec 15 20:48:56 2003
++++ psi/src/options/opt_chat-ui.ui	Sat Mar 27 11:25:56 2004
 @@ -40,6 +40,14 @@
          </widget>
          <widget class="QCheckBox">
@@ -1026,8 +986,8 @@ diff -ru -X exclude psi-clean/src/options/opt_chat-ui.ui psi/src/options/opt_cha
              </property>
              <property name="text">
 diff -ru -X exclude psi-clean/src/options/opt_chat.cpp psi/src/options/opt_chat.cpp
---- psi-clean/src/options/opt_chat.cpp	Thu Nov 27 13:09:12 2003
-+++ psi/src/options/opt_chat.cpp	Mon Dec 15 20:48:56 2003
+--- psi-clean/src/options/opt_chat.cpp	Sat Jan 17 15:48:10 2004
++++ psi/src/options/opt_chat.cpp	Sat Mar 27 11:25:56 2004
 @@ -62,6 +62,10 @@
  		"<P>Hi</P>"
  		"<P>[01:23:56] YourName says:</P>"
@@ -1056,17 +1016,17 @@ diff -ru -X exclude psi-clean/src/options/opt_chat.cpp psi/src/options/opt_chat.
  	d->ck_alertOpenChats->setChecked( opt->alertOpenChats );
  	d->ck_raiseChatWindow->setChecked( opt->raiseChatWindow );
 diff -ru -X exclude psi-clean/src/psi_profiles.cpp psi/src/psi_profiles.cpp
---- psi-clean/src/psi_profiles.cpp	Mon Dec 08 21:37:28 2003
-+++ psi/src/psi_profiles.cpp	Mon Dec 15 20:48:56 2003
-@@ -373,6 +373,7 @@
+--- psi-clean/src/psi_profiles.cpp	Sun Mar 21 16:47:06 2004
++++ psi/src/psi_profiles.cpp	Sat Mar 27 11:25:56 2004
+@@ -387,6 +387,7 @@
  	prefs.showSubjects = true;
  	prefs.showCounter = false;
  	prefs.chatSays = false;
 +	prefs.showTimeStamps = true;
  	prefs.chatSoftReturn = true;
- 
- 	prefs.sp.clear();
-@@ -396,6 +397,12 @@
+ 	prefs.showGroupCounts = true;
+ 	prefs.smallChats = false;
+@@ -413,6 +414,12 @@
  	prefs.color[cGroupBack] = QColor("#FFFFFF");
  	prefs.color[cAnimFront] = QColor("#FF0000");
  	prefs.color[cAnimBack] 	= QColor("#000000");
@@ -1079,15 +1039,15 @@ diff -ru -X exclude psi-clean/src/psi_profiles.cpp psi/src/psi_profiles.cpp
  
  	prefs.font[fRoster] = QApplication::font().toString();
  	prefs.font[fMessage] = QApplication::font().toString();
-@@ -635,6 +642,7 @@
+@@ -665,6 +672,7 @@
  			p_misc.appendChild(textTag(doc, "showSubjects", prefs.showSubjects));
  			p_misc.appendChild(textTag(doc, "showCounter", prefs.showCounter));
  			p_misc.appendChild(textTag(doc, "chatSays", prefs.chatSays));
 +			p_misc.appendChild(textTag(doc, "showTimeStamps", prefs.showTimeStamps));
  			p_misc.appendChild(textTag(doc, "chatSoftReturn", prefs.chatSoftReturn));
+ 			p_misc.appendChild(textTag(doc, "showGroupCounts", prefs.showGroupCounts));
  			p_misc.appendChild(textTag(doc, "jidComplete", prefs.jidComplete));
- 			p_misc.appendChild(textTag(doc, "grabUrls", prefs.grabUrls));
-@@ -742,6 +750,12 @@
+@@ -788,6 +796,12 @@
  			tag.appendChild(textTag(doc, "groupback", prefs.color[cGroupBack].name() ));
  			tag.appendChild(textTag(doc, "animfront", prefs.color[cAnimFront].name() ));
  			tag.appendChild(textTag(doc, "animback", prefs.color[cAnimBack].name() ));
@@ -1100,15 +1060,15 @@ diff -ru -X exclude psi-clean/src/psi_profiles.cpp psi/src/psi_profiles.cpp
  		}
  
  		{
-@@ -1091,6 +1105,7 @@
- 				readBoolEntry(tag, "chatSoftReturn", &prefs.chatSoftReturn);
+@@ -1148,6 +1162,7 @@
+ 				readBoolEntry(tag, "showGroupCounts", &prefs.showGroupCounts);
  				readBoolEntry(tag, "showCounter", &prefs.showCounter);
  				readBoolEntry(tag, "chatSays", &prefs.chatSays);
 +				readBoolEntry(tag, "showTimeStamps", &prefs.showTimeStamps);
  				readBoolEntry(tag, "jidComplete", &prefs.jidComplete);
  				readBoolEntry(tag, "grabUrls", &prefs.grabUrls);
- 			}
-@@ -1201,6 +1216,12 @@
+ 				readBoolEntry(tag, "smallChats", &prefs.smallChats);
+@@ -1270,6 +1285,12 @@
  				readColorEntry(tag, "groupback", &prefs.color[cGroupBack]);
  				readColorEntry(tag, "animfront", &prefs.color[cAnimFront]);
  				readColorEntry(tag, "animback", &prefs.color[cAnimBack]);

@@ -1,21 +1,19 @@
-diff -aurN psi-0.9.1.orig/src/common.cpp psi-0.9.1/src/common.cpp
---- psi-0.9.1.orig/src/common.cpp	2004-01-02 02:23:05.000000000 +0100
-+++ psi-0.9.1/src/common.cpp	2004-02-13 20:09:32.550315072 +0100
-@@ -1155,7 +1155,8 @@
- 		LinuxASP, // Russian Linux distros
- 		LinuxALT,
+diff -urN psi-old/src/common.cpp psi/src/common.cpp
+--- psi-old/src/common.cpp	2004-03-22 11:48:01.079698856 +0100
++++ psi/src/common.cpp	2004-03-22 11:49:21.273507544 +0100
+@@ -1145,6 +1145,7 @@
+ 	// get description about os
+ 	enum LinuxName {
+ 		LinuxNone = 0,
++                LinuxCustom,
  
--		LinuxPLD // Polish Linux distro
-+		LinuxPLD, // Polish Linux distro
-+		LinuxCustom // custom distro string, edit ~/.psi/custom-os
- 	};
- 
- 	enum OsFlags {
-@@ -1170,6 +1171,7 @@
+ 		LinuxMandrake,
+ 		LinuxDebian,
+@@ -1175,6 +1176,7 @@
  		QString file;
  		QString name;
  	} osInfo[] = {
 +		{ LinuxCustom,		OsUseFile,	getHomeDir()+"/custom-os",	"",			},
  		{ LinuxMandrake,	OsUseFile,	"/etc/mandrake-release",	"Mandrake Linux"	},
  		{ LinuxDebian,		OsAppendFile,	"/etc/debian_version",		"Debian GNU/Linux"	},
- 		{ LinuxRedHat,		OsUseFile,	"/etc/redhat-release",		"RedHat Linux"		},
+ 		{ LinuxGentoo,		OsUseFile,	"/etc/gentoo-release",		"Gentoo Linux"		},
