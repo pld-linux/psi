@@ -41,22 +41,6 @@ diff -ru -X exclude psi-clean/src/chatdlg.cpp psi/src/chatdlg.cpp
  
  	// figure out the encryption state
  	bool encChanged = false;
-@@ -786,9 +793,12 @@
- 	}
- 
- 	QString timestr;
--	QDateTime time = m.timeStamp();
--	//timestr.sprintf("%02d:%02d:%02d", time.time().hour(), time.time().minute(), time.time().second());
--	timestr = time.time().toString(LocalDate);
-+	if(option.showTimeStamps)
-+	{
-+		QDateTime time = m.timeStamp();
-+//		timestr.sprintf("(%02d:%02d:%02d) ", time.time().hour(), time.time().minute(), time.time().second());
-+		timestr = QString("(") + time.time().toString(LocalDate) + ") ";
-+	}
- 
- 	int y = d->log->contentsHeight() - d->log->visibleHeight();
- 	if(y < 0)
 @@ -809,16 +819,19 @@
  	if(option.useEmoticons)
  		txt = emoticonify(txt);

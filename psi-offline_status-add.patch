@@ -1,15 +1,3 @@
-diff -ru -X exclude psi-clean/src/common.h psi/src/common.h
---- psi-clean/src/common.h	Tue Jan 27 18:09:30 2004
-+++ psi/src/common.h	Sun Feb 15 20:29:30 2004
-@@ -84,7 +84,7 @@
- 	QMap<QString, QString> serviceRosterIconset;
- 	QMap<QString, QString> customRosterIconset;
- 
--	bool useleft, singleclick, askOnline, popupMsgs, popupChats, popupHeadlines, raise;
-+	bool useleft, singleclick, askOnline, askOffline, popupMsgs, popupChats, popupHeadlines, raise;
- 	bool alwaysOnTop, noAwaySound, noAwayPopup, noUnlistedPopup, rosterAnim, autoVersion, autoVCardOnLogin, xmlConsoleOnLogin;
- 	bool useDock, dockDCstyle, dockHideMW, dockToolMW, isWMDock;
- 	bool smallChats;
 diff -ru -X exclude psi-clean/src/options/opt_status-ui.ui psi/src/options/opt_status-ui.ui
 --- psi-clean/src/options/opt_status-ui.ui	Fri Dec 05 16:44:28 2003
 +++ psi/src/options/opt_status-ui.ui	Sun Feb 15 20:33:28 2004
@@ -234,3 +222,14 @@ diff -ru -X exclude psi-clean/src/statusdlg.cpp psi/src/statusdlg.cpp
  		if(type == combomap[n]) {
  			d->cb_type->setCurrentItem(n);
  			break;
+--- psi/src/common.h~	2004-07-10 17:29:53.362221552 +0000
++++ psi/src/common.h	2004-07-10 17:33:23.309304744 +0000
+@@ -86,7 +86,7 @@
+ 	QMap<QString, QString> serviceRosterIconset;
+ 	QMap<QString, QString> customRosterIconset;
+ 
+-	bool useleft, singleclick, askOnline, popupMsgs, popupChats, popupHeadlines, popupFiles, raise;
++	bool useleft, singleclick, askOnline, askOffline, popupMsgs, popupChats, popupHeadlines, popupFiles, raise;
+ 	bool alwaysOnTop, noAwaySound, noAwayPopup, noUnlistedPopup, rosterAnim, autoVersion, autoVCardOnLogin, xmlConsoleOnLogin;
+ 	bool useDock, dockDCstyle, dockHideMW, dockToolMW, isWMDock;
+ 	bool smallChats, showJoins;
