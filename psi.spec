@@ -5,8 +5,7 @@ Version:	0.8.6
 Release:	1
 License:	GPL
 Group:		Applications/Communications
-#Source0:	http://psi.affinix.com/%{name}-%{version}.tar.bz2
-Source0:	%{name}-%{version}.tar.bz2
+Source0:	ftp://ftp.sourceforge.net/pub/sourceforge/psi/%{name}-%{version}.tar.bz2
 Patch0:		%{name}.pld.patch
 URL:		http://psi.affinix.com/
 BuildRequires:	qt-devel >= 3.0.5
@@ -16,14 +15,8 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 %define		_mandir		%{_prefix}/man
 
 %description
-Kadu is client of Gadu-Gadu protocol. It's an IM for Linux and UN*X.
-It's written for KDE.
 
 %description -l pl
-Kadu jest klientem protko³u Gadu-Gadu. Inaczej mówi±c, jest
-komunikatorem dla Linuksa (oraz, przy niewielkim wysi³ku, innych
-systemów UN*Xowych). Napisano go w oparciu o bibliotekê Qt i KDE,
-przeznaczony jest wiêc dla tego ¶rodowiska.
 
 %prep
 %setup -q
