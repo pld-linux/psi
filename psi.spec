@@ -6,7 +6,7 @@ Summary:	PSI - Jabber client
 Summary(pl):	PSI - klient Jabbera
 Name:		psi
 Version:	0.8.7
-Release:	2
+Release:	3
 License:	GPL
 Group:		Applications/Communications
 Source0:	http://heanet.dl.sourceforge.net/sourceforge/psi/%{name}-%{version}.tar.bz2
@@ -71,13 +71,13 @@ cd ..
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT%{_applnkdir}/Network/Communications \
+install -d $RPM_BUILD_ROOT%{_desktopdir} \
 	$RPM_BUILD_ROOT%{_libdir}/psi \
 	$RPM_BUILD_ROOT%{_datadir}/psi/translations
 
 %{__make} install INSTALL_ROOT=$RPM_BUILD_ROOT
 
-install %{SOURCE2} $RPM_BUILD_ROOT%{_applnkdir}/Network/Communications
+install %{SOURCE2} $RPM_BUILD_ROOT%{_desktopdir}
 rm -f src/tr.qm
 cp src/*.qm $RPM_BUILD_ROOT%{_datadir}/psi/translations
 
@@ -107,4 +107,4 @@ rm -rf $RPM_BUILD_ROOT
 %lang(pt_BR) %{_datadir}/psi/translations/psi_br.qm
 %lang(mk) %{_datadir}/psi/translations/psi_mk.qm
 %{_libdir}/psi
-%{_applnkdir}/Network/Communications/%{name}.desktop
+%{_desktopdir}
