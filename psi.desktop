@@ -1,9 +1,0 @@
-[Desktop Entry]
-Name=Psi
-Name[pl]=Psi
-Comment=Send and receive instant messages using the Jabber system
-Comment[pl]=Psi: klient Jabbera dla QT/KDE
-Exec=psi
-Icon=/usr/X11R6/share/psi/image/icon_48.png
-Terminal=0
-Type=Application
