@@ -11,24 +11,26 @@ Source1:	%{name}-richlistview.cpp
 Source2:	%{name}-richlistview.h
 Source3:	%{name}-roster-rich.README
 Source4:	%{name}-indicator.png
-Source10:	%{name}_ee.qm
-# Source10-md5:	9747ae62d0401b65ccea3531bdc148e0
+Source10:	%{name}_de.qm
+# Source10-md5:	2d0ad7a4a93992cc465ca68261e332c2
 Source11:	%{name}_es.qm
 # Source11-md5:	125353103949ff1de2bc31b6bcfdf489
-Source12:	%{name}_fr.qm
-# Source12-md5:	2109223681611cd89b1a348bb87ab143
-Source13:	%{name}_mk.qm
-# Source13-md5:	2fbdee2069447e31982fffed14bbd5fa
-Source14:	%{name}_nl.qm
-# Source14-md5:	31048975699e64f9e6dc4213714b0e0d
-Source15:	%{name}_pl.qm
-# Source15-md5:	e91bfb24cfed80a0932fdf132cee974d
-Source16:	%{name}_ru.qm
-# Source16-md5:	1b82151552f658e9b94ed6bb4537628d
-Source17:	%{name}_vi.qm
-# Source17-md5:	4d66fd44e634f2d5a7118c2c149c6614
-Source18:	%{name}_zh.qm
-# Source18-md5:	76dc27b07962e8e61b57f53e7c5b2a0d
+Source12:	%{name}_et.qm
+# Source12-md5:	9747ae62d0401b65ccea3531bdc148e0
+Source13:	%{name}_fr.qm
+# Source13-md5:	2109223681611cd89b1a348bb87ab143
+Source14:	%{name}_mk.qm
+# Source14-md5:	aa34e78f9fd0f8417fb4c997484807c0
+Source15:	%{name}_nl.qm
+# Source15-md5:	31048975699e64f9e6dc4213714b0e0d
+Source16:	%{name}_pl.qm
+# Source16-md5:	e91bfb24cfed80a0932fdf132cee974d
+Source17:	%{name}_ru.qm
+# Source17-md5:	1b82151552f658e9b94ed6bb4537628d
+Source18:	%{name}_vi.qm
+# Source18-md5:	4d66fd44e634f2d5a7118c2c149c6614
+Source19:	%{name}_zh.qm
+# Source19-md5:	76dc27b07962e8e61b57f53e7c5b2a0d
 #	from PLD
 Patch0:		%{name}-certs.patch
 Patch1:		%{name}-desktop.patch
@@ -148,7 +150,7 @@ install iconsets/roster/stellar-icq/online.png $RPM_BUILD_ROOT%{_pixmapsdir}/psi
 install indicator.png $RPM_BUILD_ROOT%{_datadir}/psi/iconsets/roster/default/indicator.png
 install libpsi/psiwidgets/*.so $RPM_BUILD_ROOT%{_libdir}/qt/plugins-mt/designer
 
-for i in %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13} %{SOURCE14} %{SOURCE15} %{SOURCE16} %{SOURCE17} %{SOURCE18}; do
+for i in %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13} %{SOURCE14} %{SOURCE15} %{SOURCE16} %{SOURCE17} %{SOURCE18} %{SOURCE19}; do
 	install $i $RPM_BUILD_ROOT%{_datadir}/psi/
 done
 
@@ -166,8 +168,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/psi/certs
 %{_datadir}/psi/iconsets
 %{_datadir}/psi/sound
-%lang(et) %{_datadir}/psi/psi_ee.qm
+%lang(de) %{_datadir}/psi/psi_de.qm
 %lang(es) %{_datadir}/psi/psi_es.qm
+%lang(et) %{_datadir}/psi/psi_et.qm
 %lang(fr) %{_datadir}/psi/psi_fr.qm
 %lang(mk) %{_datadir}/psi/psi_mk.qm
 %lang(nl) %{_datadir}/psi/psi_nl.qm
