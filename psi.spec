@@ -1,10 +1,10 @@
-# -without-qssl 	Disable qssl support.
+# --without-qssl 	Disable qssl support.
 
-Summary:	PSI Jabber client
+Summary:	PSI - Jabber client
 Summary(pl):	PSI - klient Jabbera
 Name:		psi
 Version:	0.8.7
-Release:	0.8
+Release:	1
 License:	GPL
 Group:		Applications/Communications
 Source0:	ftp://ftp.sourceforge.net/pub/sourceforge/psi/%{name}-%{version}.tar.bz2
@@ -23,26 +23,24 @@ Patch1:		%{name}-paths.patch
 Patch2:		%{name}-certs.patch
 URL:		http://psi.affinix.com/
 BuildRequires:	qt-devel >= 3.0.5
-%{!?_without_qssl:BuildRequires:	qssl-devel >= 1.0-2}
-%{!?_without_qssl:Requires:        qssl >= 1.0-2} 
-
+%{!?_without_qssl:BuildRequires:	qt-plugin-ssl-devel >= 1.0-2}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_prefix		/usr/X11R6
 %define		_mandir		%{_prefix}/man
 
 %description
-PSI is communicator for Jabber open messaging system. It is based on QT
-library. It supports SSL encrypted connections. Default behaviour for
-SSL was changed so it looks for SSL certificates in $DATADIR/certs or in
-~/.psi/certs.
+PSI is communicator for Jabber open messaging system. It is based on
+QT library. It supports SSL encrypted connections. Default behaviour
+for SSL was changed so it looks for SSL certificates in $DATADIR/certs
+or in ~/.psi/certs.
 
 %description -l pl
 PSI jest komunikatorem dla otwartego systemu wiadomo¶ci Jabber. Zosta³
-stworzony w oparciu o bibliotekê QT. PSI wspiera po³±czenia szyfrowane SSL.
-W stosunku do domy¶lnego zachowania komunikatora zosta³a wprowadzona zmiana,
-która powoduje ¿e certyfikaty SSL poszukiwane s± w katalogu $DATADIR/certs
-lub ~/.psi/certs.
+stworzony w oparciu o bibliotekê QT. PSI wspiera po³±czenia szyfrowane
+SSL. W stosunku do domy¶lnego zachowania komunikatora zosta³a
+wprowadzona zmiana, która powoduje ¿e certyfikaty SSL poszukiwane s± w
+katalogu $DATADIR/certs lub ~/.psi/certs.
 
 %prep
 %setup  -q
@@ -52,9 +50,8 @@ lub ~/.psi/certs.
 
 %build
 QTDIR=%{_prefix}
-export QTDIR
 QMAKESPEC=%{_datadir}/qt/mkspecs/linux-g++
-export QMAKESPEC
+export QTDIR QMAKESPEC
 
 ./configure \
 	--prefix %{_prefix} \
