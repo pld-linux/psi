@@ -64,7 +64,7 @@ diff -ru -X exclude psi-clean/src/contactview.cpp psi/src/contactview.cpp
 +				ind = true;
 +			if(ind) {
 +				const QPixmap &pix = IconsetFactory::icon("psi/statInd");
-+				p->drawPixmap(pixmap(column)->width()-pix.width(), height() - pix.height(), pix);
++				p->drawPixmap(pixmap(column)->width() - pix.width(), (height() + pixmap(column)->height())/2 - pix.height() + 1, pix);
 +			}
  		}
  	}
