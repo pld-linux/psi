@@ -5,7 +5,7 @@
 # Conditional build:
 %bcond_with	square_timestamps	# this is how they used to be
 #
-%define		snap 20040726
+%define		snap 20040821
 #
 Summary:	PSI - Jabber client
 Summary(pl):	PSI - klient Jabbera
@@ -15,25 +15,31 @@ Release:	0.%{snap}.2
 License:	GPL
 Group:		Applications/Communications
 Source0:	%{name}-snap-%{snap}.tar.bz2
-# Source0-md5:	534a744e20880ddb9e9e3677b8a2db8e
+# Source0-md5:	71cd0a6443926ed30f3c738e6f639a85
 Source1:	%{name}-richlistview.cpp
 Source2:	%{name}-richlistview.h
 Source3:	%{name}-roster-rich.README
 Source4:	%{name}-indicator.png
+# from PLD
 Patch0:		%{name}-certs.patch
 Patch1:		%{name}-desktop.patch
 Patch2:		%{name}-home_etc.patch
-Patch3:		%{name}-customos.patch
-Patch4:		%{name}-status_indicator-add.patch
-Patch5:		%{name}-no_default_status_text-mod.patch
-Patch6:		%{name}-no_online_status-mod.patch
-Patch7:		%{name}-status_history-add.patch
-Patch9:		%{name}-icon_buttons_big_return-mod.patch
-Patch10:	%{name}-nicechats-mod.patch
-Patch11:	%{name}-roster-rich.patch
-Patch12:	%{name}-icondef.xml_status_indicator.patch
-Patch13:	%{name}-timestamps.patch
-Patch14:	%{name}-nodebug.patch
+# from jpc
+Patch10:	%{name}-customos.patch
+Patch11:	%{name}-timestamps.patch
+# from SKaZi
+Patch20:	%{name}-status_indicator-add.patch
+Patch21:	%{name}-no_default_status_text-mod.patch
+Patch22:	%{name}-no_online_status-mod.patch
+Patch23:	%{name}-status_history-add.patch
+Patch24:	%{name}-icon_buttons_big_return-mod.patch
+Patch25:	%{name}-nicechats-mod.patch
+Patch26:	%{name}-roster-rich.patch
+Patch27:	%{name}-icondef.xml_status_indicator.patch
+Patch28:	%{name}-nodebug.patch
+# from Remko
+# http://listserver.dreamhost.com/pipermail/psi-devel-affinix.com/2004-August/000295.html
+Patch50:	%{name}-status_presets.patch
 URL:		http://psi.affinix.com/
 BuildRequires:	libstdc++-devel
 BuildRequires:	cyrus-sasl-devel
@@ -124,17 +130,19 @@ Jest to wersja rozwojowa (CVS).
 %patch0 -p0
 %patch1 -p0
 %patch2 -p0
-%patch3 -p0
-%patch4 -p0
-%patch5 -p0
-%patch6 -p0
-%patch7 -p0
-%patch9 -p0
 %patch10 -p0
-%patch11 -p0
-%patch12 -p0
-%{?with_square_timestamps:%patch13 -p1}
-%patch14 -p1
+%{?with_square_timestamps:%patch11 -p0}
+%patch20 -p0
+%patch21 -p0
+%patch22 -p0
+%patch23 -p0
+%patch24 -p0
+%patch25 -p0
+%patch26 -p0
+%patch27 -p0
+%patch28 -p1
+# tried to fix it, but seems severly broken :(
+#patch50 -p0
 
 sed -i \
 	's/QString PROG_VERSION = .*/QString PROG_VERSION = "0.9.3-%{snap}";/g' \
