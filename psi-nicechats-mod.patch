@@ -1,10 +1,11 @@
 diff -ru -X exclude psi-clean/src/chatdlg.cpp psi/src/chatdlg.cpp
 --- psi-clean/src/chatdlg.cpp	Tue Jan 06 17:24:54 2004
 +++ psi/src/chatdlg.cpp	Sat Mar 27 11:47:06 2004
-@@ -506,6 +507,12 @@
- 
+@@ -506,7 +507,13 @@
  	// update the widget icon
+ #ifdef Q_WS_MAC
  	setIcon(IconsetFactory::icon("psi/chat"));
+ #endif
 +
 +	d->log->setPaletteBackgroundColor(option.color[cChatBG]);
 +	d->mle->setPaletteBackgroundColor(option.color[cChatBG]);
