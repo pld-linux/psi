@@ -196,10 +196,9 @@ install psi/iconsets/system/default/icon_48.png $RPM_BUILD_ROOT%{_pixmapsdir}/ps
 install psi/iconsets/roster/stellar-icq/online.png $RPM_BUILD_ROOT%{_pixmapsdir}/psi-stellar.png
 install psi/lang/*.qm $RPM_BUILD_ROOT%{_datadir}/psi
 install psi/indicator.png $RPM_BUILD_ROOT%{_datadir}/psi/iconsets/roster/default/indicator.png
+install psi/libpsi/psiwidgets/*.so $RPM_BUILD_ROOT%{_libdir}/qt/plugins-mt/designer
 
-mv $RPM_BUILD_ROOT%{_datadir}/psi/designer/libpsiwidgets.so \
-	$RPM_BUILD_ROOT%{_libdir}/qt/plugins-mt/designer
-
+rm -rf $RPM_BUILD_ROOT%{_datadir}/psi/designer
 rm $RPM_BUILD_ROOT%{_datadir}/psi/COPYING $RPM_BUILD_ROOT%{_datadir}/psi/README
 
 %clean
