@@ -21,9 +21,8 @@ Patch1:		%{name}-paths.patch
 Patch2:		%{name}-certs.patch
 URL:		http://psi.affinix.com/
 BuildRequires:	qt-devel >= 3.0.5
-%{?!_without_qssl:BuildRequires: openssl-devel}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
-%{?!_without_qssl:Requires: openssl}
+
 %define		_prefix		/usr/X11R6
 %define		_mandir		%{_prefix}/man
 
@@ -93,7 +92,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/psi/iconsets
 %{_datadir}/psi/image
 %{_datadir}/psi/sound
-%lang(cz) %{_datadir}/psi/translations/psi_cz.qm
+%lang(cs) %{_datadir}/psi/translations/psi_cz.qm
 %lang(de) %{_datadir}/psi/translations/psi_de.qm
 %lang(es) %{_datadir}/psi/translations/psi_es.qm
 %lang(fr) %{_datadir}/psi/translations/psi_fr.qm
