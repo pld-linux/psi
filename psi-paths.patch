@@ -1,15 +1,17 @@
-diff -ru psi-0.8.6/src/main.cpp psi-0.8.6-AlchemyX/src/main.cpp
---- psi-0.8.6/src/main.cpp	Mon Jul  8 20:13:11 2002
-+++ psi-0.8.6-AlchemyX/src/main.cpp	Sat Nov 16 02:33:38 2002
-@@ -54,6 +54,7 @@
+diff -ru psi-0.8.7/src/main.cpp psi-0.8.7-AlchemyX/src/main.cpp
+--- psi-0.8.7/src/main.cpp	Wed Oct 30 11:09:34 2002
++++ psi-0.8.7-AlchemyX/src/main.cpp	Fri Nov 29 23:08:02 2002
+@@ -59,6 +59,9 @@
  	dirs += "." + subdir;
  	dirs += g.pathHome + subdir;
  	dirs += g.pathBase + subdir;
 +	dirs += "/usr/X11R6/share/psi/" + subdir;
++	dirs += "/usr/X11R6/share/psi/translations/" + subdir;
++
  	for(QStringList::Iterator it = dirs.begin(); it != dirs.end(); ++it) {
  		if(!QFile::exists(*it))
  			continue;
-@@ -120,6 +121,8 @@
+@@ -125,6 +128,8 @@
  	dirs += "." + subdir;
  	dirs += g.pathHome + subdir;
  	dirs += g.pathBase + subdir;
@@ -18,7 +20,7 @@ diff -ru psi-0.8.6/src/main.cpp psi-0.8.6-AlchemyX/src/main.cpp
  
  	for(QStringList::Iterator it = dirs.begin(); it != dirs.end(); ++it) {
  		if(!QFile::exists(*it))
-@@ -163,6 +165,7 @@
+@@ -168,6 +173,7 @@
  	dirs.clear();
  	dirs += g.pathHome;
  	dirs += g.pathBase;
