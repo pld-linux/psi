@@ -4,8 +4,8 @@
  	dirs += "." + subdir;
  	dirs += g.pathHome + subdir;
  	dirs += g.pathBase + subdir;
-+	dirs += "/usr/X11R6/share/psi/" + subdir;
-+	dirs += "/usr/X11R6/share/psi/translations/" + subdir;
++	dirs += "/usr/share/psi/" + subdir;
++	dirs += "/usr/share/psi/translations/" + subdir;
 +
  	for(QStringList::Iterator it = dirs.begin(); it != dirs.end(); ++it) {
  		if(!QFile::exists(*it))
@@ -14,8 +14,8 @@
  	dirs += "." + subdir;
  	dirs += g.pathHome + subdir;
  	dirs += g.pathBase + subdir;
-+	dirs += "/usr/X11R6/share/psi/" + subdir;
-+	dirs += "/usr/X11R6/share/psi/translations";
++	dirs += "/usr/share/psi/" + subdir;
++	dirs += "/usr/share/psi/translations";
  
  	for(QStringList::Iterator it = dirs.begin(); it != dirs.end(); ++it) {
  		if(!QFile::exists(*it))
@@ -23,8 +23,8 @@
  	dirs.clear();
  	dirs += g.pathHome;
  	dirs += g.pathBase;
-+	dirs += "/usr/X11R6/lib/psi";
-+	dirs += "/usr/X11R6/lib/qt/plugins-mt/network";
++	dirs += "/usr/lib/psi";
++	dirs += "/usr/lib/qt/plugins-mt/network";
  	dirs += "";
  	Stream::loadSSL(dirs);
  
