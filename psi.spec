@@ -10,10 +10,12 @@ License:	GPL
 Group:		Applications/Communications
 Source0:	http://radioemiter.pl/~pedrito/public/jabber/psi-pedrito/%{_snap}/%{name}-pedrito-%{_snap}.tar.bz2
 # Source0-md5:	2fd989a32245caa07692117391fc8455
-Source1:	%{name}-snap-lang-20041209.tar.bz2
-# Source1-md5:	38f0894bf1b557a36788213c56797e62
-Source2:	http://michalj.alternatywa.info/psi/patches/emergency.png
-# Source2-md5:	5fa629c5177a7b1c5090428e22b7ec30
+Source1:	http://radioemiter.pl/~pedrito/public/jabber/psi-pedrito/%{_snap}/%{name}-pedrito-%{_snap}-data.tar.bz2
+# Source1-md5:	be19af63509103f1c0c7abfba1b9a843
+Source2:	%{name}-snap-lang-20041209.tar.bz2
+# Source2-md5:	38f0894bf1b557a36788213c56797e62
+Source3:	http://michalj.alternatywa.info/psi/patches/emergency.png
+# Source3-md5:	5fa629c5177a7b1c5090428e22b7ec30
 Patch0:		%{name}-desktop.patch
 URL:		http://psi-pedrito.cjb.net/
 BuildRequires:	libstdc++-devel
@@ -66,8 +68,14 @@ napisaæ w³asne okna dialogowe itp. albo poprawiæ obecne.
 
 %prep
 %setup -q -n %{name}-pedrito-%{_snap}
-%setup -q -D -a 1 -n %{name}-pedrito-%{_snap}
+%setup -q -D -a 2 -n %{name}-pedrito-%{_snap}
 %patch -p0
+
+cd psi
+%{__tar} jxf %{SOURCE1}
+
+cd ..
+rm -rf `find . -type d -name CVS`
 
 %build
 export QTDIR=%{_prefix}
@@ -103,8 +111,9 @@ install -d \
 install psi/psi.desktop $RPM_BUILD_ROOT%{_desktopdir}
 install psi/iconsets/system/default/icon_48.png $RPM_BUILD_ROOT%{_pixmapsdir}/psi.png
 install psi/iconsets/roster/stellar-icq/online.png $RPM_BUILD_ROOT%{_pixmapsdir}/psi-stellar.png
-install psi/lang/*.qm $RPM_BUILD_ROOT%{_datadir}/psi
-install %{SOURCE2} $RPM_BUILD_ROOT%{_datadir}/psi/iconsets/system/default/
+#install psi/lang/*.qm $RPM_BUILD_ROOT%{_datadir}/psi
+install psi/*.qm $RPM_BUILD_ROOT%{_datadir}/psi
+install %{SOURCE3} $RPM_BUILD_ROOT%{_datadir}/psi/iconsets/system/default/
 install psi/libpsi/psiwidgets/*.so $RPM_BUILD_ROOT%{_libdir}/qt/plugins-mt/designer
 
 rm -rf $RPM_BUILD_ROOT%{_datadir}/psi/COPYING $RPM_BUILD_ROOT%{_datadir}/psi/README
@@ -115,7 +124,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc psi/README psi/TODO %{?with_external_patches:psi/README.rich-roster} psi/ChangeLog
+%doc psi/README psi/TODO psi/ChangeLog psi-pedrito.txt
 %attr(755,root,root) %{_bindir}/*
 %dir %{_datadir}/psi
 %{_datadir}/psi/certs
