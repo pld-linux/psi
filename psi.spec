@@ -61,8 +61,8 @@ export QMAKESPEC
 	--libdir %{_datadir}/psi \
 	--qtdir $QTDIR
 %{__make} \
-	CXXFLAGS="-pipe -Wall %{rpmcflags} -fno-exceptions \
-	-D_REENTRANT %{?debug:-DQT_NO_DEBUG} -DQT_THREAD_SUPPORT"
+	CXX=%{__cxx} LINK=%{__cxx} CXXFLAGS="-pipe -Wall %{rpmcflags} \
+	-fno-exceptions -D_REENTRANT %{?debug:-DQT_NO_DEBUG} -DQT_THREAD_SUPPORT"
 
 cd src
 cp %{SOURCE3} %{SOURCE4} %{SOURCE5} %{SOURCE6} %{SOURCE7} %{SOURCE8} \
