@@ -1,15 +1,14 @@
---- psi/src/common.cpp~	2004-03-10 21:03:53.000000000 +0100
-+++ psi/src/common.cpp	2004-03-21 17:56:22.993517712 +0100
-@@ -1160,7 +1160,8 @@
+diff -urN psi-old/src/common.cpp psi/src/common.cpp
+--- psi-old/src/common.cpp	2004-03-22 11:48:01.079698856 +0100
++++ psi/src/common.cpp	2004-03-22 11:49:21.273507544 +0100
+@@ -1145,6 +1145,7 @@
+ 	// get description about os
+ 	enum LinuxName {
+ 		LinuxNone = 0,
++                LinuxCustom,
  
- 		LinuxPLD, // Polish Linux distros
- 		LinuxAurox,
--		LinuxArch
-+		LinuxArch,
-+		LinuxCustom
- 	};
- 
- 	enum OsFlags {
+ 		LinuxMandrake,
+ 		LinuxDebian,
 @@ -1175,6 +1176,7 @@
  		QString file;
  		QString name;
