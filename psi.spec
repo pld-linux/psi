@@ -60,10 +60,11 @@ install -d $RPM_BUILD_ROOT%{_applnkdir}/Network/Communications \
 
 make install INSTALL_ROOT=$RPM_BUILD_ROOT
 
-
 install %{SOURCE2} $RPM_BUILD_ROOT%{_applnkdir}/Network/Communications
 rm -f src/tr.qm
 cp src/*.qm $RPM_BUILD_ROOT%{_datadir}/psi
+
+rm -f $RPM_BUILD_ROOT%{_datadir}/psi/{README,COPYING}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
