@@ -9,8 +9,8 @@ Version:	0.8.7
 Release:	2
 License:	GPL
 Group:		Applications/Communications
-Source0:	http://dl.sourceforge.net/psi/%{name}-%{version}.tar.bz2
-# Source0-md5:	4e18ea341dca70556d0dc1baf026ef86
+Source0:	http://heanet.dl.sourceforge.net/sourceforge/psi/%{name}-%{version}.tar.bz2
+# Source0-md5:	4e18ea341dca70556d0dc1baf026ef86	
 Source2:	%{name}.desktop
 # Translation files ftom http://psi.sourceforge.net/
 Source3:	%{name}_cz.ts
@@ -21,6 +21,8 @@ Source7:	%{name}_mk.ts
 Source8:	%{name}_nl.ts
 Source9:	%{name}_pl.ts
 Source10:	%{name}_ru.ts
+Source11:       %{name}_br.ts
+Source12:	%{name}_fi.ts
 Patch0:		%{name}-include.patch
 Patch1:		%{name}-paths.patch
 Patch2:		%{name}-certs.patch
@@ -44,7 +46,7 @@ katalogu $DATADIR/certs lub ~/.psi/certs.
 
 %prep
 %setup  -q
-%patch0 -p1
+%{!?_without_qssl:%patch0 -p1}
 %patch1 -p1
 %patch2 -p1
 
@@ -63,7 +65,7 @@ export QTDIR QMAKESPEC
 
 cd src
 cp %{SOURCE3} %{SOURCE4} %{SOURCE5} %{SOURCE6} %{SOURCE7} %{SOURCE8} \
-	%{SOURCE9} %{SOURCE10} .
+	%{SOURCE9} %{SOURCE10}  %{SOURCE11}  %{SOURCE12} .
 lrelease psi.pro
 cd ..
 
@@ -101,5 +103,8 @@ rm -rf $RPM_BUILD_ROOT
 %lang(nl) %{_datadir}/psi/translations/psi_nl.qm
 %lang(pl) %{_datadir}/psi/translations/psi_pl.qm
 %lang(ru) %{_datadir}/psi/translations/psi_ru.qm
+%lang(fi) %{_datadir}/psi/translations/psi_fi.qm
+%lang(pt_BR) %{_datadir}/psi/translations/psi_br.qm
+%lang(mk) %{_datadir}/psi/translations/psi_mk.qm
 %{_libdir}/psi
 %{_applnkdir}/Network/Communications/%{name}.desktop
