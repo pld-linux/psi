@@ -1,11 +1,4 @@
-#
-# TODO:
-# - fix the nicechats patch
-#
-# Conditional build:
-%bcond_with	square_timestamps	# this is how they used to be
-#
-%define		snap 20041015
+%define		snap 20041103
 #
 Summary:	PSI - Jabber client
 Summary(pl):	PSI - klient Jabbera
@@ -15,7 +8,7 @@ Release:	0.%{snap}.3
 License:	GPL
 Group:		Applications/Communications
 Source0:	%{name}-snap-%{snap}.tar.bz2
-# Source0-md5:	021a44dca1c763f958296bb4f420ccfc
+# Source0-md5:	46833f23018542503f34dde7a319079a
 Source1:	%{name}-richlistview.cpp
 Source2:	%{name}-richlistview.h
 Source3:	%{name}-roster-rich.README
@@ -27,10 +20,8 @@ Patch2:		%{name}-home_etc.patch
 Patch3:		%{name}-nodebug.patch
 # from jpc
 Patch10:	%{name}-customos.patch
-Patch11:	%{name}-timestamps.patch
 # from SKaZi
 Patch20:	%{name}-status_indicator-add.patch
-Patch21:	%{name}-no_default_status_text-mod.patch
 Patch22:	%{name}-no_online_status-mod.patch
 Patch23:	%{name}-status_history-add.patch
 Patch24:	%{name}-icon_buttons_big_return-mod.patch
@@ -45,10 +36,11 @@ URL:		http://psi.affinix.com/
 BuildRequires:	libstdc++-devel
 BuildRequires:	cyrus-sasl-devel
 BuildRequires:	openssl-devel >= 0.9.7c
+BuildRequires:	qca-devel
 BuildRequires:	qmake
 BuildRequires:	qt-devel >= 3.3.2-5
 BuildRequires:	qt-linguist
-Requires:	qt-plugin-qca-tls >= 1:1.1
+Requires:	qt-plugin-qca-tls >= 1:1.0
 Conflicts:	qt-plugin-ssl = 1.0
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -87,45 +79,6 @@ Pakiet ten zawiera wtyczke dla programu Qt Designer, bed±c± zbiorem
 widgetów u¿ytych w programie Psi. Moze Ci siê przydaæ, jesli chcia³by¶
 napisaæ w³asne okna dialogowe itp. albo poprawiæ obecne.
 
-%package -n qt-plugin-qca-tls
-Summary:	Qt Cryptographic Architecture (QCA) SSL/TLS plugin
-Summary(pl):	Wtyczka SSL/TLS dla Qt Cryptographic Architecture (QCA)
-Version:	1.1
-Epoch:		1
-License:	GPL v2
-Group:		Libraries
-
-%description -n qt-plugin-qca-tls
-A plugin to provide SSL/TLS capability to programs that utilize the Qt
-Cryptographic Architecture (QCA).
-
-This is a development version (CVS).
-
-%description -n qt-plugin-qca-tls -l pl
-Wtyczka pozwalaj±ca wykorzystaæ mo¿liwo¶ci SSL/TLS w programach
-korzystaj±cych z Qt Cryptographic Architecture (QCA).
-
-Jest to wersja rozwojowa (CVS).
-
-%package -n qt-plugin-qca-sasl
-Summary:	Qt Cryptographic Architecture (QCA) SASL plugin
-Summary(pl):	Wtyczka SASL dla Qt Cryptographic Architecture (QCA)
-Version:	1.0
-License:	GPL v2
-Group:		Libraries
-
-%description -n qt-plugin-qca-sasl
-A plugin to provide SASL capability to programs that utilize the Qt
-Cryptographic Architecture (QCA).
-
-This is a development version (CVS).
-
-%description -n qt-plugin-qca-sasl -l pl
-Wtyczka pozwalaj±ca wykorzystaæ mo¿liwo¶ci SASL w programach
-korzystaj±cych z Qt Cryptographic Architecture (QCA).
-
-Jest to wersja rozwojowa (CVS).
-
 %prep
 %setup -q -c %{name}-%{version}
 %patch0 -p0
@@ -133,13 +86,13 @@ Jest to wersja rozwojowa (CVS).
 %patch2 -p0
 %patch3 -p1
 %patch10 -p0
-%{?with_square_timestamps:%patch11 -p0}
 %patch20 -p0
-#%patch21 -p0
-#%patch22 -p0
+#
+%patch22 -p0
 %patch23 -p0
 %patch24 -p0
-#%patch25 -p0
+#
+%patch25 -p0
 %patch26 -p0
 %patch27 -p0
 %patch28 -p0
@@ -175,36 +128,6 @@ lrelease lang/*.ts
 
 %{__make}
 
-cd ../qca/plugins/qca-tls
-./configure
-
-qmake qca-tls.pro \
-	QMAKE_CXX="%{__cxx}" \
-	QMAKE_LINK="%{__cxx}" \
-	QMAKE_CXXFLAGS_RELEASE="%{rpmcflags}" \
-	QMAKE_RPATH=
-
-%{__make}
-
-cd ../qca-sasl
-
-# This dir contains bad qcextra file, so prepare good one
-sed -i \
-	's,target.path=.*,target.path=%{_plugindir},' \
-	qcextra
-
-./configure
-
-qmake qca-sasl.pro \
-	QMAKE_CXX="%{__cxx}" \
-	QMAKE_LINK="%{__cxx}" \
-	QMAKE_CXXFLAGS_RELEASE="%{rpmcflags}" \
-	QMAKE_RPATH=
-
-%{__make}
-
-cd ../../..
-
 %install
 rm -rf $RPM_BUILD_ROOT
 
@@ -214,18 +137,6 @@ cd psi
 %{__make} install \
 	INSTALL_ROOT=$RPM_BUILD_ROOT
 cd ..
-
-cd qca/plugins/qca-tls
-%{__make} install \
-	INSTALL_ROOT=$RPM_BUILD_ROOT
-
-cd ../qca-sasl
-# The Makefile seems broken and I don't know why...
-#%{__make} install \
-#	INSTALL_ROOT=$RPM_BUILD_ROOT
-install libqca-sasl.so	$RPM_BUILD_ROOT%{_plugindir}
-
-cd ../../..
 
 install -d \
 	$RPM_BUILD_ROOT%{_libdir}/qt/plugins-mt/designer \
@@ -281,13 +192,3 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %doc psi/libpsi/psiwidgets/README
 %attr(755,root,root) %{_libdir}/qt/plugins-mt/designer/libpsiwidgets.so
-
-%files -n qt-plugin-qca-tls
-%defattr(644,root,root,755)
-%doc qca/plugins/qca-tls/README
-%attr(755,root,root) %{_plugindir}/libqca-tls.so
-
-%files -n qt-plugin-qca-sasl
-%defattr(644,root,root,755)
-%doc qca/plugins/qca-sasl/README
-%attr(755,root,root) %{_plugindir}/libqca-sasl.so
