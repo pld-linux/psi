@@ -18,6 +18,7 @@ Patch2:		%{name}-additional_features.patch
 URL:		http://psi.affinix.com/
 BuildRequires:	qt-devel >= 3.1.0
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
+Conflicts:	qt-plugin-ssl = 1.0
 
 %description
 PSI is communicator for Jabber open messaging system. It is based on
