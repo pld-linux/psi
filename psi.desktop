@@ -7,3 +7,4 @@ Exec=psi
 Icon=/usr/share/psi/image/icon_48.png
 Terminal=0
 Type=Application
+Categories=Qt;Network;Communication
