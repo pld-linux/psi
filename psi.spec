@@ -2,17 +2,17 @@
 # Conditional build:
 %bcond_with	square_timestamps	# this is how they used to be
 #
-%define		snap 20040606
+%define		snap 20040611
 #
 Summary:	PSI - Jabber client
 Summary(pl):	PSI - klient Jabbera
 Name:		psi
-Version:	0.9.2
+Version:	0.9.3
 Release:	0.%{snap}.1
 License:	GPL
 Group:		Applications/Communications
 Source0:	%{name}-snap-%{snap}.tar.bz2
-# Source0-md5:	e61bb7813566746bc596651d9fd70deb
+# Source0-md5:	966314d7558e3317bf0abc263a87c2b2
 Source1:	%{name}-richlistview.cpp
 Source2:	%{name}-richlistview.h
 Source3:	%{name}-roster-rich.README
@@ -132,9 +132,12 @@ Jest to wersja rozwojowa (CVS).
 %patch12 -p0
 %{?with_square_timestamps:%patch13 -p1}
 
-%{__perl} -pi -e "s/QString PROG_VERSION = \"0.9.2-[^\"]+\";/QString PROG_VERSION = \"0.9.2-%{snap}\";/g" psi/src/common.cpp
-%{__perl} -pi -e "s,/usr/local/share/psi,%{_datadir}/psi,g" psi/src/common.cpp
-%{__perl} -pi -e 's/CONFIG \+= debug//g' psi/src/src.pro
+sed -i \
+	's/QString PROG_VERSION = .*/QString PROG_VERSION = "0.9.3-%{snap}";/g' \
+	psi/src/common.cpp
+sed -i \
+	"s,/usr/local/share/psi,%{_datadir}/psi,g" \
+	psi/src/common.cpp
 
 cp %{SOURCE1} psi/src/richlistview.cpp
 cp %{SOURCE2} psi/src/richlistview.h
@@ -173,7 +176,7 @@ cd ../qca-sasl
 
 # This dir contains bad qcextra file, so prepare good one
 sed -i \
-	's/target.path=.*/target.path=$QTDIR\/lib\/qt\/plugins-mt\/crypto/' \
+	's,target.path=.*,target.path=%{_plugindir},' \
 	qcextra
 
 ./configure
@@ -219,7 +222,6 @@ install psi/lang/*.qm $RPM_BUILD_ROOT%{_datadir}/psi
 install psi/indicator.png $RPM_BUILD_ROOT%{_datadir}/psi/iconsets/roster/default/indicator.png
 install psi/libpsi/psiwidgets/*.so $RPM_BUILD_ROOT%{_libdir}/qt/plugins-mt/designer
 
-#rm -rf $RPM_BUILD_ROOT%{_datadir}/psi/designer
 rm $RPM_BUILD_ROOT%{_datadir}/psi/COPYING $RPM_BUILD_ROOT%{_datadir}/psi/README
 
 %clean
