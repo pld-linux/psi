@@ -1,0 +1,14 @@
+--- psi/iconsets/roster/default/icondef.xml	2004-04-27 12:36:42.892541144 +0200
++++ psi/iconsets/roster/default/icondef.xml~	2004-04-27 12:45:21.588687344 +0200
+@@ -61,6 +61,11 @@
+ 		<x xmlns='name'>status/error</x>
+ 		<object mime='image/png'>perr.png</object>
+ 	</icon>
++	
++	<icon>
++		<x xmlns='name'>psi/statInd</x>
++		<object mime='image/png'>indicator.png</object>
++	</icon>
+ 
+ 	<!-- Special icons -->
+ 	<icon>
