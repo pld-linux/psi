@@ -71,13 +71,14 @@ License:	GPL v2
 Group:		X11/Development/Libraries
 
 %description -n qt-designer-psiwidgets
-This is a package of widgets, that are used in Psi You may be interested in it,
-if you want to develop custom dialogs, or hack existing ones.
+This is a package of widgets, that are used in Psi You may be
+interested in it, if you want to develop custom dialogs, or hack
+existing ones.
 
 %description -n qt-designer-psiwidgets -l pl
-Pakiet ten zawiera wtyczke dla programu Qt Designer, bed±c± zbiorem widgetów
-u¿ytych w programie Psi. Moze Ci siê przydaæ, jesli chcia³by¶ napisaæ w³asne
-okna dialogowe itp. albo poprawiæ obecne.
+Pakiet ten zawiera wtyczke dla programu Qt Designer, bed±c± zbiorem
+widgetów u¿ytych w programie Psi. Moze Ci siê przydaæ, jesli chcia³by¶
+napisaæ w³asne okna dialogowe itp. albo poprawiæ obecne.
 
 %package -n qt-plugin-qca-tls
 Summary:	Qt Cryptographic Architecture (QCA) SSL/TLS plugin
@@ -89,7 +90,7 @@ Group:		Libraries
 
 %description -n qt-plugin-qca-tls
 A plugin to provide SSL/TLS capability to programs that utilize the Qt
-Cryptographic Architecture (QCA).	
+Cryptographic Architecture (QCA).
 
 This is a development version (CVS).
 
@@ -267,6 +268,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_pixmapsdir}/*.png
 
 %files -n qt-designer-psiwidgets
+%defattr(644,root,root,755)
 %doc psi/libpsi/psiwidgets/README
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/qt/plugins-mt/designer/libpsiwidgets.so
