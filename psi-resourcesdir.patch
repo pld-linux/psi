@@ -1,0 +1,12 @@
+diff -ru psi-0.8.6/src/common.cpp psi-0.8.6-AlchemyX/src/common.cpp
+--- psi-0.8.6/src/common.cpp	Mon Jul  8 20:13:11 2002
++++ psi-0.8.6-AlchemyX/src/common.cpp	Fri Nov 15 14:49:10 2002
+@@ -1131,7 +1131,7 @@
+ #ifdef Q_WS_X11
+ QString getResourcesDir()
+ {
+-	return "/usr/local/psi";
++	return "/usr/X11R6/share/psi";
+ }
+ 
+ QString getHomeDir()
