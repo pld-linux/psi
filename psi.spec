@@ -1,8 +1,11 @@
 #
+# TODO:
+# - fix the nicechats patch
+#
 # Conditional build:
 %bcond_with	square_timestamps	# this is how they used to be
 #
-%define		snap 20040710
+%define		snap 20040726
 #
 Summary:	PSI - Jabber client
 Summary(pl):	PSI - klient Jabbera
@@ -12,7 +15,7 @@ Release:	0.%{snap}.1
 License:	GPL
 Group:		Applications/Communications
 Source0:	%{name}-snap-%{snap}.tar.bz2
-# Source0-md5:	35def1b278e5ce3f26f81dad80bcc1c0
+# Source0-md5:	534a744e20880ddb9e9e3677b8a2db8e
 Source1:	%{name}-richlistview.cpp
 Source2:	%{name}-richlistview.h
 Source3:	%{name}-roster-rich.README
@@ -25,7 +28,6 @@ Patch4:		%{name}-status_indicator-add.patch
 Patch5:		%{name}-no_default_status_text-mod.patch
 Patch6:		%{name}-no_online_status-mod.patch
 Patch7:		%{name}-status_history-add.patch
-Patch8:		%{name}-offline_status-add.patch
 Patch9:		%{name}-icon_buttons_big_return-mod.patch
 Patch10:	%{name}-nicechats-mod.patch
 Patch11:	%{name}-roster-rich.patch
@@ -125,7 +127,6 @@ Jest to wersja rozwojowa (CVS).
 %patch5 -p0
 %patch6 -p0
 %patch7 -p0
-%patch8 -p0
 %patch9 -p0
 %patch10 -p0
 %patch11 -p0
