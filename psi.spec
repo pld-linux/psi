@@ -21,10 +21,6 @@ BuildRequires:	qt-devel >= 3.1.0
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 Conflicts:	qt-plugin-ssl = 1.0
 
-# Uncomment for Ra
-# %define		_desktopdir	%{_applnkdir}/Network/Communications/
-# %define		_prefix		/usr/X11R6
-
 %description
 PSI is communicator for Jabber open messaging system. It is based on
 QT library. It supports SSL encrypted connections. Default behaviour
