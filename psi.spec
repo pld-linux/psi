@@ -1,5 +1,7 @@
-# --without-qssl 	Disable qssl support.
-
+#
+# Conditional build:
+# _without_qssl 	Disable qssl support
+#
 Summary:	PSI - Jabber client
 Summary(pl):	PSI - klient Jabbera
 Name:		psi
@@ -7,7 +9,7 @@ Version:	0.8.7
 Release:	1
 License:	GPL
 Group:		Applications/Communications
-Source0:	ftp://ftp.sourceforge.net/pub/sourceforge/psi/%{name}-%{version}.tar.bz2
+Source0:	http://dl.sourceforge.net/psi/%{name}-%{version}.tar.bz2
 Source2:	%{name}.desktop
 # Translation files ftom http://psi.sourceforge.net/
 Source3:	%{name}_cz.ts
@@ -25,7 +27,6 @@ URL:		http://psi.affinix.com/
 BuildRequires:	qt-devel >= 3.0.5
 %{!?_without_qssl:BuildRequires:	qt-plugin-ssl-devel >= 1.0-2}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
-
 
 %description
 PSI is communicator for Jabber open messaging system. It is based on
