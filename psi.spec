@@ -61,8 +61,9 @@ qmake qssl.pro
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT{%{_bindir},%{_datadir}/psi/{image,iconsets,sound}}
-install -d %{_applnkdir}/Network/Communications
+install -d $RPM_BUILD_ROOT%{_bindir} \
+	$RPM_BUILD_ROOT%{_datadir}/psi/{image,iconsets,sound} \
+	$RPM_BUILD_ROOT%{_applnkdir}/Network/Communications
 
 %if %{?_without_qssl:0}%{?!_without_qssl:1}
 install -d $RPM_BUILD_ROOT%{_libdir}
@@ -70,10 +71,10 @@ install -d $RPM_BUILD_ROOT%{_libdir}
 
 install src/psi $RPM_BUILD_ROOT%{_bindir}/
 
-install image/*.png %{buildroot}%{_datadir}/psi/image
-cp -r iconsets/* %{buildroot}%{_datadir}/psi/iconsets
-install sound/* %{buildroot}%{_datadir}/psi/sound
-install %{name}.desktop %{_applnkdir}/Network/Communications
+install image/*.png $RPM_BUILD_ROOT%{_datadir}/psi/image
+cp -r iconsets/* $RPM_BUILD_ROOT%{_datadir}/psi/iconsets
+install sound/* $RPM_BUILD_ROOT%{_datadir}/psi/sound
+install %{SOURCE2} $RPM_BUILD_ROOT%{_applnkdir}/Network/Communications
 
 %if %{?_without_qssl:0}%{?!_without_qssl:1}
 install qssl-%{_qssl_version}/libqssl.so %{buildroot}%{_libdir}
