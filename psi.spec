@@ -9,7 +9,7 @@ Summary:	PSI - Jabber client
 Summary(pl):	PSI - klient Jabbera
 Name:		psi
 Version:	0.9.2
-Release:	0.%{snap}.0.1
+Release:	0.%{snap}.1
 License:	GPL
 Group:		Applications/Communications
 Source0:	%{name}-snap-%{snap}.tar.bz2
