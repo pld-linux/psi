@@ -17,8 +17,6 @@ BuildRequires:	qt-devel >= 3.0.5
 BuildRequires:	qt-plugin-ssl-devel >= 1.0-2
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
-%define _prefix /usr
-
 %description
 PSI is communicator for Jabber open messaging system. It is based on
 QT library. It supports SSL encrypted connections. Default behaviour
@@ -85,19 +83,19 @@ rm -rf $RPM_BUILD_ROOT
 %lang(cs) %{_datadir}/psi/translations/psi_cs.qm
 %lang(de) %{_datadir}/psi/translations/psi_de.qm
 %lang(es) %{_datadir}/psi/translations/psi_es.qm
+%lang(fi) %{_datadir}/psi/translations/psi_fi.qm
 %lang(fr) %{_datadir}/psi/translations/psi_fr.qm
-%lang(jp) %{_datadir}/psi/translations/psi_jp.qm
+%lang(ja) %{_datadir}/psi/translations/psi_jp.qm
+%lang(mk) %{_datadir}/psi/translations/psi_mk.qm
 %lang(nl) %{_datadir}/psi/translations/psi_nl.qm
 %lang(pl) %{_datadir}/psi/translations/psi_pl.qm
 %lang(ru) %{_datadir}/psi/translations/psi_ru.qm
 %lang(sr) %{_datadir}/psi/translations/psi_sr.qm
 %lang(it) %{_datadir}/psi/translations/psi_it.qm
 %lang(pt) %{_datadir}/psi/translations/psi_pt.qm
+%lang(pt_BR) %{_datadir}/psi/translations/psi_ptbr.qm
 %lang(se) %{_datadir}/psi/translations/psi_se.qm
 %lang(zh) %{_datadir}/psi/translations/psi_zh.qm
-%lang(fi) %{_datadir}/psi/translations/psi_fi.qm
-%lang(mk) %{_datadir}/psi/translations/psi_mk.qm
-%lang(pt_BR) %{_datadir}/psi/translations/psi_ptbr.qm
 
 %{_libdir}/psi
 %{_desktopdir}/psi.desktop
