@@ -63,7 +63,7 @@ lrelease psi.pro
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROO{T%{_desktopdir},%{_libdir}/psi},%{_datadir}/psi/translations}
+install -d $RPM_BUILD_ROOT{%{_desktopdir},%{_libdir}/psi},%{_datadir}/psi/translations}
 
 # ugly workaround: they ignore INSTALL_ROOT!
 perl -pi -e 's#(\.\./)+#/#g' Makefile
