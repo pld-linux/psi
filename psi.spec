@@ -2,7 +2,7 @@ Summary:	PSI - Jabber client
 Summary(pl):	PSI - klient Jabbera
 Name:		psi
 Version:	0.9.3
-Release:	0.1
+Release:	0.2
 License:	GPL
 Group:		Applications/Communications
 Source0:	http://osdn.dl.sourceforge.net/psi/%{name}-%{version}.tar.bz2
@@ -73,6 +73,22 @@ SSL. W stosunku do domy¶lnego zachowania komunikatora zosta³a
 wprowadzona zmiana, która powoduje ¿e certyfikaty SSL s± poszukiwane w
 katalogu $DATADIR/certs lub ~/.psi/certs.
 
+%package -n qt-designer-psiwidgets
+Summary:	Psi widgets collection for Qt Designer
+Summary(pl):	Kolekcja widgetów Psi do wykorzystania w Projektancie Qt
+License:	GPL v2
+Group:		X11/Development/Libraries
+
+%description -n qt-designer-psiwidgets
+This is a package of widgets, that are used in Psi You may be
+interested in it, if you want to develop custom dialogs, or hack
+existing ones.
+
+%description -n qt-designer-psiwidgets -l pl
+Pakiet ten zawiera wtyczke dla programu Qt Designer, bed±c± zbiorem
+widgetów u¿ytych w programie Psi. Moze Ci siê przydaæ, jesli chcia³by¶
+napisaæ w³asne okna dialogowe itp. albo poprawiæ obecne.
+
 %prep
 %setup -q
 #	PLD
@@ -125,18 +141,21 @@ export QTDIR=%{_prefix}
 %{__make} install \
 	INSTALL_ROOT=$RPM_BUILD_ROOT
 
-install -d $RPM_BUILD_ROOT{%{_desktopdir},%{_pixmapsdir}}
+install -d \
+	$RPM_BUILD_ROOT{%{_desktopdir},%{_pixmapsdir}} \
+	$RPM_BUILD_ROOT%{_libdir}/qt/plugins-mt/designer
 
 install psi.desktop $RPM_BUILD_ROOT%{_desktopdir}
 install iconsets/system/default/icon_48.png $RPM_BUILD_ROOT%{_pixmapsdir}/psi.png
 install iconsets/roster/stellar-icq/online.png $RPM_BUILD_ROOT%{_pixmapsdir}/psi-stellar.png
 install indicator.png $RPM_BUILD_ROOT%{_datadir}/psi/iconsets/roster/default/indicator.png
+install libpsi/psiwidgets/*.so $RPM_BUILD_ROOT%{_libdir}/qt/plugins-mt/designer
 
 for i in %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13} %{SOURCE14} %{SOURCE15} %{SOURCE16} %{SOURCE17} %{SOURCE18}; do
 	install $i $RPM_BUILD_ROOT%{_datadir}/psi/
 done
 
-#rm -rf $RPM_BUILD_ROOT%{_datadir}/psi/designer
+rm -rf $RPM_BUILD_ROOT%{_datadir}/psi/designer
 rm $RPM_BUILD_ROOT%{_datadir}/%{name}/COPYING $RPM_BUILD_ROOT%{_datadir}/%{name}/README
 
 %clean
@@ -161,3 +180,8 @@ rm -rf $RPM_BUILD_ROOT
 %lang(zh) %{_datadir}/psi/psi_zh.qm
 %{_desktopdir}/*.desktop
 %{_pixmapsdir}/*.png
+
+%files -n qt-designer-psiwidgets
+%defattr(644,root,root,755)
+%doc libpsi/psiwidgets/README
+%attr(755,root,root) %{_libdir}/qt/plugins-mt/designer/libpsiwidgets.so
