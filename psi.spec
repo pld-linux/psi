@@ -12,7 +12,7 @@ Epoch:		0
 License:	GPL
 Group:		Applications/Communications
 Source0:	http://psi.affinix.com/files/cvs/%{name}-cvs-%{_ver}.tar.bz2	
-# Source0-md5:	e29f90aea7d839f2a70e4a6e77e95a70
+# Source0-md5:	9c41fce07e8f7b5cea16ab9f5c825d23
 Source1:	%{name}-richlistview.cpp
 Source2:	%{name}-richlistview.h
 Source3:	%{name}-roster-rich.README
