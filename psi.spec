@@ -1,10 +1,6 @@
-# TODO
-#  - dorobic pakiet qt-plugins-qca-tls
-#    (zrodla sa w archiwum, bo sa wymagane do kompilacji Psi)
-#  - dodac wiecej paczy by SkaZi
-
-%define         snap 20040225
-
+#
+%define         snap 20040302
+#
 Summary:	PSI - Jabber client
 Summary(pl):	PSI - klient Jabbera
 Name:		psi
@@ -13,7 +9,7 @@ Release:	0.%{snap}.1
 License:	GPL
 Group:		Applications/Communications
 Source0:	%{name}-snap-%{snap}.tar.bz2
-# Source0-md5:	9fcc132eda84966021a8fee7643f1988
+# Source0-md5:	9ca1783f59c7ad3362eff81f6e808e9e
 Patch0:		%{name}-certs.patch
 Patch1:		%{name}-desktop.patch
 Patch2:		%{name}-home_etc.patch
@@ -71,7 +67,7 @@ korzystaj±cych z Qt Cryptographic Architecture (QCA).
 Jest to wersja rozwojowa (CVS).
 
 %prep
-%setup -q -c %{name}-%{version}-%{snap}
+%setup -q -c %{name}-%{version}
 %patch0 -p0
 %patch1 -p0
 %patch2 -p0
