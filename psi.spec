@@ -1,10 +1,15 @@
+#
+# Conditional build:
+%bcond_without	external_patches	# only apply needed patches
+					# WARNING: will remove many added features
+#
 %define		snap 20050102
 #
 Summary:	PSI - Jabber client
 Summary(pl):	PSI - klient Jabbera
 Name:		psi
 Version:	0.9.3
-Release:	0.%{snap}.3
+Release:	0.%{snap}.4%{?with_external_patches:patched}
 License:	GPL
 Group:		Applications/Communications
 Source0:	%{name}-snap-%{snap}.tar.bz2
@@ -40,6 +45,13 @@ Patch100:	%{name}-adhoc_and_rc.patch
 #       from Psi forums:
 # http://www.uni-bonn.de/~nieuwenh/libTeXFormula.diff
 Patch200:	%{name}-libTeXFormula.patch
+#       from Machekku:
+# http://machekku.uaznia.net/jabber/psi/patches/ (downloaded on 2005-01-27 15:30)
+Patch300:	%{name}-contact_icons_at_top.patch
+Patch301:	%{name}-emoticons_advanced_toggle.patch
+Patch302:	%{name}-emoticons_advanced_toggle-fix.patch
+Patch303:	%{name}-emoticons_advanced_toggle-richroster.patch
+Patch304:	%{name}-enable_thread_in_messages.patch
 URL:		http://psi.affinix.com/
 BuildRequires:	libstdc++-devel
 BuildRequires:	cyrus-sasl-devel
@@ -97,6 +109,7 @@ napisaæ w³asne okna dialogowe itp. albo poprawiæ obecne.
 %patch3 -p1
 #       jpc:
 %patch10 -p0
+%if %{with external_patches}
 #       SKaZi:
 %patch20 -p0
 %patch22 -p0
@@ -108,11 +121,22 @@ napisaæ w³asne okna dialogowe itp. albo poprawiæ obecne.
 %patch28 -p0
 %patch29 -p0
 %patch30 -p0
-#       Other:
+cp %{SOURCE1} psi/src/richlistview.cpp
+cp %{SOURCE2} psi/src/richlistview.h
+cp %{SOURCE3} psi/README.rich-roster
+#       Remko Troncon:
 %patch100 -p1
+#	Psi forums:
 cd psi
 %patch200 -p0
 cd ..
+#	from Machekku:
+%patch300 -p1
+%patch301 -p1
+%patch302 -p1
+%patch303 -p1
+%patch304 -p1
+%endif
 
 sed -i \
 	's/QString PROG_VERSION = .*/QString PROG_VERSION = "0.9.3-%{snap}";/g' \
@@ -120,11 +144,6 @@ sed -i \
 sed -i \
 	"s,/usr/local/share/psi,%{_datadir}/psi,g" \
 	psi/src/common.cpp
-
-cp %{SOURCE1} psi/src/richlistview.cpp
-cp %{SOURCE2} psi/src/richlistview.h
-cp %{SOURCE3} psi/README.rich-roster
-cp %{SOURCE4} psi/indicator.png
 
 %build
 export QTDIR=%{_prefix}
@@ -161,7 +180,9 @@ install psi/psi.desktop $RPM_BUILD_ROOT%{_desktopdir}
 install psi/iconsets/system/default/icon_48.png $RPM_BUILD_ROOT%{_pixmapsdir}/psi.png
 install psi/iconsets/roster/stellar-icq/online.png $RPM_BUILD_ROOT%{_pixmapsdir}/psi-stellar.png
 install psi/lang/*.qm $RPM_BUILD_ROOT%{_datadir}/psi
-install psi/indicator.png $RPM_BUILD_ROOT%{_datadir}/psi/iconsets/roster/default/indicator.png
+%if %{with external_patches}
+install %{SOURCE4} $RPM_BUILD_ROOT%{_datadir}/psi/iconsets/roster/default/indicator.png
+%endif
 install psi/libpsi/psiwidgets/*.so $RPM_BUILD_ROOT%{_libdir}/qt/plugins-mt/designer
 
 rm -rf $RPM_BUILD_ROOT%{_datadir}/psi/COPYING $RPM_BUILD_ROOT%{_datadir}/psi/README
@@ -172,7 +193,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc psi/README psi/TODO psi/README.rich-roster psi/ChangeLog
+%doc psi/README psi/TODO %{?with_external_patches:psi/README.rich-roster} psi/ChangeLog
 %attr(755,root,root) %{_bindir}/*
 %dir %{_datadir}/psi
 %{_datadir}/psi/certs
