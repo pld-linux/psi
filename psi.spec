@@ -33,6 +33,7 @@ Patch10:	%{name}-nicechats-mod.patch
 Patch11:	%{name}-roster-rich.patch
 Patch12:	%{name}-icondef.xml_status_indicator.patch
 Patch13:	%{name}-timestamps.patch
+Patch14:	%{name}-nodebug.patch
 URL:		http://psi.affinix.com/
 BuildRequires:	libstdc++-devel
 BuildRequires:	cyrus-sasl-devel
@@ -132,6 +133,7 @@ Jest to wersja rozwojowa (CVS).
 %patch11 -p0
 %patch12 -p0
 %{?with_square_timestamps:%patch13 -p1}
+%patch14 -p1
 
 sed -i \
 	's/QString PROG_VERSION = .*/QString PROG_VERSION = "0.9.3-%{snap}";/g' \
