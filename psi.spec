@@ -86,9 +86,9 @@ interested in it, if you want to develop custom dialogs, or hack
 existing ones.
 
 %description -n qt-designer-psiwidgets -l pl
-Pakiet ten zawiera wtyczkê dla programu Qt Designer, bêd±c± zbiorem
-widgetów u¿ytych w programie Psi. Mo¿e Ci siê przydaæ, je¶li chcia³by¶
-napisaæ w³asne okna dialogowe albo poprawiæ obecne.
+Pakiet ten zawiera wtyczkê dla programu Qt Designer bêd±c± zbiorem
+widgetów u¿ytych w programie Psi. Mo¿e siê przydaæ tym, którzy
+chcieliby napisaæ w³asne okna dialogowe albo poprawiæ obecne.
 
 %prep
 %setup -q
