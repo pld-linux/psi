@@ -7,7 +7,7 @@ Summary(de):	PSI - ein Instant Messaging Client-Programm für das Jabber
 Summary(pl):	PSI - klient Jabbera
 Name:		psi
 Version:	0.9.3
-Release:	4
+Release:	5
 License:	GPL v2
 Group:		Applications/Communications
 Source0:	http://dl.sourceforge.net/psi/%{name}-%{version}.tar.bz2
@@ -42,10 +42,15 @@ Source21:	%{name}_sk.qm
 # Source21-md5:	10a8ec055517db4c0c05a775f283ee88
 Source22:	%{name}_sl.qm
 # Source22-md5:	0c07b479b58f5a411053e3f9b9349616
-Source23:	%{name}_vi.qm
-# Source23-md5:	4d66fd44e634f2d5a7118c2c149c6614
-Source24:	%{name}_zh.qm
-# Source24-md5:	76dc27b07962e8e61b57f53e7c5b2a0d
+Source23:	%{name}_sr.qm
+# Source23-md5:	07781a47ab45059ed15799fed4f32cfe
+Source24:	%{name}_vi.qm
+# Source24-md5:	4d66fd44e634f2d5a7118c2c149c6614
+Source25:	%{name}_yu.qm
+# Source25-md5:	4870af33bdd992bb2d7445121cad7b3f
+Source26:	%{name}_zh.qm
+# Source26-md5:	76dc27b07962e8e61b57f53e7c5b2a0d
+
 #	from PLD
 Patch0:		%{name}-certs.patch
 Patch1:		%{name}-desktop.patch
@@ -170,7 +175,8 @@ install indicator.png $RPM_BUILD_ROOT%{_datadir}/psi/iconsets/roster/default/ind
 install libpsi/psiwidgets/*.so $RPM_BUILD_ROOT%{_libdir}/qt/plugins-mt/designer
 
 for i in %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13} %{SOURCE14} %{SOURCE15} %{SOURCE16} \
-    %{SOURCE17} %{SOURCE18} %{SOURCE19} %{SOURCE20} %{SOURCE21} %{SOURCE22} %{SOURCE23} %{SOURCE24}; do
+    %{SOURCE17} %{SOURCE18} %{SOURCE19} %{SOURCE20} %{SOURCE21} %{SOURCE22} %{SOURCE23} \
+    %{SOURCE24} %{SOURCE25} %{SOURCE26}; do
     install $i $RPM_BUILD_ROOT%{_datadir}/psi/
 done
 
@@ -201,7 +207,9 @@ rm -rf $RPM_BUILD_ROOT
 %lang(ru) %{_datadir}/psi/psi_ru.qm
 %lang(sk) %{_datadir}/psi/psi_sk.qm
 %lang(sl) %{_datadir}/psi/psi_sl.qm
+%lang(sr) %{_datadir}/psi/psi_sr.qm
 %lang(vi) %{_datadir}/psi/psi_vi.qm
+%lang(yu) %{_datadir}/psi/psi_yu.qm
 %lang(zh) %{_datadir}/psi/psi_zh.qm
 %{_desktopdir}/*.desktop
 %{_pixmapsdir}/*.png
