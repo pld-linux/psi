@@ -1,38 +1,97 @@
+diff -ur psi-0.9.4-old/psi/libpsi/libTeXFormula/libTeXFormula.cpp psi-0.9.4/psi/libpsi/libTeXFormula/libTeXFormula.cpp
+--- psi-0.9.4-old/psi/libpsi/libTeXFormula/libTeXFormula.cpp	2005-05-14 21:02:29.920695672 +0200
++++ psi-0.9.4/psi/libpsi/libTeXFormula/libTeXFormula.cpp	2005-05-14 22:26:21.816731200 +0200
+@@ -30,9 +30,14 @@
+ #include "display.h"
+ #include <algorithm>
+ 
++#include <qcolor.h>
++
+ extern int g_result_width, g_result_height;
+ extern unsigned char *g_result_pixmap;
+ 
++static QColor fg;
++static QColor bg;
++
+ static int g_resolution = 160;
+ static std::string tempDir;
+ static gs_main_instance *g_minst = NULL;
+@@ -58,8 +63,10 @@
+     };
+ 
+ // initializes the libTex Library
+-int DLLEXPORT initLibTeXFormula()
++int DLLEXPORT initLibTeXFormula(QColor c_bg, QColor c_fg)
+ {
++    fg = c_fg;
++    bg = c_bg;
+ 
+     // check if LaTeX is available
+     int result = startProcess("pdflatex -version");
+@@ -359,6 +366,10 @@
+ 
+     // we tidy up behind ourselves! (at most times...)
+     cleanUp();
++
++    theImage->fg = fg;
++    theImage->bg = bg;
++    
+     return 1;
+ };
+ 
 diff -ur psi-0.9.4-old/psi/libpsi/psiwidgets/psitextview.cpp psi-0.9.4/psi/libpsi/psiwidgets/psitextview.cpp
 --- psi-0.9.4-old/psi/libpsi/psiwidgets/psitextview.cpp	2005-05-14 21:02:29.927694608 +0200
-+++ psi-0.9.4/psi/libpsi/psiwidgets/psitextview.cpp	2005-05-14 21:13:36.220402720 +0200
-@@ -31,6 +31,7 @@
- #include <qpixmap.h> 
- #include <qimage.h> 
- #include "libTeXFormula.h"
-+#include "common.h"
- 
- #ifndef WIDGET_PLUGIN
- #include "iconset.h"
-@@ -340,7 +341,15 @@
++++ psi-0.9.4/psi/libpsi/psiwidgets/psitextview.cpp	2005-05-14 22:28:33.222754448 +0200
+@@ -340,7 +340,15 @@
  
  		// Initialise Palette
  		for (int i=0; i<256; i++) 
 -			tmpImage.setColor( i, qRgba(i,i,i,0xff) );	
 +			tmpImage.setColor( i, qRgba(
-+				(option.color[cChatBG].red() - option.color[cChatMessage].red()) * i / 256 + 
-+				 option.color[cChatMessage].red(),
-+				(option.color[cChatBG].green() - option.color[cChatMessage].green()) * i / 256 + 
-+				 option.color[cChatMessage].green(),
-+				(option.color[cChatBG].blue() - option.color[cChatMessage].blue()) * i / 256 + 
-+				 option.color[cChatMessage].blue(), 
++				(latexImage.bg.red() - latexImage.fg.red()) * i / 256 + 
++				 latexImage.fg.red(),
++				(latexImage.bg.green() - latexImage.fg.green()) * i / 256 + 
++				 latexImage.fg.green(),
++				(latexImage.bg.blue() - latexImage.fg.blue()) * i / 256 + 
++				 latexImage.fg.blue(), 
 +				0xff) );
 +                
  
  		// copy the image in the buffer
  		for (int y = 0; y < height; y++)
-diff -ur psi-0.9.4-old/psi/libpsi/psiwidgets/psiwidgets.pri psi-0.9.4/psi/libpsi/psiwidgets/psiwidgets.pri
---- psi-0.9.4-old/psi/libpsi/psiwidgets/psiwidgets.pri	2005-05-14 21:02:29.928694456 +0200
-+++ psi-0.9.4/psi/libpsi/psiwidgets/psiwidgets.pri	2005-05-14 21:10:33.691151384 +0200
-@@ -1,5 +1,6 @@
- psiwidgets {
- 	INCLUDEPATH += $$WIDGETS_CPP
-+	INCLUDEPATH += ../../src
+diff -ur psi-0.9.4-old/psi/src/psicon.cpp psi-0.9.4/psi/src/psicon.cpp
+--- psi-0.9.4-old/psi/src/psicon.cpp	2005-05-14 21:02:29.978686856 +0200
++++ psi-0.9.4/psi/src/psicon.cpp	2005-05-14 22:26:08.283788520 +0200
+@@ -542,7 +542,7 @@
+ 	connect(d->globalAccelManager, SIGNAL(activated(int)), SLOT(accel_activated(int)));
  
- 	SOURCES += \
- 		$$WIDGETS_CPP/busywidget.cpp \
+ 	// init libTeXFormula
+-	if (initLibTeXFormula() > 0)
++	if (initLibTeXFormula(option.color[cChatBG], option.color[cChatMessage]) > 0)
+ 		d->LaTeXReady = true;
+ 	
+ 
+--- psi-0.9.4-old/psi/libpsi/libTeXFormula/libTeXFormula.h	2005-05-14 21:02:29.922695368 +0200
++++ psi-0.9.4/psi/libpsi/libTeXFormula/libTeXFormula.h	2005-05-14 22:42:18.271328000 +0200
+@@ -5,9 +5,12 @@
+ #ifndef LIB_TEX_H
+ #define LIB_TEX_H
+ 
++#include <qcolor.h>
++
+ struct Image
+ {
+     int width, height;
++    QColor fg, bg;
+     unsigned char *pixmap;
+ };
+ 
+@@ -28,7 +31,7 @@
+ #define LIBTEXF_ERROR_INSECURE_FORMULA -8
+ 
+ // libTeX functions
+-int DLLEXPORT initLibTeXFormula();
++int DLLEXPORT initLibTeXFormula(QColor bg, QColor fg);
+ void DLLEXPORT freeLibTeXFormula();
+ int DLLEXPORT parseTeXFormula(const char *formula, Image *theImage);
+ void DLLEXPORT freeTeXFormulaImage(Image *theImage);
