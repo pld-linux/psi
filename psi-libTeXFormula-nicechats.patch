@@ -1,0 +1,38 @@
+diff -ur psi-0.9.4-old/psi/libpsi/psiwidgets/psitextview.cpp psi-0.9.4/psi/libpsi/psiwidgets/psitextview.cpp
+--- psi-0.9.4-old/psi/libpsi/psiwidgets/psitextview.cpp	2005-05-14 21:02:29.927694608 +0200
++++ psi-0.9.4/psi/libpsi/psiwidgets/psitextview.cpp	2005-05-14 21:13:36.220402720 +0200
+@@ -31,6 +31,7 @@
+ #include <qpixmap.h> 
+ #include <qimage.h> 
+ #include "libTeXFormula.h"
++#include "common.h"
+ 
+ #ifndef WIDGET_PLUGIN
+ #include "iconset.h"
+@@ -340,7 +341,15 @@
+ 
+ 		// Initialise Palette
+ 		for (int i=0; i<256; i++) 
+-			tmpImage.setColor( i, qRgba(i,i,i,0xff) );	
++			tmpImage.setColor( i, qRgba(
++				(option.color[cChatBG].red() - option.color[cChatMessage].red()) * i / 256 + 
++				 option.color[cChatMessage].red(),
++				(option.color[cChatBG].green() - option.color[cChatMessage].green()) * i / 256 + 
++				 option.color[cChatMessage].green(),
++				(option.color[cChatBG].blue() - option.color[cChatMessage].blue()) * i / 256 + 
++				 option.color[cChatMessage].blue(), 
++				0xff) );
++                
+ 
+ 		// copy the image in the buffer
+ 		for (int y = 0; y < height; y++)
+diff -ur psi-0.9.4-old/psi/libpsi/psiwidgets/psiwidgets.pri psi-0.9.4/psi/libpsi/psiwidgets/psiwidgets.pri
+--- psi-0.9.4-old/psi/libpsi/psiwidgets/psiwidgets.pri	2005-05-14 21:02:29.928694456 +0200
++++ psi-0.9.4/psi/libpsi/psiwidgets/psiwidgets.pri	2005-05-14 21:10:33.691151384 +0200
+@@ -1,5 +1,6 @@
+ psiwidgets {
+ 	INCLUDEPATH += $$WIDGETS_CPP
++	INCLUDEPATH += ../../src
+ 
+ 	SOURCES += \
+ 		$$WIDGETS_CPP/busywidget.cpp \
