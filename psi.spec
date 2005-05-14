@@ -1,10 +1,14 @@
 #
+# TODO:
+# - fix the send_state patch
+# - mention libTeXFormula-nicechats and send_state in Packages/Psi
+#
 # Conditional build:
-%bcond_without	external_patches	# only apply needed patches
+%bcond_without	external_patches	# only apply basic patches
 					# WARNING: will remove many added features
 #
 %define		snap 20050325
-%define         pld_rel 5
+%define         pld_rel 6
 #
 Summary:	PSI - Jabber client
 Summary(pl):	PSI - klient Jabbera
@@ -49,6 +53,8 @@ Patch102:	%{name}-rosteritems_psi.patch
 #       from Psi forums:
 # http://www.uni-bonn.de/~nieuwenh/libTeXFormula.diff
 Patch200:	%{name}-libTeXFormula.patch
+# small fix by jpc:
+Patch201:	%{name}-libTeXFormula-nicechats.patch
 #       from Machekku:
 # http://machekku.uaznia.net/jabber/psi/patches/ (downloaded on 2005-01-27 15:30)
 Patch300:	%{name}-contact_icons_at_top.patch
@@ -62,6 +68,9 @@ Patch400:	%{name}-custom_settings_per_contact.patch
 #       from Micha³ Jaz³owiecki
 # http://michalj.alternatywa.info/psi/patches/
 Patch500:	%{name}-offline_statuses_in_roster.patch
+#       from highsecure.ru
+# http://highsecure.ru/send-state.patch
+Patch600:	%{name}-send_state.patch
 URL:		http://psi.affinix.com/
 BuildRequires:	libstdc++-devel
 BuildRequires:	cyrus-sasl-devel
@@ -146,6 +155,7 @@ cd ..
 cd psi
 %patch200 -p0
 cd ..
+%patch201 -p1
 #	from Machekku:
 %patch300 -p1
 #patch301 -p1
@@ -157,6 +167,8 @@ cd ..
 %patch400 -p1
 #       from Micha³ Jaz³owiecki:
 %patch500 -p1
+#       from highsecure.ru:
+#%patch600 -p0
 
 sed -i \
 	's/QString PROG_VERSION = .*/QString PROG_VERSION = "%{version}-PLD-%{rel}";/g' \
