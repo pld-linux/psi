@@ -1,0 +1,86 @@
+--- psi-0.9.3/psi/src/common.h.orig	2005-01-27 16:16:09.182403072 +0100
++++ psi-0.9.3/psi/src/common.h	2005-01-27 16:17:04.510991848 +0100
+@@ -121,7 +121,7 @@
+ 
+ 	bool ignoreHeadline, ignoreNonRoster, excludeGroupChatsFromIgnore, scrollTo, keepSizes, useEmoticons, alertOpenChats;
+ 	bool raiseChatWindow, showSubjects, showCounter, chatSays, showTimeStamps, showGroupCounts, chatSoftReturn;
+-	bool emoticonsInChatDlg, emoticonsInEventDlg, emoticonsInGroupChatDlg, emoticonsInPopup, emoticonsInToolTip;
++	bool emoticonsInChatDlg, emoticonsInEventDlg, emoticonsInGroupChatDlg, emoticonsInPopup, emoticonsInToolTip, emoticonsInRoster;
+         bool useLaTeX;
+ 
+ 	QSize sizeEventDlg, sizeChatDlg;
+--- psi-0.9.3/psi/src/psi_profiles.cpp.orig	2005-01-27 16:16:09.185402616 +0100
++++ psi-0.9.3/psi/src/psi_profiles.cpp	2005-01-27 16:19:22.419026640 +0100
+@@ -393,6 +393,7 @@
+ 	prefs.emoticonsInGroupChatDlg = true;
+ 	prefs.emoticonsInPopup = true;
+ 	prefs.emoticonsInToolTip = true;        
++	prefs.emoticonsInRoster = true;
+ 	prefs.useLaTeX = true;
+ 	prefs.alertOpenChats = false;
+ 	prefs.raiseChatWindow = false;
+@@ -801,6 +802,7 @@
+ 			p_misc.appendChild(textTag(doc, "emoticonsInGroupChatDlg", prefs.emoticonsInGroupChatDlg));
+ 			p_misc.appendChild(textTag(doc, "emoticonsInPopup", prefs.emoticonsInPopup));
+ 			p_misc.appendChild(textTag(doc, "emoticonsInToolTip", prefs.emoticonsInToolTip));
++			p_misc.appendChild(textTag(doc, "emoticonsInRoster", prefs.emoticonsInRoster));
+ 			p_misc.appendChild(textTag(doc, "useLaTeX", prefs.useLaTeX));
+ 			p_misc.appendChild(textTag(doc, "alertOpenChats", prefs.alertOpenChats));
+ 			p_misc.appendChild(textTag(doc, "raiseChatWindow", prefs.raiseChatWindow));
+@@ -1339,6 +1341,7 @@
+ 				readBoolEntry(tag, "emoticonsInGroupChatDlg", &prefs.emoticonsInGroupChatDlg);
+ 				readBoolEntry(tag, "emoticonsInPopup", &prefs.emoticonsInPopup);
+ 				readBoolEntry(tag, "emoticonsInToolTip", &prefs.emoticonsInToolTip);
++				readBoolEntry(tag, "emoticonsInRoster", &prefs.emoticonsInRoster);
+ 				readBoolEntry(tag, "useLaTeX", &prefs.useLaTeX);
+ 				readBoolEntry(tag, "alertOpenChats", &prefs.alertOpenChats);
+ 				readBoolEntry(tag, "raiseChatWindow", &prefs.raiseChatWindow);
+diff -X exclude -Nur psi-2004.09.19-toggle_emoticons/psi/src/contactview.cpp psi/psi/src/contactview.cpp
+--- psi-2004.09.19-toggle_emoticons/psi/src/contactview.cpp	Wed Sep 22 21:49:20 2004
++++ psi/psi/src/contactview.cpp	Wed Sep 22 21:28:12 2004
+@@ -2511,7 +2511,7 @@
+ 		const UserResource &r = *(srl.begin());
+ 		// status description
+ 		ins = linkify(expandEntities(r.status().status().stripWhiteSpace()));
+-		if(option.useEmoticons)
++		if(option.useEmoticons && option.emoticonsInRoster)
+ 			ins = emoticonify(ins);
+ 		ins.replace("\n", "<br>");
+ 		if(option.templFieldTrim > 0 ){
+diff -X exclude -Nur psi-2004.09.19-toggle_emoticons/psi/src/options/opt_iconset.cpp psi/psi/src/options/opt_iconset.cpp
+--- psi-2004.09.19-toggle_emoticons/psi/src/options/opt_iconset.cpp	Wed Sep 22 20:15:08 2004
++++ psi/psi/src/options/opt_iconset.cpp	Wed Sep 22 21:25:46 2004
+@@ -464,6 +464,7 @@
+ 	opt->emoticonsInGroupChatDlg = d->ck_emotGroupChat->isChecked();
+ 	opt->emoticonsInPopup = d->ck_emotPopup->isChecked();
+ 	opt->emoticonsInToolTip = d->ck_emotTooltip->isChecked();
++	opt->emoticonsInRoster = d->ck_emotRoster->isChecked();
+ 
+ 	opt->emoticons.clear();
+ 	IconWidgetItem *item = (IconWidgetItem *)d->iss_emoticons->firstItem();
+@@ -493,6 +494,7 @@
+ 	d->ck_emotGroupChat->setChecked( opt->emoticonsInGroupChatDlg );
+ 	d->ck_emotPopup->setChecked( opt->emoticonsInPopup );
+ 	d->ck_emotTooltip->setChecked( opt->emoticonsInToolTip );
++	d->ck_emotRoster->setChecked( opt->emoticonsInRoster );
+ 
+ 	// fill in the iconset view
+ 	d->iss_emoticons->clear();
+diff -X exclude -Nur psi-2004.09.19-toggle_emoticons/psi/src/options/opt_iconset_emo.ui psi/psi/src/options/opt_iconset_emo.ui
+--- psi-2004.09.19-toggle_emoticons/psi/src/options/opt_iconset_emo.ui	Wed Sep 22 20:15:38 2004
++++ psi/psi/src/options/opt_iconset_emo.ui	Wed Sep 22 21:25:02 2004
+@@ -92,6 +92,14 @@
+                         <string>In Tooltip</string>
+                     </property>
+                 </widget>
++                <widget class="QCheckBox" row="2" column="1">
++                    <property name="name">
++                        <cstring>ck_emotRoster</cstring>
++                    </property>
++                    <property name="text">
++                        <string>In Roster</string>
++                    </property>
++                </widget>
+             </grid>
+         </widget>       
+         <widget class="QGroupBox">
