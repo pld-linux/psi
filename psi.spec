@@ -207,12 +207,13 @@ rm -rf $RPM_BUILD_ROOT
 %lang(mk) %{_datadir}/psi/psi_mk.qm
 %lang(nl) %{_datadir}/psi/psi_nl.qm
 %lang(pl) %{_datadir}/psi/psi_pl.qm
-%lang(pt_br) %{_datadir}/psi/psi_pt_br.qm
+%lang(pt_BR) %{_datadir}/psi/psi_pt_br.qm
 %lang(ru) %{_datadir}/psi/psi_ru.qm
 %lang(sk) %{_datadir}/psi/psi_sk.qm
 %lang(sl) %{_datadir}/psi/psi_sl.qm
 %lang(sr) %{_datadir}/psi/psi_sr.qm
 %lang(vi) %{_datadir}/psi/psi_vi.qm
+# zh_CN or zh_TW???
 %lang(zh) %{_datadir}/psi/psi_zh.qm
 %{_desktopdir}/*.desktop
 %{_pixmapsdir}/*.png
