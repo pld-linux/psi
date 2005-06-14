@@ -25,31 +25,33 @@ Source12:	%{name}_el.qm
 Source13:	%{name}_eo.qm
 # Source13-md5:	a4355d7557273cc8b6d63bdf4f1af71e
 Source14:	%{name}_es.qm
-# Source14-md5:	125353103949ff1de2bc31b6bcfdf489
+# Source14-md5:	615a88af4b2ab7f2437cbc3a96f379b1
 Source15:	%{name}_et.qm
 # Source15-md5:	9747ae62d0401b65ccea3531bdc148e0
 Source16:	%{name}_fr.qm
 # Source16-md5:	2109223681611cd89b1a348bb87ab143
-Source17:	%{name}_mk.qm
-# Source17-md5:	aa34e78f9fd0f8417fb4c997484807c0
-Source18:	%{name}_nl.qm
-# Source18-md5:	31048975699e64f9e6dc4213714b0e0d
-Source19:	%{name}_pl.qm
-# Source19-md5:	e91bfb24cfed80a0932fdf132cee974d
-Source20:	%{name}_ru.qm
-# Source20-md5:	1b82151552f658e9b94ed6bb4537628d
-Source21:	%{name}_sk.qm
-# Source21-md5:	10a8ec055517db4c0c05a775f283ee88
-Source22:	%{name}_sl.qm
-# Source22-md5:	0c07b479b58f5a411053e3f9b9349616
-Source23:	%{name}_sr.qm
-# Source23-md5:	07781a47ab45059ed15799fed4f32cfe
-Source24:	%{name}_vi.qm
-# Source24-md5:	4d66fd44e634f2d5a7118c2c149c6614
-Source25:	%{name}_yu.qm
-# Source25-md5:	4870af33bdd992bb2d7445121cad7b3f
-Source26:	%{name}_zh.qm
-# Source26-md5:	76dc27b07962e8e61b57f53e7c5b2a0d
+Source17:	%{name}_hr.qm
+# Source17-md5:	4870af33bdd992bb2d7445121cad7b3f
+Source18:	%{name}_mk.qm
+# Source18-md5:	aa34e78f9fd0f8417fb4c997484807c0
+Source19:	%{name}_nl.qm
+# Source19-md5:	31048975699e64f9e6dc4213714b0e0d
+Source20:	%{name}_pl.qm
+# Source20-md5:	e91bfb24cfed80a0932fdf132cee974d
+Source21:	%{name}_pt_br.qm
+# Source21-md5:	d1ea68e6d8fcaa9aa38db8b0973ac791
+Source22:	%{name}_ru.qm
+# Source22-md5:	1b82151552f658e9b94ed6bb4537628d
+Source23:	%{name}_sk.qm
+# Source23-md5:	10a8ec055517db4c0c05a775f283ee88
+Source24:	%{name}_sl.qm
+# Source24-md5:	0c07b479b58f5a411053e3f9b9349616
+Source25:	%{name}_sr.qm
+# Source25-md5:	07781a47ab45059ed15799fed4f32cfe
+Source26:	%{name}_vi.qm
+# Source26-md5:	4d66fd44e634f2d5a7118c2c149c6614
+Source27:       %{name}_zh.qm
+# Source27-md5:	76dc27b07962e8e61b57f53e7c5b2a0d
 
 #	from PLD
 Patch0:		%{name}-certs.patch
@@ -176,7 +178,7 @@ install libpsi/psiwidgets/*.so $RPM_BUILD_ROOT%{_libdir}/qt/plugins-mt/designer
 
 for i in %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13} %{SOURCE14} %{SOURCE15} %{SOURCE16} \
     %{SOURCE17} %{SOURCE18} %{SOURCE19} %{SOURCE20} %{SOURCE21} %{SOURCE22} %{SOURCE23} \
-    %{SOURCE24} %{SOURCE25} %{SOURCE26}; do
+    %{SOURCE24} %{SOURCE25} %{SOURCE26} %{SOURCE27}; do
     install $i $RPM_BUILD_ROOT%{_datadir}/psi/
 done
 
@@ -201,15 +203,16 @@ rm -rf $RPM_BUILD_ROOT
 %lang(es) %{_datadir}/psi/psi_es.qm
 %lang(et) %{_datadir}/psi/psi_et.qm
 %lang(fr) %{_datadir}/psi/psi_fr.qm
+%lang(hr) %{_datadir}/psi/psi_hr.qm
 %lang(mk) %{_datadir}/psi/psi_mk.qm
 %lang(nl) %{_datadir}/psi/psi_nl.qm
 %lang(pl) %{_datadir}/psi/psi_pl.qm
+%lang(pt_br) %{_datadir}/psi/psi_pt_br.qm
 %lang(ru) %{_datadir}/psi/psi_ru.qm
 %lang(sk) %{_datadir}/psi/psi_sk.qm
 %lang(sl) %{_datadir}/psi/psi_sl.qm
 %lang(sr) %{_datadir}/psi/psi_sr.qm
 %lang(vi) %{_datadir}/psi/psi_vi.qm
-%lang(yu) %{_datadir}/psi/psi_yu.qm
 %lang(zh) %{_datadir}/psi/psi_zh.qm
 %{_desktopdir}/*.desktop
 %{_pixmapsdir}/*.png
