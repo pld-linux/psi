@@ -6,7 +6,7 @@ Summary(pl):	PSI - klient Jabbera
 Summary(de):	PSI - ein Instant Messaging Client-Programm für das Jabber
 Name:		psi
 Version:	0.10
-Release:	0.%{snap}.2pedrito
+Release:	0.%{snap}.3pedrito
 License:	GPL
 Group:		Applications/Communications
 Source0:	http://radioemiter.pl/~pedrito/public/jabber/psi-pedrito/%{_snap}/%{name}-pedrito-%{_snap}.tar.bz2
@@ -18,6 +18,7 @@ Source2:	%{name}-snap-lang-20041209.tar.bz2
 Source3:	http://michalj.alternatywa.info/psi/patches/emergency.png
 # Source3-md5:	5fa629c5177a7b1c5090428e22b7ec30
 Patch0:		%{name}-desktop.patch
+Patch1:		%{name}-customos.patch
 URL:		http://psi-pedrito.cjb.net/
 BuildRequires:	libstdc++-devel
 BuildRequires:	cyrus-sasl-devel
@@ -74,7 +75,8 @@ napisaæ w³asne okna dialogowe itp. albo poprawiæ obecne.
 %prep
 %setup -q -n %{name}-pedrito-%{_snap}
 %setup -q -D -a 2 -n %{name}-pedrito-%{_snap}
-%patch -p0
+%patch0 -p0
+%patch1 -p0
 
 cd psi
 %{__tar} jxf %{SOURCE1}
