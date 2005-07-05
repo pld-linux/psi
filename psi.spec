@@ -2,8 +2,8 @@
 %define		_snap 2005-03-13
 #
 Summary:	PSI - Jabber client
+Summary(de):    PSI - ein Instant Messaging Client-Programm für das Jabber
 Summary(pl):	PSI - klient Jabbera
-Summary(de):	PSI - ein Instant Messaging Client-Programm für das Jabber
 Name:		psi
 Version:	0.10
 Release:	0.%{snap}.3pedrito
