@@ -70,7 +70,7 @@ Patch400:	%{name}-custom_settings_per_contact.patch
 Patch500:	%{name}-offline_statuses_in_roster.patch
 #       from highsecure.ru
 # http://highsecure.ru/send-state.patch
-Patch600:	%{name}-send_state.patch
+#Patch600:	%{name}-send_state.patch
 URL:		http://psi.affinix.com/
 BuildRequires:	libstdc++-devel
 BuildRequires:	cyrus-sasl-devel
