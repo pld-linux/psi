@@ -1,6 +1,6 @@
-diff -ru -X exclude iris-clean/xmpp-im/client.cpp iris/xmpp-im/client.cpp
---- iris-clean/xmpp-im/client.cpp	Sun May 16 16:06:10 2004
-+++ iris/xmpp-im/client.cpp	Fri May 28 10:27:02 2004
+diff -ru -X exclude psi/iris/xmpp-im/client.cpp psi-skz/iris/xmpp-im/client.cpp
+--- psi/iris/xmpp-im/client.cpp	Sun May 16 16:06:10 2004
++++ psi-skz/iris/xmpp-im/client.cpp	Fri May 28 10:27:02 2004
 @@ -789,10 +789,27 @@
  
  	// unavailable?  remove the resource
@@ -33,9 +33,9 @@ diff -ru -X exclude iris-clean/xmpp-im/client.cpp iris/xmpp-im/client.cpp
  			i->resourceList().remove(rit);
  			i->setLastUnavailableStatus(s);
  		}
-diff -ru -X exclude psi-clean/src/chatdlg.cpp psi/src/chatdlg.cpp
---- psi-clean/src/chatdlg.cpp	Sun May 16 16:06:14 2004
-+++ psi/src/chatdlg.cpp	Fri May 28 10:27:02 2004
+diff -ru -X exclude psi/src/chatdlg.cpp psi-skz/src/chatdlg.cpp
+--- psi/src/chatdlg.cpp	Sun May 16 16:06:14 2004
++++ psi-skz/src/chatdlg.cpp	Fri May 28 10:27:02 2004
 @@ -371,8 +371,10 @@
  			u = ul.first();
  			if(rname.isEmpty()) {
@@ -48,20 +48,20 @@ diff -ru -X exclude psi-clean/src/chatdlg.cpp psi/src/chatdlg.cpp
  				else {
  					const UserResource &r = *u->userResourceList().priority();
  					status = makeSTATUS(r.status());
-diff -ru -X exclude psi-clean/src/common.h psi/src/common.h
---- psi-clean/src/common.h	Fri May 07 20:23:00 2004
-+++ psi/src/common.h	Fri May 28 10:27:02 2004
+diff -ru -X exclude psi/src/common.h psi-skz/src/common.h
+--- psi/src/common.h	Fri May 07 20:23:00 2004
++++ psi-skz/src/common.h	Fri May 28 10:27:02 2004
 @@ -138,6 +138,7 @@
  	QStringList gcHighlights, gcNickColors;
  
  	bool clNewHeadings;
+ 	bool outlineHeadings;
 +	bool clStIndicator;
  
  	// passive popups
- 	bool ppIsOn;
-diff -ru -X exclude psi-clean/src/contactview.cpp psi/src/contactview.cpp
---- psi-clean/src/contactview.cpp	Sun Mar 21 15:45:20 2004
-+++ psi/src/contactview.cpp	Fri May 28 10:27:36 2004
+diff -ru -X exclude psi/src/contactview.cpp psi-skz/src/contactview.cpp
+--- psi/src/contactview.cpp	Sun Mar 21 15:45:20 2004
++++ psi-skz/src/contactview.cpp	Fri May 28 10:27:36 2004
 @@ -25,6 +25,7 @@
  #include<qheader.h>
  #include<qtimer.h>
@@ -146,9 +146,9 @@ diff -ru -X exclude psi-clean/src/contactview.cpp psi/src/contactview.cpp
  	setPixmap(0, pix);
  }
  
-diff -ru -X exclude psi-clean/src/options/opt_appearance-ui.ui psi/src/options/opt_appearance-ui.ui
---- psi-clean/src/options/opt_appearance-ui.ui	Sat May 01 18:08:18 2004
-+++ psi/src/options/opt_appearance-ui.ui	Fri May 28 10:27:02 2004
+diff -ru -X exclude psi/src/options/opt_appearance-ui.ui psi-skz/src/options/opt_appearance-ui.ui
+--- psi/src/options/opt_appearance-ui.ui	Sat May 01 18:08:18 2004
++++ psi-skz/src/options/opt_appearance-ui.ui	Fri May 28 10:27:02 2004
 @@ -30,6 +30,14 @@
                  <string>Small group headings in roster</string>
              </property>
@@ -164,17 +164,19 @@ diff -ru -X exclude psi-clean/src/options/opt_appearance-ui.ui psi/src/options/o
          <widget class="QGroupBox">
              <property name="name">
                  <cstring>groupBox11</cstring>
-diff -ru -X exclude psi-clean/src/options/opt_appearance.cpp psi/src/options/opt_appearance.cpp
---- psi-clean/src/options/opt_appearance.cpp	Sat May 01 18:08:20 2004
-+++ psi/src/options/opt_appearance.cpp	Fri May 28 10:27:02 2004
-@@ -148,4 +148,7 @@
+diff -ru -X exclude psi/src/options/opt_appearance.cpp psi-skz/src/options/opt_appearance.cpp
+--- psi/src/options/opt_appearance.cpp	Sat May 01 18:08:20 2004
++++ psi-skz/src/options/opt_appearance.cpp	Fri May 28 10:27:02 2004
+@@ -148,6 +148,9 @@
+ 		s.arg(tr("away")));
  	QWhatsThis::add(d->pb_cDND,
- 		tr("do not disturb"));
+ 		s.arg(tr("do not disturb")));
 +	QWhatsThis::add(d->ck_statusIndicator,
 +		tr("Displays an indicator by the contact name if the contact entered a descriptive text status line."));
 +
+ 	QWhatsThis::add(d->pb_cProfileBack,
+ 		tr("Specifies the background color for an account name in the main window."));
  	QWhatsThis::add(d->pb_cGroupBack,
- 		tr("Specifies the background color for a group name in the main window."));
 @@ -161,5 +164,6 @@
  
 -	//OptAppearanceUI *d = (OptAppearanceUI *)w;
@@ -191,9 +193,9 @@ diff -ru -X exclude psi-clean/src/options/opt_appearance.cpp psi/src/options/opt
  	//d->ck_avatarsChatdlg->setChecked( opt->avatarsChatdlgEnabled ); // Avatars
  
  	int n;
-diff -ru -X exclude psi-clean/src/psiiconset.cpp psi/src/psiiconset.cpp
---- psi-clean/src/psiiconset.cpp	Wed May 05 14:41:20 2004
-+++ psi/src/psiiconset.cpp	Fri May 28 10:27:02 2004
+diff -ru -X exclude psi/src/psiiconset.cpp psi-skz/src/psiiconset.cpp
+--- psi/src/psiiconset.cpp	Wed May 05 14:41:20 2004
++++ psi-skz/src/psiiconset.cpp	Fri May 28 10:27:02 2004
 @@ -513,6 +513,19 @@
  	return Icon();
  }
@@ -214,9 +216,9 @@ diff -ru -X exclude psi-clean/src/psiiconset.cpp psi/src/psiiconset.cpp
  Icon *PsiIconset::statusPtr(const XMPP::Jid &jid, int s)
  {
  	return d->jid2icon(jid, status2name(s));
-diff -ru -X exclude psi-clean/src/psiiconset.h psi/src/psiiconset.h
---- psi-clean/src/psiiconset.h	Sat Nov 22 07:47:10 2003
-+++ psi/src/psiiconset.h	Fri May 28 10:27:02 2004
+diff -ru -X exclude psi/src/psiiconset.h psi-skz/src/psiiconset.h
+--- psi/src/psiiconset.h	Sat Nov 22 07:47:10 2003
++++ psi-skz/src/psiiconset.h	Fri May 28 10:27:02 2004
 @@ -61,9 +61,11 @@
  	// JID-enabled status functions
  	Icon *statusPtr(const XMPP::Jid &, int);
@@ -229,9 +231,9 @@ diff -ru -X exclude psi-clean/src/psiiconset.h psi/src/psiiconset.h
  
  	// functions to get status icon by transport name
  	Icon *transportStatusPtr(QString name, int);
-diff -ru -X exclude psi-clean/src/psi_profiles.cpp psi/src/psi_profiles.cpp
---- psi-clean/src/psi_profiles.cpp	Sun May 16 16:06:18 2004
-+++ psi/src/psi_profiles.cpp	Fri May 28 10:27:02 2004
+diff -ru -X exclude psi/src/psi_profiles.cpp psi-skz/src/psi_profiles.cpp
+--- psi/src/psi_profiles.cpp	Sun May 16 16:06:18 2004
++++ psi-skz/src/psi_profiles.cpp	Fri May 28 10:27:02 2004
 @@ -423,6 +423,8 @@
  		prefs.font[fPopup] = font.toString();
  	}
@@ -246,14 +248,14 @@ diff -ru -X exclude psi-clean/src/psi_profiles.cpp psi/src/psi_profiles.cpp
  
  		p_lnf.appendChild(textTag(doc, "newHeadings", prefs.clNewHeadings));
 +		p_lnf.appendChild(textTag(doc, "statusIndicator", prefs.clStIndicator));
- 
- 		{
- 			QDomElement tag = doc.createElement("colors");
+ 		p_lnf.appendChild(textTag(doc, "chat-opacity", prefs.chatOpacity));
+ 		p_lnf.appendChild(textTag(doc, "roster-opacity", prefs.rosterOpacity));
+ 		p_lnf.appendChild(textTag(doc, "outline-headings", prefs.outlineHeadings));
 @@ -1271,6 +1274,7 @@
  			bool found;
  
  			readBoolEntry(p_lnf, "newHeadings", &prefs.clNewHeadings);
 +			readBoolEntry(p_lnf, "statusIndicator", &prefs.clStIndicator);
- 
- 			QDomElement tag = findSubTag(p_lnf, "colors", &found);
- 			if(found) {
+ 			readBoolEntry(p_lnf, "outline-headings", &prefs.outlineHeadings);
+ 			readNumEntry(p_lnf, "chat-opacity", &prefs.chatOpacity);
+ 			readNumEntry(p_lnf, "roster-opacity", &prefs.rosterOpacity);
