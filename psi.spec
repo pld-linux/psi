@@ -1,32 +1,33 @@
 #
 # TODO:
-# - fix the send_state patch
-# - mention libTeXFormula-nicechats and send_state in Packages/Psi
+# - fix:
+#   - contact_icons_at_top.patch
+#   - custom_settings_per_contact.patch
 #
 # Conditional build:
 %bcond_without	external_patches	# only apply basic patches
 					# WARNING: will remove many added features
 #
-%define		snap 20050325
-%define         pld_rel 6
+%define		pre test2
+%define         pld_rel 1
 #
 Summary:	PSI - Jabber client
 Summary(pl):	PSI - klient Jabbera
 Name:		psi
-Version:	0.9.4
-%define		rel %{snap}.%{pld_rel}%{?with_external_patches:patched}
+Version:	0.10
+%define		rel %{pre}.%{pld_rel}%{?with_external_patches:patched}
 Release:	0.%{rel}
 License:	GPL
 Group:		Applications/Communications
-Source0:	%{name}-snap-%{snap}.tar.bz2
-# Source0-md5:	7e0fb1fe20311c7750c1589192dd46b9
+#Source0:	%{name}-snap-%{pre}.tar.bz2
+Source0:	http://dl.sourceforge.net/sourceforge/%{name}/%{name}-%{version}-%{pre}.tar.bz2
+# Source0-md5:	9f1e556e83a9927eb4ad2fefb5b224ef
 Source1:	%{name}-richlistview.cpp
 Source2:	%{name}-richlistview.h
 Source3:	%{name}-roster-rich.README
 Source4:	%{name}-indicator.png
-# temporary (not sure where to find newer files, ripped from and old snap)
-Source5:	%{name}-snap-lang-20041209.tar.bz2
-# Source5-md5:	38f0894bf1b557a36788213c56797e62
+Source5:	%{name}-lang-0.9.3.tar.bz2
+# Source5-md5:	bb4f609553bb9f1c9b140294203f9ed9
 #       from PLD
 Patch0:		%{name}-certs.patch
 Patch1:		%{name}-desktop.patch
@@ -34,7 +35,7 @@ Patch2:		%{name}-home_etc.patch
 Patch3:		%{name}-nodebug.patch
 #       from jpc
 Patch10:	%{name}-customos.patch
-#       from SKaZi
+#       from SKaZi (downlaoded on 2005-09-07 00:10)
 Patch20:	%{name}-status_indicator-add.patch
 Patch22:	%{name}-no_online_status-mod.patch
 Patch23:	%{name}-status_history-add.patch
@@ -45,32 +46,18 @@ Patch27:	%{name}-icondef.xml_status_indicator.patch
 Patch28:	%{name}-settoggles-fix.patch
 Patch29:	%{name}-empty_group-fix.patch
 #       from Remko Troncon:
-# http://www.cs.kuleuven.ac.be/~remko/psi/rc/ (downloaded on 2005-01-02 18:38)
+# http://www.cs.kuleuven.ac.be/~remko/psi/rc/ (downloaded on 2005-09-07 00:15)
 Patch100:	%{name}-adhoc_and_rc.patch
 # http://www.cs.kuleuven.ac.be/~remko/psi/ (downloaded on 2005-02-02 22:00)
 Patch101:	%{name}-rosteritems_iris.patch
 Patch102:	%{name}-rosteritems_psi.patch
-#       from Psi forums:
-# http://www.uni-bonn.de/~nieuwenh/libTeXFormula.diff
-Patch200:	%{name}-libTeXFormula.patch
-# small fix by jpc:
-Patch201:	%{name}-libTeXFormula-nicechats.patch
 #       from Machekku:
 # http://machekku.uaznia.net/jabber/psi/patches/ (downloaded on 2005-01-27 15:30)
 Patch300:	%{name}-contact_icons_at_top.patch
-#Patch301:	%{name}-emoticons_advanced_toggle.patch
-#Patch302:	%{name}-emoticons_advanced_toggle-fix.patch
-#Patch303:	%{name}-emoticons_advanced_toggle-richroster.patch
-Patch304:	%{name}-enable_thread_in_messages.patch
+Patch301:	%{name}-enable_thread_in_messages.patch
 #	from Yves Goergen:
 # http://home.unclassified.de/psi.php
 Patch400:	%{name}-custom_settings_per_contact.patch
-#       from Micha³ Jaz³owiecki
-# http://michalj.alternatywa.info/psi/patches/
-Patch500:	%{name}-offline_statuses_in_roster.patch
-#       from highsecure.ru
-# http://highsecure.ru/send-state.patch
-#Patch600:	%{name}-send_state.patch
 URL:		http://psi.affinix.com/
 BuildRequires:	libstdc++-devel
 BuildRequires:	cyrus-sasl-devel
@@ -121,66 +108,52 @@ widgetów u¿ytych w programie Psi. Moze Ci siê przydaæ, jesli chcia³by¶
 napisaæ w³asne okna dialogowe itp. albo poprawiæ obecne.
 
 %prep
-%setup -q -c %{name}-%{version}
-%setup -q -D -a 5 -c %{name}-%{version}
+%setup -q -n %{name}-%{version}-%{pre}
+%setup -q -D -a 5 -n %{name}-%{version}-%{pre}
 #       PLD:
-%patch0 -p0
-%patch1 -p0
-%patch2 -p0
-%patch3 -p1
+%patch0 -p1
+%patch1 -p1
+%patch2 -p1
+%patch3 -p2
 #       jpc:
-%patch10 -p0
+%patch10 -p1
 %if %{with external_patches}
 #       SKaZi:
-%patch20 -p0
-%patch22 -p0
-%patch23 -p0
-%patch24 -p0
-%patch25 -p0
-%patch26 -p0
-%patch27 -p0
-%patch28 -p0
-%patch29 -p0
-cp %{SOURCE1} psi/src/richlistview.cpp
-cp %{SOURCE2} psi/src/richlistview.h
-cp %{SOURCE3} psi/README.rich-roster
+%patch20 -p1
+%patch22 -p1
+%patch23 -p1
+%patch24 -p1
+%patch25 -p1
+%patch26 -p1
+%patch27 -p1
+%patch28 -p1
+%patch29 -p1
+cp %{SOURCE1} src/richlistview.cpp
+cp %{SOURCE2} src/richlistview.h
+cp %{SOURCE3} README.rich-roster
 #       Remko Troncon:
-%patch100 -p1
+%patch100 -p2
 cd iris
 %patch101 -p0
-cd ../psi
+cd ..
 %patch102 -p0
-cd ..
-#	Psi forums:
-cd psi
-%patch200 -p0
-cd ..
-%patch201 -p1
 #	from Machekku:
-%patch300 -p1
-#patch301 -p1
-#patch302 -p1
-#patch303 -p1
-%patch304 -p1
+#patch300 -p2
+%patch301 -p1
 %endif
 # 	from Yves:
-%patch400 -p1
-#       from Micha³ Jaz³owiecki:
-%patch500 -p1
-#       from highsecure.ru:
-#%patch600 -p0
+#patch400 -p2
 
 sed -i \
-	's/QString PROG_VERSION = .*/QString PROG_VERSION = "%{version}-PLD-%{rel}";/g' \
-	psi/src/common.cpp
+	's/QString PROG_VERSION = .*/QString PROG_VERSION = "PLD %{version}-%{rel}";/g' \
+	src/common.cpp
 sed -i \
 	"s,/usr/local/share/psi,%{_datadir}/psi,g" \
-	psi/src/common.cpp
+	src/common.cpp
 
 %build
 export QTDIR=%{_prefix}
 
-cd psi
 ./configure \
 	--prefix=%{_prefix}
 
@@ -199,23 +172,21 @@ rm -rf $RPM_BUILD_ROOT
 
 export QTDIR=%{_prefix}
 
-cd psi
 %{__make} install \
 	INSTALL_ROOT=$RPM_BUILD_ROOT
-cd ..
 
 install -d \
 	$RPM_BUILD_ROOT%{_libdir}/qt/plugins-mt/designer \
 	$RPM_BUILD_ROOT{%{_desktopdir},%{_pixmapsdir}}
 
-install psi/psi.desktop $RPM_BUILD_ROOT%{_desktopdir}
-install psi/iconsets/system/default/icon_48.png $RPM_BUILD_ROOT%{_pixmapsdir}/psi.png
-install psi/iconsets/roster/stellar-icq/online.png $RPM_BUILD_ROOT%{_pixmapsdir}/psi-stellar.png
-install psi/lang/*.qm $RPM_BUILD_ROOT%{_datadir}/psi
+install psi.desktop $RPM_BUILD_ROOT%{_desktopdir}
+install iconsets/system/default/icon_48.png $RPM_BUILD_ROOT%{_pixmapsdir}/psi.png
+install iconsets/roster/stellar-icq/online.png $RPM_BUILD_ROOT%{_pixmapsdir}/psi-stellar.png
+install lang/*.qm $RPM_BUILD_ROOT%{_datadir}/psi
 %if %{with external_patches}
 install %{SOURCE4} $RPM_BUILD_ROOT%{_datadir}/psi/iconsets/roster/default/indicator.png
 %endif
-install psi/libpsi/psiwidgets/*.so $RPM_BUILD_ROOT%{_libdir}/qt/plugins-mt/designer
+install libpsi/psiwidgets/*.so $RPM_BUILD_ROOT%{_libdir}/qt/plugins-mt/designer
 
 rm -rf $RPM_BUILD_ROOT%{_datadir}/psi/COPYING $RPM_BUILD_ROOT%{_datadir}/psi/README
 rm -rf $RPM_BUILD_ROOT%{_datadir}/psi/designer
@@ -225,38 +196,34 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc psi/README psi/TODO %{?with_external_patches:psi/README.rich-roster} psi/ChangeLog
+%doc README TODO %{?with_external_patches:README.rich-roster} ChangeLog
 %attr(755,root,root) %{_bindir}/*
 %dir %{_datadir}/psi
 %{_datadir}/psi/certs
 %{_datadir}/psi/iconsets
 %{_datadir}/psi/sound
-%lang(ar) %{_datadir}/psi/psi_ar.qm
-%lang(ca) %{_datadir}/psi/psi_ca.qm
 %lang(cs) %{_datadir}/psi/psi_cs.qm
-%lang(da) %{_datadir}/psi/psi_da.qm
 %lang(de) %{_datadir}/psi/psi_de.qm
 %lang(el) %{_datadir}/psi/psi_el.qm
 %lang(eo) %{_datadir}/psi/psi_eo.qm
 %lang(es) %{_datadir}/psi/psi_es.qm
-%lang(fi) %{_datadir}/psi/psi_fi.qm
+%lang(et) %{_datadir}/psi/psi_et.qm
 %lang(fr) %{_datadir}/psi/psi_fr.qm
-%lang(it) %{_datadir}/psi/psi_it.qm
-%lang(jp) %{_datadir}/psi/psi_jp.qm
+%lang(hr) %{_datadir}/psi/psi_hr.qm
 %lang(mk) %{_datadir}/psi/psi_mk.qm
 %lang(nl) %{_datadir}/psi/psi_nl.qm
 %lang(pl) %{_datadir}/psi/psi_pl.qm
-%lang(ptbr) %{_datadir}/psi/psi_ptbr.qm
-%lang(pt) %{_datadir}/psi/psi_pt.qm
+%lang(ptbr) %{_datadir}/psi/psi_pt_br_0.9.3b.qm
 %lang(ru) %{_datadir}/psi/psi_ru.qm
-%lang(se) %{_datadir}/psi/psi_se.qm
 %lang(sk) %{_datadir}/psi/psi_sk.qm
+%lang(sl) %{_datadir}/psi/psi_sl.qm
 %lang(sr) %{_datadir}/psi/psi_sr.qm
+%lang(vi) %{_datadir}/psi/psi_vi.qm
 %lang(zh) %{_datadir}/psi/psi_zh.qm
 %{_desktopdir}/*.desktop
 %{_pixmapsdir}/*.png
 
 %files -n qt-designer-psiwidgets
 %defattr(644,root,root,755)
-%doc psi/libpsi/psiwidgets/README
+%doc libpsi/psiwidgets/README
 %attr(755,root,root) %{_libdir}/qt/plugins-mt/designer/libpsiwidgets.so
