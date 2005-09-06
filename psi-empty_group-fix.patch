@@ -1,6 +1,6 @@
-diff -ru -X exclude iris-clean/xmpp-im/types.cpp iris/xmpp-im/types.cpp
---- iris-clean/xmpp-im/types.cpp	Wed Nov 26 18:24:42 2003
-+++ iris/xmpp-im/types.cpp	Thu May 20 12:12:28 2004
+diff -ru -X exclude psi/iris/xmpp-im/types.cpp psi-skz/iris/xmpp-im/types.cpp
+--- psi/iris/xmpp-im/types.cpp	Wed Nov 26 18:24:42 2003
++++ psi-skz/iris/xmpp-im/types.cpp	Thu May 20 12:12:28 2004
 @@ -941,7 +1026,7 @@
  
  bool RosterItem::addGroup(const QString &g)

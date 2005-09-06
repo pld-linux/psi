@@ -1,19 +1,6 @@
-diff -ru -X exclude psi-clean/src/common.h psi/src/common.h
---- psi-clean/src/common.h	Tue Jun 08 05:40:46 2004
-+++ psi/src/common.h	Fri Jun 18 08:18:34 2004
-@@ -85,6 +85,9 @@
- 	QString defaultRosterIconset;
- 	QMap<QString, QString> serviceRosterIconset;
- 	QMap<QString, QString> customRosterIconset;
-+	QString defaultTemplate;	
-+	QMap<QString, QString> customRosterTemplate;
-+	int templFieldTrim;
- 
- 	bool useleft, singleclick, askOnline, popupMsgs, popupChats, popupHeadlines, raise;
- 	bool alwaysOnTop, noAwaySound, noAwayPopup, noUnlistedPopup, rosterAnim, autoVersion, autoVCardOnLogin, xmlConsoleOnLogin;
-diff -ru -X exclude psi-clean/src/contactview.cpp psi/src/contactview.cpp
---- psi-clean/src/contactview.cpp	Sun Jun 06 20:18:00 2004
-+++ psi/src/contactview.cpp	Fri Jun 18 08:36:52 2004
+diff -ru -X exclude psi/src/contactview.cpp psi-skz/src/contactview.cpp
+--- psi/src/contactview.cpp	Sun Jun 06 20:18:00 2004
++++ psi-skz/src/contactview.cpp	Fri Jun 18 08:36:52 2004
 @@ -1698,7 +1698,7 @@
  };
  
@@ -68,7 +55,7 @@ diff -ru -X exclude psi-clean/src/contactview.cpp psi/src/contactview.cpp
  }
  
  ContactViewItem::~ContactViewItem()
-@@ -2360,6 +2388,104 @@
+@@ -2360,6 +2388,123 @@
  	p->fillRect(0, 0, w, h, cg.base());
  }
  
@@ -156,6 +143,25 @@ diff -ru -X exclude psi-clean/src/contactview.cpp psi/src/contactview.cpp
 +		if(!ins.isEmpty()){
 +			repl.setPattern("<!version>"); txt.replace(repl, QString("<br>") + ins);
 +		}
++	} else {
++		// status description
++		ins = linkify(expandEntities(d->u->lastUnavailableStatus().status().stripWhiteSpace()));
++		if(option.useEmoticons)
++			ins = emoticonify(ins);
++		ins.replace("\n", "<br>");
++		if(option.templFieldTrim > 0 ){
++			// try not to break <tags>
++			int trim = ins.left(option.templFieldTrim).findRev("<");
++			if( trim != -1 )
++				trim = ins.find(">", trim);
++			if( trim == -1 || trim < option.templFieldTrim)
++				trim = option.templFieldTrim;
++			ins = ins.left(trim).stripWhiteSpace() + (((int)ins.length() > trim)?(" ..."):(""));
++		}
++		repl.setPattern("<status_msg>"); txt.replace(repl, ins);
++		if(!ins.isEmpty()){
++			repl.setPattern("<!status_msg>"); txt.replace(repl, QString("<br>") + ins);
++		}
 +	}
 +	// ... TODO
 +
@@ -197,9 +203,9 @@ diff -ru -X exclude psi-clean/src/contactview.cpp psi/src/contactview.cpp
  	repaint();
  }
  
-diff -ru -X exclude psi-clean/src/contactview.h psi/src/contactview.h
---- psi-clean/src/contactview.h	Thu Mar 18 22:50:10 2004
-+++ psi/src/contactview.h	Fri Jun 18 08:17:42 2004
+diff -ru -X exclude psi/src/contactview.h psi-skz/src/contactview.h
+--- psi/src/contactview.h	Thu Mar 18 22:50:10 2004
++++ psi-skz/src/contactview.h	Fri Jun 18 08:17:42 2004
 @@ -23,6 +23,7 @@
  
  #include<qobject.h>
@@ -225,9 +231,9 @@ diff -ru -X exclude psi-clean/src/contactview.h psi/src/contactview.h
  
  private:
  	class Private;
-diff -ru -X exclude psi-clean/src/psi_profiles.cpp psi/src/psi_profiles.cpp
---- psi-clean/src/psi_profiles.cpp	Sat May 15 17:34:30 2004
-+++ psi/src/psi_profiles.cpp	Fri Jun 18 08:23:48 2004
+diff -ru -X exclude psi/src/psi_profiles.cpp psi-skz/src/psi_profiles.cpp
+--- psi/src/psi_profiles.cpp	Sat May 15 17:34:30 2004
++++ psi-skz/src/psi_profiles.cpp	Fri Jun 18 08:23:48 2004
 @@ -556,6 +556,10 @@
  
  	prefs.customRosterIconset.clear();
@@ -283,9 +289,9 @@ diff -ru -X exclude psi-clean/src/psi_profiles.cpp psi/src/psi_profiles.cpp
  				}
  			}
  
-diff -ru -X exclude psi-clean/src/src.pro psi/src/src.pro
---- psi-clean/src/src.pro	Tue Jun 08 05:39:36 2004
-+++ psi/src/src.pro	Fri Jun 18 08:17:42 2004
+diff -ru -X exclude psi/src/src.pro psi-skz/src/src.pro
+--- psi/src/src.pro	Tue Jun 08 05:39:36 2004
++++ psi-skz/src/src.pro	Fri Jun 18 08:17:42 2004
 @@ -81,6 +81,7 @@
  
  # Header files
@@ -302,3 +308,15 @@ diff -ru -X exclude psi-clean/src/src.pro psi/src/src.pro
  	$$PSI_CPP/varlist.cpp \
  	$$PSI_CPP/psi_profiles.cpp \
  	$$PSI_CPP/profiledlg.cpp \
+--- psi-0.10-test2/src/common.h~	2005-09-07 00:14:30.271790408 +0200
++++ psi-0.10-test2/src/common.h	2005-09-07 00:18:01.198724640 +0200
+@@ -86,6 +86,9 @@
+ 	QString defaultRosterIconset;
+ 	QMap<QString, QString> serviceRosterIconset;
+ 	QMap<QString, QString> customRosterIconset;
++ 	QString defaultTemplate;	
++ 	QMap<QString, QString> customRosterTemplate;
++ 	int templFieldTrim;        
+ 	int chatOpacity, rosterOpacity;
+ 
+ 	bool useleft, singleclick, hideMenubar, askOnline, askOffline, popupMsgs, popupChats, popupHeadlines, popupFiles, raise;

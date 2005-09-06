@@ -1,6 +1,6 @@
-diff -ru -X exclude psi-clean/src/common.h psi/src/common.h
---- psi-clean/src/common.h	Tue Jan 27 18:09:30 2004
-+++ psi/src/common.h	Tue Feb 10 17:59:16 2004
+diff -ru -X exclude psi/src/common.h psi-skz/src/common.h
+--- psi/src/common.h	Tue Jan 27 18:09:30 2004
++++ psi-skz/src/common.h	Tue Feb 10 17:59:16 2004
 @@ -93,6 +93,8 @@
  	int defaultAction;
  	int incomingAs;
@@ -10,9 +10,9 @@ diff -ru -X exclude psi-clean/src/common.h psi/src/common.h
  	QStringList recentStatus; //recent status messages
  
  	int asAway, asXa, asOffline;
-diff -ru -X exclude psi-clean/src/psi_profiles.cpp psi/src/psi_profiles.cpp
---- psi-clean/src/psi_profiles.cpp	Tue Jan 27 18:09:32 2004
-+++ psi/src/psi_profiles.cpp	Tue Feb 10 18:03:10 2004
+diff -ru -X exclude psi/src/psi_profiles.cpp psi-skz/src/psi_profiles.cpp
+--- psi/src/psi_profiles.cpp	Tue Jan 27 18:09:32 2004
++++ psi-skz/src/psi_profiles.cpp	Tue Feb 10 18:03:10 2004
 @@ -396,6 +396,8 @@
  	prefs.sp.set(QObject::tr("Out for the night"), QObject::tr("Out for the night."));
  	prefs.sp.set(QObject::tr("Greece"), QObject::tr("I have gone to a far away place.  I will be back someday!"));
@@ -52,9 +52,9 @@ diff -ru -X exclude psi-clean/src/psi_profiles.cpp psi/src/psi_profiles.cpp
  		}
  
  		QDomElement p_lnf = findSubTag(p, "lookandfeel", &found);
-diff -ru -X exclude psi-clean/src/statusdlg.cpp psi/src/statusdlg.cpp
---- psi-clean/src/statusdlg.cpp	Sun Jan 04 20:30:30 2004
-+++ psi/src/statusdlg.cpp	Tue Feb 10 18:27:36 2004
+diff -ru -X exclude psi/src/statusdlg.cpp psi-skz/src/statusdlg.cpp
+--- psi/src/statusdlg.cpp	Sun Jan 04 20:30:30 2004
++++ psi-skz/src/statusdlg.cpp	Tue Feb 10 18:27:36 2004
 @@ -72,6 +72,8 @@
  public:
  	Private() {}
@@ -145,9 +145,9 @@ diff -ru -X exclude psi-clean/src/statusdlg.cpp psi/src/statusdlg.cpp
  	set(makeStatus(type, str));
  	close();
  }
-diff -ru -X exclude psi-clean/src/statusdlg.h psi/src/statusdlg.h
---- psi-clean/src/statusdlg.h	Fri Oct 24 05:38:44 2003
-+++ psi/src/statusdlg.h	Tue Feb 10 17:58:26 2004
+diff -ru -X exclude psi/src/statusdlg.h psi-skz/src/statusdlg.h
+--- psi/src/statusdlg.h	Fri Oct 24 05:38:44 2003
++++ psi-skz/src/statusdlg.h	Tue Feb 10 17:58:26 2004
 @@ -47,6 +47,8 @@
  
  protected:
@@ -157,9 +157,9 @@ diff -ru -X exclude psi-clean/src/statusdlg.h psi/src/statusdlg.h
  
  signals:
  	void set(const Status &);
-diff -ru -X exclude psi-clean/src/varlist.cpp psi/src/varlist.cpp
---- psi-clean/src/varlist.cpp	Thu Mar 13 01:13:32 2003
-+++ psi/src/varlist.cpp	Tue Feb 10 18:14:50 2004
+diff -ru -X exclude psi/src/varlist.cpp psi-skz/src/varlist.cpp
+--- psi/src/varlist.cpp	Thu Mar 13 01:13:32 2003
++++ psi-skz/src/varlist.cpp	Tue Feb 10 18:14:50 2004
 @@ -105,6 +105,17 @@
  	return it;
  }
@@ -178,9 +178,9 @@ diff -ru -X exclude psi-clean/src/varlist.cpp psi/src/varlist.cpp
  VarList::Iterator VarList::findByNum(int x)
  {
  	int n = 0;
-diff -ru -X exclude psi-clean/src/varlist.h psi/src/varlist.h
---- psi-clean/src/varlist.h	Thu Mar 13 01:13:32 2003
-+++ psi/src/varlist.h	Tue Feb 10 18:14:16 2004
+diff -ru -X exclude psi/src/varlist.h psi-skz/src/varlist.h
+--- psi/src/varlist.h	Thu Mar 13 01:13:32 2003
++++ psi-skz/src/varlist.h	Tue Feb 10 18:14:16 2004
 @@ -53,6 +53,7 @@
  	const QString & get(const QString &);
  

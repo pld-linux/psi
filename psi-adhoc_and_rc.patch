@@ -1,7 +1,7 @@
 diff -urN -x *.o -x CVS -x .gdb_history -x Makefile -x conf.log -x conf.pri -x extra.pri -x *.moc -x *.dylib -x moc_* -x disk -x *.dmg* -x .ui -x .moc -x *.out -x config.h -x Info.plist -x *.app -x .DS_Store -x .#* psi.clean/psi/src/adhoc.cpp psi.rc/psi/src/adhoc.cpp
 --- psi.clean/psi/src/adhoc.cpp	Thu Jan  1 01:00:00 1970
-+++ psi.rc/psi/src/adhoc.cpp	Tue Dec 28 23:07:13 2004
-@@ -0,0 +1,893 @@
++++ psi.rc/psi/src/adhoc.cpp	Sun Jan  2 20:10:54 2005
+@@ -0,0 +1,911 @@
 +/*
 + * adhoc.cpp - Client & Server implementation of JEP-50 (Ad-Hoc Commands)
 + * Copyright (C) 2005  Remko Troncon
@@ -132,6 +132,13 @@ diff -urN -x *.o -x CVS -x .gdb_history -x Makefile -x conf.log -x conf.pri -x e
 +AHCommand AHCommand::completedReply(const AHCommand& c) 
 +{
 +	AHCommand r(c.node(), c.sessionId());
++	r.setStatus(Completed);
++	return r;
++}
++
++AHCommand AHCommand::completedReply(const AHCommand& c, const XData& d) 
++{
++	AHCommand r(c.node(), d, c.sessionId());
 +	r.setStatus(Completed);
 +	return r;
 +}
@@ -513,7 +520,7 @@ diff -urN -x *.o -x CVS -x .gdb_history -x Makefile -x conf.log -x conf.pri -x e
 +		}
 +		else
 +			// Execute the command & send back the response
-+			server_task_->sendReply(c->execute(command), requester, id);
++			server_task_->sendReply(c->execute(command, requester), requester, id);
 +	}
 +	else {
 +		//server_task_->sendReply(AHCommand::errorReply(command,AHCError(AHCError::Forbidden)), requester, id);
@@ -652,6 +659,10 @@ diff -urN -x *.o -x CVS -x .gdb_history -x Makefile -x conf.log -x conf.pri -x e
 +				AHCFormDlg *w = new AHCFormDlg(c,receiver_,account_);
 +				w->show();
 +			}
++			else if (c.status() == AHCommand::Completed && i.childNodes().count() > 0) {
++				AHCFormDlg *w = new AHCFormDlg(c,receiver_,account_, true);
++				w->show();
++			}
 +			setSuccess();
 +			return true;
 +		}
@@ -756,7 +767,7 @@ diff -urN -x *.o -x CVS -x .gdb_history -x Makefile -x conf.log -x conf.pri -x e
 +
 +// -------------------------------------------------------------------------- 
 +
-+AHCFormDlg::AHCFormDlg(const AHCommand& r, const Jid& receiver, PsiAccount* account) : receiver_(receiver), account_(account)
++AHCFormDlg::AHCFormDlg(const AHCommand& r, const Jid& receiver, PsiAccount* account, bool final) : receiver_(receiver), account_(account)
 +{
 +	// Save node
 +	node_ = r.node();
@@ -777,69 +788,76 @@ diff -urN -x *.o -x CVS -x .gdb_history -x Makefile -x conf.log -x conf.pri -x e
 +
 +	// Buttons
 +	QHBoxLayout *hb = new QHBoxLayout(vb);
-+	pb_prev = pb_next = 0;
-+	if (r.actions().empty()) {
-+		// Single stage dialog
-+		pb_complete = new QPushButton(tr("Finish"),this);
-+		connect(pb_complete,SIGNAL(clicked()),SLOT(doExecute()));
-+		hb->addWidget(pb_complete);
++	pb_complete = pb_cancel = pb_prev = pb_next = 0;
++	if (!final) {
++		if (r.actions().empty()) {
++			// Single stage dialog
++			pb_complete = new QPushButton(tr("Finish"),this);
++			connect(pb_complete,SIGNAL(clicked()),SLOT(doExecute()));
++			hb->addWidget(pb_complete);
++		}
++		else {
++			// Multi-stage dialog
++
++			// Previous
++			pb_prev = new QPushButton(tr("Previous"),this);
++			if (r.actions().contains(AHCommand::Prev)) {
++				if (r.defaultAction() == AHCommand::Prev) {
++					connect(pb_prev,SIGNAL(clicked()),SLOT(doExecute()));
++					pb_prev->setDefault(true);
++					pb_prev->setFocus();
++				}
++				else
++					connect(pb_prev,SIGNAL(clicked()),SLOT(doPrev()));
++				pb_prev->setEnabled(true);
++			}
++			else 
++				pb_prev->setEnabled(false);
++			hb->addWidget(pb_prev);
++
++			// Next
++			pb_next = new QPushButton(tr("Next"),this);
++			if (r.actions().contains(AHCommand::Next)) {
++				if (r.defaultAction() == AHCommand::Next) {
++					connect(pb_next,SIGNAL(clicked()),SLOT(doExecute()));
++					pb_next->setDefault(true);
++					pb_next->setFocus();
++				}
++				else
++					connect(pb_next,SIGNAL(clicked()),SLOT(doNext()));
++				pb_next->setEnabled(true);
++			}
++			else {
++				pb_next->setEnabled(false);
++			}
++			hb->addWidget(pb_next);
++			
++			// Complete
++			pb_complete = new QPushButton(tr("Finish"),this);
++			if (r.actions().contains(AHCommand::Complete)) {
++				if (r.defaultAction() == AHCommand::Complete) {
++					connect(pb_complete,SIGNAL(clicked()),SLOT(doExecute()));
++					pb_complete->setDefault(true);
++					pb_complete->setFocus();
++				}
++				else
++					connect(pb_complete,SIGNAL(clicked()),SLOT(doComplete()));
++				pb_complete->setEnabled(true);
++			}
++			else {
++				pb_complete->setEnabled(false);
++			}
++			hb->addWidget(pb_complete);
++		}
++		pb_cancel = new QPushButton(tr("Cancel"), this);
++		connect(pb_cancel, SIGNAL(clicked()),SLOT(doCancel()));
++		hb->addWidget(pb_cancel);
 +	}
 +	else {
-+		// Multi-stage dialog
-+
-+		// Previous
-+		pb_prev = new QPushButton(tr("Previous"),this);
-+		if (r.actions().contains(AHCommand::Prev)) {
-+			if (r.defaultAction() == AHCommand::Prev) {
-+				connect(pb_prev,SIGNAL(clicked()),SLOT(doExecute()));
-+				pb_prev->setDefault(true);
-+				pb_prev->setFocus();
-+			}
-+			else
-+				connect(pb_prev,SIGNAL(clicked()),SLOT(doPrev()));
-+			pb_prev->setEnabled(true);
-+		}
-+		else 
-+			pb_prev->setEnabled(false);
-+		hb->addWidget(pb_prev);
-+
-+		// Next
-+		pb_next = new QPushButton(tr("Next"),this);
-+		if (r.actions().contains(AHCommand::Next)) {
-+			if (r.defaultAction() == AHCommand::Next) {
-+				connect(pb_next,SIGNAL(clicked()),SLOT(doExecute()));
-+				pb_next->setDefault(true);
-+				pb_next->setFocus();
-+			}
-+			else
-+				connect(pb_next,SIGNAL(clicked()),SLOT(doNext()));
-+			pb_next->setEnabled(true);
-+		}
-+		else {
-+			pb_next->setEnabled(false);
-+		}
-+		hb->addWidget(pb_next);
-+		
-+		// Complete
-+		pb_complete = new QPushButton(tr("Finish"),this);
-+		if (r.actions().contains(AHCommand::Complete)) {
-+			if (r.defaultAction() == AHCommand::Complete) {
-+				connect(pb_complete,SIGNAL(clicked()),SLOT(doExecute()));
-+				pb_complete->setDefault(true);
-+				pb_complete->setFocus();
-+			}
-+			else
-+				connect(pb_complete,SIGNAL(clicked()),SLOT(doComplete()));
-+			pb_complete->setEnabled(true);
-+		}
-+		else {
-+			pb_complete->setEnabled(false);
-+		}
++		pb_complete = new QPushButton(tr("Ok"),this);
++		connect(pb_complete,SIGNAL(clicked()),SLOT(close()));
 +		hb->addWidget(pb_complete);
 +	}
-+	pb_cancel = new QPushButton(tr("Cancel"), this);
-+	connect(pb_cancel, SIGNAL(clicked()),SLOT(doCancel()));
-+	hb->addWidget(pb_cancel);
 +
 +	if (!r.data().title().isEmpty()) {
 +		setCaption(QString("%1 (%2)").arg(r.data().title()).arg(receiver.full()));
@@ -897,8 +915,8 @@ diff -urN -x *.o -x CVS -x .gdb_history -x Makefile -x conf.log -x conf.pri -x e
 +#include "adhoc.moc"
 diff -urN -x *.o -x CVS -x .gdb_history -x Makefile -x conf.log -x conf.pri -x extra.pri -x *.moc -x *.dylib -x moc_* -x disk -x *.dmg* -x .ui -x .moc -x *.out -x config.h -x Info.plist -x *.app -x .DS_Store -x .#* psi.clean/psi/src/adhoc.h psi.rc/psi/src/adhoc.h
 --- psi.clean/psi/src/adhoc.h	Thu Jan  1 01:00:00 1970
-+++ psi.rc/psi/src/adhoc.h	Tue Dec 28 23:06:24 2004
-@@ -0,0 +1,228 @@
++++ psi.rc/psi/src/adhoc.h	Sun Jan  2 20:09:22 2005
+@@ -0,0 +1,229 @@
 +/*
 + * adhoc.h - Client & Server implementation of JEP-50 (Ad-Hoc Commands)
 + * Copyright (C) 2005  Remko Troncon
@@ -996,6 +1014,7 @@ diff -urN -x *.o -x CVS -x .gdb_history -x Makefile -x conf.log -x conf.pri -x e
 +	static AHCommand formReply(const AHCommand&, const XData&, const QString& sessionId);
 +	static AHCommand canceledReply(const AHCommand&);
 +	static AHCommand completedReply(const AHCommand&);
++	static AHCommand completedReply(const AHCommand&, const XData&);
 +	//static AHCommand errorReply(const AHCommand&, const AHCError&);
 +	
 +protected:
@@ -1037,7 +1056,7 @@ diff -urN -x *.o -x CVS -x .gdb_history -x Makefile -x conf.log -x conf.pri -x e
 +	virtual QString name() const = 0; 
 +	virtual QString node() const = 0; 
 +	virtual bool isAllowed(const Jid&) const { return true; }
-+	virtual AHCommand execute(const AHCommand&) = 0;
++	virtual AHCommand execute(const AHCommand&, const Jid& requester) = 0;
 +	virtual void cancel(const AHCommand&) { }
 +
 +protected:
@@ -1105,7 +1124,7 @@ diff -urN -x *.o -x CVS -x .gdb_history -x Makefile -x conf.log -x conf.pri -x e
 +{
 +	Q_OBJECT
 +public:
-+	AHCFormDlg(const AHCommand& r, const Jid& receiver, PsiAccount* account);
++	AHCFormDlg(const AHCommand& r, const Jid& receiver, PsiAccount* account, bool final = false);
 +
 +protected:
 +	XData data() const;
@@ -1124,6 +1143,142 @@ diff -urN -x *.o -x CVS -x .gdb_history -x Makefile -x conf.log -x conf.pri -x e
 +	QString node_;
 +	PsiAccount* account_;
 +	QString sessionId_;
++};
++
++#endif
+diff -urN -x *.o -x CVS -x .gdb_history -x Makefile -x conf.log -x conf.pri -x extra.pri -x *.moc -x *.dylib -x moc_* -x disk -x *.dmg* -x .ui -x .moc -x *.out -x config.h -x Info.plist -x *.app -x .DS_Store -x .#* psi.clean/psi/src/adhoc_fileserver.cpp psi.rc/psi/src/adhoc_fileserver.cpp
+--- psi.clean/psi/src/adhoc_fileserver.cpp	Thu Jan  1 01:00:00 1970
++++ psi.rc/psi/src/adhoc_fileserver.cpp	Sun Jan  2 20:11:22 2005
+@@ -0,0 +1,90 @@
++/*
++ * adhoc_fileserver.cpp - Implementation of a personal ad-hoc fileserver
++ * Copyright (C) 2005  Remko Troncon
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version 2
++ * of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this library; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ *
++ */
++
++#include <qdir.h>
++#include <qfileinfo.h>
++
++#include "common.h"
++#include "psiaccount.h"
++#include "adhoc_fileserver.h"
++#include "xmpp_xdata.h"
++
++using namespace XMPP;
++
++bool AHFileServer::isAllowed(const Jid& j) const
++{
++	return manager()->account()->jid().compare(j,false);
++}
++
++AHCommand AHFileServer::execute(const AHCommand& c, const Jid& requester)
++{
++	// Extract the file
++	QString file;
++	if (c.hasData()) {
++		QString fileName, curDir;
++		XData::FieldList fl = c.data().fields();
++		for (unsigned int i=0; i < fl.count(); i++) {
++			if (fl[i].var() == "file" && !(fl[i].value().isEmpty())) {
++				file = fl[i].value().first();
++			}
++		}
++	}
++	else {
++		file = QDir::currentDirPath();
++	}
++
++	if (QFileInfo(file).isDir()) {
++		// Return a form with a filelist
++		XData form;
++		form.setTitle(QObject::tr("Choose file"));
++		form.setInstructions(QObject::tr("Choose a file"));
++		form.setType(XData::Data_Form);
++		XData::FieldList fields;
++
++		XData::Field files_field;
++		files_field.setType(XData::Field::Field_ListSingle);
++		files_field.setVar("file");
++		files_field.setLabel(QObject::tr("File"));
++		files_field.setRequired(true);
++
++		XData::Field::OptionList file_options;
++     	QDir d(file);
++		//d.setFilter(QDir::Files|QDir::Hidden|QDir::NoSymLinks);
++		QStringList l = d.entryList();
++		for (QStringList::Iterator it = l.begin(); it != l.end(); ++it ) {
++			XData::Field::Option file_option;
++			QFileInfo fi(QDir(file).filePath(*it));
++			file_option.label = *it + (fi.isDir() ? QString(" [DIR]") : QString(" (%1 bytes)").arg(QString::number(fi.size())));
++			file_option.value = QDir(file).absFilePath(*it);
++			file_options += file_option;
++		}
++		files_field.setOptions(file_options);
++		fields += files_field;
++		
++		form.setFields(fields);
++
++		return AHCommand::formReply(c, form);
++	}
++	else {
++		QStringList l(file);
++		manager()->account()->sendFiles(requester,l,true);
++		return AHCommand::completedReply(c);
++	}
++}
+diff -urN -x *.o -x CVS -x .gdb_history -x Makefile -x conf.log -x conf.pri -x extra.pri -x *.moc -x *.dylib -x moc_* -x disk -x *.dmg* -x .ui -x .moc -x *.out -x config.h -x Info.plist -x *.app -x .DS_Store -x .#* psi.clean/psi/src/adhoc_fileserver.h psi.rc/psi/src/adhoc_fileserver.h
+--- psi.clean/psi/src/adhoc_fileserver.h	Thu Jan  1 01:00:00 1970
++++ psi.rc/psi/src/adhoc_fileserver.h	Sun Jan  2 20:11:51 2005
+@@ -0,0 +1,38 @@
++/*
++ * adhoc_fileserver.h - Implementation of a personal file server using ad-hoc 
++ *		commands
++ * Copyright (C) 2005  Remko Troncon
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version 2
++ * of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this library; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ *
++ */
++
++#ifndef AHFILESERVER_H
++#define AHFILESERVER_H
++
++#include "adhoc.h"
++
++class AHFileServer : public AHCommandServer
++{
++public:
++	AHFileServer(AHCServerManager* m) : AHCommandServer(m) { }
++	virtual QString node() const 
++		{ return QString("http://psi.affinix.com/commands/files"); }
++	virtual bool isAllowed(const Jid&) const;
++	virtual QString name() const { return QString("Send file"); }
++	virtual AHCommand execute(const AHCommand& c, const Jid&);
 +};
 +
 +#endif
@@ -1195,19 +1350,55 @@ diff -urN -x *.o -x CVS -x .gdb_history -x Makefile -x conf.log -x conf.pri -x e
  	void actionDisco(const Jid &, const QString &);
  	void actionInvite(const Jid &, const QString &);
  	void actionAssignKey(const Jid &);
+diff -urN -x *.o -x CVS -x .gdb_history -x Makefile -x conf.log -x conf.pri -x extra.pri -x *.moc -x *.dylib -x moc_* -x disk -x *.dmg* -x .ui -x .moc -x *.out -x config.h -x Info.plist -x *.app -x .DS_Store -x .#* psi.clean/psi/src/filetransdlg.cpp psi.rc/psi/src/filetransdlg.cpp
+--- psi.clean/psi/src/filetransdlg.cpp	Sat Nov  6 11:48:40 2004
++++ psi.rc/psi/src/filetransdlg.cpp	Sun Jan  2 19:57:59 2005
+@@ -500,7 +500,7 @@
+ }
+ 
+ 
+-FileRequestDlg::FileRequestDlg(const Jid &jid, PsiCon *psi, PsiAccount *pa, const QStringList& files)
++FileRequestDlg::FileRequestDlg(const Jid &jid, PsiCon *psi, PsiAccount *pa, const QStringList& files, bool direct)
+ :FileTransUI(0, 0, false, psi_dialog_flags | WDestructiveClose)
+ {
+ 	d = new Private;
+@@ -567,6 +567,10 @@
+ 		lastPath = fi.dirPath();
+ 		le_fname->setText(QDir::convertSeparators(fi.filePath()));
+ 		lb_size->setText(tr("%1 byte(s)").arg(fi.size())); // TODO: large file support
++	}
++
++	if (direct) {
++		doStart();
+ 	}
+ }
+ 
+diff -urN -x *.o -x CVS -x .gdb_history -x Makefile -x conf.log -x conf.pri -x extra.pri -x *.moc -x *.dylib -x moc_* -x disk -x *.dmg* -x .ui -x .moc -x *.out -x config.h -x Info.plist -x *.app -x .DS_Store -x .#* psi.clean/psi/src/filetransdlg.h psi.rc/psi/src/filetransdlg.h
+--- psi.clean/psi/src/filetransdlg.h	Wed Jun 30 13:51:30 2004
++++ psi.rc/psi/src/filetransdlg.h	Sun Jan  2 19:55:42 2005
+@@ -78,7 +78,7 @@
+ 	Q_OBJECT
+ public:
+ 	FileRequestDlg(const Jid &j, PsiCon *psi, PsiAccount *pa);
+-	FileRequestDlg(const Jid &j, PsiCon *psi, PsiAccount *pa, const QStringList& files);
++	FileRequestDlg(const Jid &j, PsiCon *psi, PsiAccount *pa, const QStringList& files, bool direct = false);
+ 	FileRequestDlg(const QDateTime &ts, FileTransfer *ft, PsiAccount *pa);
+ 	~FileRequestDlg();
+ 
 diff -urN -x *.o -x CVS -x .gdb_history -x Makefile -x conf.log -x conf.pri -x extra.pri -x *.moc -x *.dylib -x moc_* -x disk -x *.dmg* -x .ui -x .moc -x *.out -x config.h -x Info.plist -x *.app -x .DS_Store -x .#* psi.clean/psi/src/psiaccount.cpp psi.rc/psi/src/psiaccount.cpp
 --- psi.clean/psi/src/psiaccount.cpp	Wed Dec  8 15:42:39 2004
-+++ psi.rc/psi/src/psiaccount.cpp	Tue Dec 28 16:30:07 2004
-@@ -35,6 +35,8 @@
++++ psi.rc/psi/src/psiaccount.cpp	Sun Jan  2 20:24:08 2005
+@@ -35,6 +35,9 @@
  #include<qfileinfo.h>
  
  #include"psicon.h"
 +#include"adhoc.h"
 +#include"rc.h"
++#include"adhoc_fileserver.h"
  #include"profiles.h"
  #include"im.h"
  //#include"xmpp_client.h"
-@@ -300,6 +302,9 @@
+@@ -300,6 +303,9 @@
  	BlockTransportPopupList *blockTransportPopupList;
  	int userCounter;
  
@@ -1217,7 +1408,7 @@ diff -urN -x *.o -x CVS -x .gdb_history -x Makefile -x conf.log -x conf.pri -x e
  	// Avatars
  	//AvatarFactory* avatarFactory;
  
-@@ -459,11 +464,19 @@
+@@ -459,11 +465,25 @@
  	connect(d->cp, SIGNAL(actionTest(const Jid &)),SLOT(actionTest(const Jid &)));
  	connect(d->cp, SIGNAL(actionSendFile(const Jid &)),SLOT(actionSendFile(const Jid &)));
  	connect(d->cp, SIGNAL(actionSendFiles(const Jid &, const QStringList&)),SLOT(actionSendFiles(const Jid &, const QStringList&)));
@@ -1233,14 +1424,56 @@ diff -urN -x *.o -x CVS -x .gdb_history -x Makefile -x conf.log -x conf.pri -x e
 +	new RCSetStatusServer(d->ahcManager);
 +	//new RCForwardServer(d->ahcManager);
 +	new RCSetOptionsServer(d->ahcManager, d->psi);
++	// !!!!!!!!!! WARNING !!!!!!!
++	// Uncommenting the following line is a *huge* security risk. Anyone who
++	// is able to impersonate you in the Jabber protocol (such as your server
++	// admin) can download _every_ file from your computer you have access to.
++	// Uncomment this only if you want to do some quick tests !
++	//new AHFileServer(d->ahcManager);
 +
  	// restore cached roster
  	for(Roster::ConstIterator it = acc.roster.begin(); it != acc.roster.end(); ++it)
  		client_rosterItemUpdated(*it);
-@@ -2248,6 +2261,26 @@
- 		FileRequestDlg *w = new FileRequestDlg(j2, d->psi, this, l);
+@@ -2220,13 +2240,7 @@
+ 	w->show();
+ }
+ 
+-void PsiAccount::actionSendFile(const Jid &j)
+-{
+-	QStringList l;
+-	actionSendFiles(j, l);
+-}
+-
+-void PsiAccount::actionSendFiles(const Jid &j, const QStringList& l)
++void PsiAccount::sendFiles(const Jid& j, const QStringList& l, bool direct)
+ {
+ 	Jid j2 = j;
+ 	if(j.resource().isEmpty()) {
+@@ -2240,14 +2254,45 @@
+ 	if (!l.isEmpty()) {
+ 		for (QStringList::ConstIterator f = l.begin(); f != l.end(); ++f ) {
+ 			QStringList fl(*f);
+-			FileRequestDlg *w = new FileRequestDlg(j2, d->psi, this, fl);
++			FileRequestDlg *w = new FileRequestDlg(j2, d->psi, this, fl, direct);
+ 			w->show();
+ 		}
+ 	}
+ 	else {
+-		FileRequestDlg *w = new FileRequestDlg(j2, d->psi, this, l);
++		FileRequestDlg *w = new FileRequestDlg(j2, d->psi, this, l, direct);
  		w->show();
  	}
++}
++
++void PsiAccount::actionSendFile(const Jid &j)
++{
++	QStringList l;
++	sendFiles(j,l);
++}
++
++void PsiAccount::actionSendFiles(const Jid &j, const QStringList& l)
++{
++	sendFiles(j, l);
 +}
 +
 +void PsiAccount::actionExecuteCommand(const Jid& j)
@@ -1266,8 +1499,16 @@ diff -urN -x *.o -x CVS -x .gdb_history -x Makefile -x conf.log -x conf.pri -x e
  void PsiAccount::actionDefault(const Jid &j)
 diff -urN -x *.o -x CVS -x .gdb_history -x Makefile -x conf.log -x conf.pri -x extra.pri -x *.moc -x *.dylib -x moc_* -x disk -x *.dmg* -x .ui -x .moc -x *.out -x config.h -x Info.plist -x *.app -x .DS_Store -x .#* psi.clean/psi/src/psiaccount.h psi.rc/psi/src/psiaccount.h
 --- psi.clean/psi/src/psiaccount.h	Wed Aug 18 03:35:35 2004
-+++ psi.rc/psi/src/psiaccount.h	Tue Dec 28 00:58:26 2004
-@@ -263,6 +263,8 @@
++++ psi.rc/psi/src/psiaccount.h	Sun Jan  2 19:52:36 2005
+@@ -204,6 +204,7 @@
+ 	static void getErrorInfo(int err, AdvancedConnector *conn, Stream *stream, QCATLSHandler *tlsHandler, QString *_str, bool *_reconn);
+ 
+ 	void deleteQueueFile();
++	void sendFiles(const Jid&, const QStringList&, bool direct = false);
+ 
+ signals:
+ 	void disconnected();
+@@ -263,6 +264,8 @@
  	void actionInvite(const Jid &, const QString &);
  	void actionSendFile(const Jid &);
  	void actionSendFiles(const Jid &, const QStringList&);
@@ -1278,7 +1519,7 @@ diff -urN -x *.o -x CVS -x .gdb_history -x Makefile -x conf.log -x conf.pri -x e
  	void actionAssignKey(const Jid &);
 diff -urN -x *.o -x CVS -x .gdb_history -x Makefile -x conf.log -x conf.pri -x extra.pri -x *.moc -x *.dylib -x moc_* -x disk -x *.dmg* -x .ui -x .moc -x *.out -x config.h -x Info.plist -x *.app -x .DS_Store -x .#* psi.clean/psi/src/rc.cpp psi.rc/psi/src/rc.cpp
 --- psi.clean/psi/src/rc.cpp	Thu Jan  1 01:00:00 1970
-+++ psi.rc/psi/src/rc.cpp	Tue Dec 28 23:05:51 2004
++++ psi.rc/psi/src/rc.cpp	Sun Jan  2 20:10:10 2005
 @@ -0,0 +1,220 @@
 +/*
 + * rc.cpp - Implementation of JEP-146 (Remote Controlling Clients)
@@ -1316,7 +1557,7 @@ diff -urN -x *.o -x CVS -x .gdb_history -x Makefile -x conf.log -x conf.pri -x e
 +	return manager()->account()->jid().compare(j,false);
 +}
 +
-+AHCommand RCSetStatusServer::execute(const AHCommand& c)
++AHCommand RCSetStatusServer::execute(const AHCommand& c, const Jid&)
 +{
 +	// Check if the session ID is correct
 +	//if (c.sessionId() != "") 
@@ -1325,7 +1566,7 @@ diff -urN -x *.o -x CVS -x .gdb_history -x Makefile -x conf.log -x conf.pri -x e
 +	if (!c.hasData()) {
 +		// Initial set status form
 +		XData form;
-+		form.setTitle(QObject::QObject::tr("Set Status"));
++		form.setTitle(QObject::tr("Set Status"));
 +		form.setInstructions(QObject::tr("Choose the status and status message"));
 +		form.setType(XData::Data_Form);
 +		XData::FieldList fields;
@@ -1425,7 +1666,7 @@ diff -urN -x *.o -x CVS -x .gdb_history -x Makefile -x conf.log -x conf.pri -x e
 +}
 +
 +
-+AHCommand RCSetOptionsServer::execute(const AHCommand& c)
++AHCommand RCSetOptionsServer::execute(const AHCommand& c, const Jid&)
 +{
 +	if (!c.hasData()) {
 +		// Initial set options form
@@ -1502,7 +1743,7 @@ diff -urN -x *.o -x CVS -x .gdb_history -x Makefile -x conf.log -x conf.pri -x e
 +}
 diff -urN -x *.o -x CVS -x .gdb_history -x Makefile -x conf.log -x conf.pri -x extra.pri -x *.moc -x *.dylib -x moc_* -x disk -x *.dmg* -x .ui -x .moc -x *.out -x config.h -x Info.plist -x *.app -x .DS_Store -x .#* psi.clean/psi/src/rc.h psi.rc/psi/src/rc.h
 --- psi.clean/psi/src/rc.h	Thu Jan  1 01:00:00 1970
-+++ psi.rc/psi/src/rc.h	Tue Dec 28 19:59:35 2004
++++ psi.rc/psi/src/rc.h	Sun Jan  2 20:09:50 2005
 @@ -0,0 +1,69 @@
 +/*
 + * rc.h - Implementation of JEP-146 (Remote Controlling Clients)
@@ -1548,7 +1789,7 @@ diff -urN -x *.o -x CVS -x .gdb_history -x Makefile -x conf.log -x conf.pri -x e
 +	RCSetStatusServer(AHCServerManager* m) : RCCommandServer(m) { }
 +	virtual QString name() const { return "Set Status"; }
 +	virtual QString rcNode() const { return "set-status"; }
-+	virtual AHCommand execute(const AHCommand&);
++	virtual AHCommand execute(const AHCommand&, const Jid&);
 +};
 +
 +/*class RCForwardServer : public RCCommandServer
@@ -1566,35 +1807,36 @@ diff -urN -x *.o -x CVS -x .gdb_history -x Makefile -x conf.log -x conf.pri -x e
 +	RCSetOptionsServer(AHCServerManager* m, PsiCon* c) : RCCommandServer(m), psiCon_(c) { }
 +	virtual QString name() const { return "Set Options"; }
 +	virtual QString rcNode() const { return "set-options"; }
-+	virtual AHCommand execute(const AHCommand& c);
++	virtual AHCommand execute(const AHCommand& c, const Jid&);
 +
 +private:
 +	PsiCon* psiCon_;
 +};
 +
 +#endif
-diff -urN -x *.o -x CVS -x .gdb_history -x Makefile -x conf.log -x conf.pri -x extra.pri -x *.moc -x *.dylib -x moc_* -x disk -x *.dmg* -x .ui -x .moc -x *.out -x config.h -x Info.plist -x *.app -x .DS_Store -x .#* psi.clean/psi/src/src.pro psi.rc/psi/src/src.pro
---- psi.clean/psi/src/src.pro	Fri Dec 10 01:31:07 2004
-+++ psi.rc/psi/src/src.pro	Sat Dec 25 21:50:57 2004
-@@ -128,7 +128,9 @@
+--- psi-0.10-test2/src/src.pro.orig	2005-09-07 00:21:38.584676952 +0200
++++ xxx/psi-0.10-test2/src/src.pro	2005-09-07 00:22:57.554671688 +0200
+@@ -135,7 +135,10 @@
  	$$PSI_CPP/actionlist.h \
  	$$PSI_CPP/psiactionlist.h \
  	$$PSI_CPP/xdata_widget.h \
 -	$$PSI_CPP/xmpp_xdata.h
 +	$$PSI_CPP/xmpp_xdata.h \
 +	$$PSI_CPP/adhoc.h \
-+	$$PSI_CPP/rc.h
++	$$PSI_CPP/rc.h \
++	$$PSI_CPP/adhoc_fileserver.h
  
  # Source files
  SOURCES += \
-@@ -177,7 +179,9 @@
+@@ -186,7 +189,10 @@
  	$$PSI_CPP/actionlist.cpp \
  	$$PSI_CPP/psiactionlist.cpp \
  	$$PSI_CPP/xdata_widget.cpp \
 -	$$PSI_CPP/xmpp_xdata.cpp
 +	$$PSI_CPP/xmpp_xdata.cpp \
 +	$$PSI_CPP/adhoc.cpp \
-+	$$PSI_CPP/rc.cpp
- 
- # Qt Designer interfaces
- INTERFACES = \
++	$$PSI_CPP/rc.cpp \
++	$$PSI_CPP/adhoc_fileserver.cpp            
+ mac {
+ 	contains( DEFINES, HAVE_GROWL ) {
+ 		HEADERS += $$PSI_CPP/psigrowlnotifier.h 
