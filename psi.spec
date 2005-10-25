@@ -23,9 +23,9 @@ Source11:	%{name}_de.qm
 Source12:	%{name}_el.qm
 # Source12-md5:	57fda05d12ad82862aeb4b721d470804
 Source13:	%{name}_eo.qm
-# Source13-md5:	a4355d7557273cc8b6d63bdf4f1af71e
+# Source13-md5:	eddf9f560c7dd515452df326235c011e
 Source14:	%{name}_es.qm
-# Source14-md5:	615a88af4b2ab7f2437cbc3a96f379b1
+# Source14-md5:	bd3b293ecdafd00e1410cd5804f2dcaa
 Source15:	%{name}_et.qm
 # Source15-md5:	9747ae62d0401b65ccea3531bdc148e0
 Source16:	%{name}_fr.qm
