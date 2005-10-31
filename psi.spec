@@ -58,6 +58,8 @@ Patch301:	%{name}-enable_thread_in_messages.patch
 #	from Yves Goergen:
 # http://home.unclassified.de/psi.php
 Patch400:	%{name}-custom_settings_per_contact.patch
+#	from Darcs repo:
+Patch500:	%{name}-ui_about-includes.patch
 URL:		http://psi.affinix.com/
 BuildRequires:	libstdc++-devel
 BuildRequires:	cyrus-sasl-devel
@@ -143,6 +145,8 @@ cd ..
 %endif
 # 	from Yves:
 #patch400 -p2
+#	from Darcs:
+%patch500 -p1
 
 sed -i \
 	's/QString PROG_VERSION = .*/QString PROG_VERSION = "PLD %{version}-%{rel}";/g' \
