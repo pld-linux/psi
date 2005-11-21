@@ -75,14 +75,14 @@ napisaæ w³asne okna dialogowe itp. albo poprawiæ obecne.
 
 %prep
 %setup -q -n %{name}-pedrito-%{_snap}
-%setup -q -D -a 2 -n %{name}-pedrito-%{_snap}
 %patch0 -p1
 #%patch1 -p0
 
-cd psi
 %{__tar} jxf %{SOURCE1}
-
+cd psi-pedrito-2005-11-18-data
+cp -r * ..
 cd ..
+
 rm -rf `find . -type d -name CVS`
 
 %build
@@ -97,8 +97,6 @@ qmake psi.pro \
 	QMAKE_CXXFLAGS_RELEASE="%{rpmcflags}" \
 	QMAKE_RPATH=
 
-lrelease lang/*.ts
-
 %{__make}
 
 %install
@@ -106,22 +104,20 @@ rm -rf $RPM_BUILD_ROOT
 
 export QTDIR=%{_prefix}
 
-cd psi
 %{__make} install \
 	INSTALL_ROOT=$RPM_BUILD_ROOT
-cd ..
 
 install -d \
 	$RPM_BUILD_ROOT%{_libdir}/qt/plugins-mt/designer \
 	$RPM_BUILD_ROOT{%{_desktopdir},%{_pixmapsdir}}
 
-install psi/psi.desktop $RPM_BUILD_ROOT%{_desktopdir}
-install psi/iconsets/system/default/icon_48.png $RPM_BUILD_ROOT%{_pixmapsdir}/psi.png
-install psi/iconsets/roster/stellar-icq/online.png $RPM_BUILD_ROOT%{_pixmapsdir}/psi-stellar.png
+install psi.desktop $RPM_BUILD_ROOT%{_desktopdir}
+install iconsets/system/default/icon_48.png $RPM_BUILD_ROOT%{_pixmapsdir}/psi.png
+install iconsets/roster/stellar-icq/online.png $RPM_BUILD_ROOT%{_pixmapsdir}/psi-stellar.png
 #install psi/lang/*.qm $RPM_BUILD_ROOT%{_datadir}/psi
-install psi/*.qm $RPM_BUILD_ROOT%{_datadir}/psi
+install *.qm $RPM_BUILD_ROOT%{_datadir}/psi
 install %{SOURCE3} $RPM_BUILD_ROOT%{_datadir}/psi/iconsets/system/default/
-install psi/libpsi/psiwidgets/*.so $RPM_BUILD_ROOT%{_libdir}/qt/plugins-mt/designer
+install libpsi/psiwidgets/*.so $RPM_BUILD_ROOT%{_libdir}/qt/plugins-mt/designer
 
 rm -rf $RPM_BUILD_ROOT%{_datadir}/psi/COPYING $RPM_BUILD_ROOT%{_datadir}/psi/README
 rm -rf $RPM_BUILD_ROOT%{_datadir}/psi/designer
@@ -131,7 +127,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc psi/README psi/TODO psi/ChangeLog psi-pedrito.txt
+%doc README TODO ChangeLog psi-pedrito.txt
 %attr(755,root,root) %{_bindir}/*
 %dir %{_datadir}/psi
 %{_datadir}/psi/certs
@@ -164,5 +160,5 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n qt-designer-psiwidgets
 %defattr(644,root,root,755)
-%doc psi/libpsi/psiwidgets/README
+%doc libpsi/psiwidgets/README
 %attr(755,root,root) %{_libdir}/qt/plugins-mt/designer/libpsiwidgets.so
