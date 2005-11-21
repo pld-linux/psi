@@ -1,18 +1,19 @@
-%define		snap 20050313
-%define		_snap 2005-03-13
+%define		snap 20051119
+%define		_snap 2005-11-19
+%define		_datasnap 2005-11-18
 #
 Summary:	PSI - Jabber client
 Summary(de):    PSI - ein Instant Messaging Client-Programm für das Jabber
 Summary(pl):	PSI - klient Jabbera
 Name:		psi
 Version:	0.10
-Release:	0.%{snap}.3pedrito
+Release:	0.%{snap}.1pedrito
 License:	GPL
 Group:		Applications/Communications
-Source0:	http://radioemiter.pl/~pedrito/public/jabber/psi-pedrito/%{_snap}/%{name}-pedrito-%{_snap}.tar.bz2
-# Source0-md5:	2fd989a32245caa07692117391fc8455
-Source1:	http://radioemiter.pl/~pedrito/public/jabber/psi-pedrito/%{_snap}/%{name}-pedrito-%{_snap}-data.tar.bz2
-# Source1-md5:	be19af63509103f1c0c7abfba1b9a843
+Source0:	http://www.radioemiter.pl/~pedrito/public/jabber/psi-pedrito/%{_snap}/%{name}-pedrito-%{_snap}.tar.bz2
+# Source0-md5:	1616a75a33a1728f6ee7e1eb92e2438e
+Source1:	http://www.radioemiter.pl/~pedrito/public/jabber/psi-pedrito/%{_snap}/%{name}-pedrito-%{_datasnap}-data.tar.bz2
+# Source1-md5:	67b6369239f758d013c689c9ec54bbec
 Source2:	%{name}-snap-lang-20041209.tar.bz2
 # Source2-md5:	38f0894bf1b557a36788213c56797e62
 Source3:	http://michalj.alternatywa.info/psi/patches/emergency.png
