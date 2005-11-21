@@ -18,8 +18,8 @@ Source2:	%{name}-snap-lang-20041209.tar.bz2
 # Source2-md5:	38f0894bf1b557a36788213c56797e62
 Source3:	http://michalj.alternatywa.info/psi/patches/emergency.png
 # Source3-md5:	5fa629c5177a7b1c5090428e22b7ec30
-Patch0:		%{name}-desktop.patch
-Patch1:		%{name}-customos.patch
+Patch0:		%{name}-customos.patch
+Patch1:		%{name}-desktop.patch
 URL:		http://psi-pedrito.cjb.net/
 BuildRequires:	libstdc++-devel
 BuildRequires:	cyrus-sasl-devel
@@ -76,8 +76,8 @@ napisaæ w³asne okna dialogowe itp. albo poprawiæ obecne.
 %prep
 %setup -q -n %{name}-pedrito-%{_snap}
 %setup -q -D -a 2 -n %{name}-pedrito-%{_snap}
-%patch0 -p0
-%patch1 -p0
+%patch0 -p1
+#%patch1 -p0
 
 cd psi
 %{__tar} jxf %{SOURCE1}
@@ -88,7 +88,6 @@ rm -rf `find . -type d -name CVS`
 %build
 export QTDIR=%{_prefix}
 
-cd psi
 ./configure \
 	--prefix=%{_prefix}
 
