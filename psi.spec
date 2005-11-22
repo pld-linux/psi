@@ -1,6 +1,6 @@
-%define		snap 20051119
-%define		_snap 2005-11-19
-%define		_datasnap 2005-11-18
+%define		snap 20051122
+%define		_snap 2005-11-22
+%define		_datasnap 2005-11-22
 #
 Summary:	PSI - Jabber client
 Summary(de):    PSI - ein Instant Messaging Client-Programm für das Jabber
