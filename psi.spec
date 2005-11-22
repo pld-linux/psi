@@ -20,7 +20,7 @@ Source3:	http://michalj.alternatywa.info/psi/patches/emergency.png
 # Source3-md5:	5fa629c5177a7b1c5090428e22b7ec30
 Patch0:		%{name}-customos.patch
 Patch1:		%{name}-desktop.patch
-URL:		http://psi-pedrito.cjb.net/
+URL:		http://psi-pedrito.go.pl/
 BuildRequires:	libstdc++-devel
 BuildRequires:	cyrus-sasl-devel
 BuildRequires:	openssl-devel >= 0.9.7c
