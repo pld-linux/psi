@@ -12,7 +12,7 @@ License:	GPL
 Group:		Applications/Communications
 Source0:	http://www.radioemiter.pl/~pedrito/public/jabber/psi-pedrito/%{_snap}/%{name}-pedrito-%{_snap}.tar.bz2
 # Source0-md5:	51ab430aa36354cdca415ebb7c49f2d6
-Source1:	http://www.radioemiter.pl/~pedrito/public/jabber/psi-pedrito/%{_snap}/%{name}-pedrito-%{_datasnap}-data.tar.bz2
+Source1:	http://www.radioemiter.pl/~pedrito/public/jabber/psi-pedrito/%{_datasnap}/%{name}-pedrito-%{_datasnap}-data.tar.bz2
 # Source1-md5:	1398b12cef53fb7c9934c83bd9a1609a
 #Source2:	%{name}-snap-lang-20041209.tar.bz2
 # Source2-md5:	38f0894bf1b557a36788213c56797e62
