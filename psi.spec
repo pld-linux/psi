@@ -14,10 +14,8 @@ Source0:	http://www.radioemiter.pl/~pedrito/public/jabber/psi-pedrito/%{_snap}/%
 # Source0-md5:	51ab430aa36354cdca415ebb7c49f2d6
 Source1:	http://www.radioemiter.pl/~pedrito/public/jabber/psi-pedrito/%{_datasnap}/%{name}-pedrito-%{_datasnap}-data.tar.bz2
 # Source1-md5:	1398b12cef53fb7c9934c83bd9a1609a
-#Source2:	%{name}-snap-lang-20041209.tar.bz2
-# Source2-md5:	38f0894bf1b557a36788213c56797e62
-Source3:	http://michalj.alternatywa.info/psi/patches/emergency.png
-# Source3-md5:	5fa629c5177a7b1c5090428e22b7ec30
+Source2:	http://michalj.alternatywa.info/psi/patches/emergency.png
+# Source2-md5:	5fa629c5177a7b1c5090428e22b7ec30
 Patch0:		%{name}-customos.patch
 Patch1:		%{name}-desktop.patch
 URL:		http://psi-pedrito.go.pl/
@@ -116,7 +114,7 @@ install iconsets/system/default/icon_48.png $RPM_BUILD_ROOT%{_pixmapsdir}/psi.pn
 install iconsets/roster/stellar-icq/online.png $RPM_BUILD_ROOT%{_pixmapsdir}/psi-stellar.png
 install psi-pedrito-%{_datasnap}/*.qm $RPM_BUILD_ROOT%{_datadir}/psi
 #install *.qm $RPM_BUILD_ROOT%{_datadir}/psi
-install %{SOURCE3} $RPM_BUILD_ROOT%{_datadir}/psi/iconsets/system/default/
+install %{SOURCE2} $RPM_BUILD_ROOT%{_datadir}/psi/iconsets/system/default/
 install libpsi/psiwidgets/*.so $RPM_BUILD_ROOT%{_libdir}/qt/plugins-mt/designer
 
 rm -rf $RPM_BUILD_ROOT%{_datadir}/psi/COPYING $RPM_BUILD_ROOT%{_datadir}/psi/README
