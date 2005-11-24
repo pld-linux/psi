@@ -114,8 +114,8 @@ install -d \
 install psi.desktop $RPM_BUILD_ROOT%{_desktopdir}
 install iconsets/system/default/icon_48.png $RPM_BUILD_ROOT%{_pixmapsdir}/psi.png
 install iconsets/roster/stellar-icq/online.png $RPM_BUILD_ROOT%{_pixmapsdir}/psi-stellar.png
-install psi/lang/*.qm $RPM_BUILD_ROOT%{_datadir}/psi
-install *.qm $RPM_BUILD_ROOT%{_datadir}/psi
+install psi-pedrito-%{_datasnap}/*.qm $RPM_BUILD_ROOT%{_datadir}/psi
+#install *.qm $RPM_BUILD_ROOT%{_datadir}/psi
 install %{SOURCE3} $RPM_BUILD_ROOT%{_datadir}/psi/iconsets/system/default/
 install libpsi/psiwidgets/*.so $RPM_BUILD_ROOT%{_libdir}/qt/plugins-mt/designer
 
