@@ -1,6 +1,6 @@
 %define		snap 20051124
 %define		_snap 2005-11-24
-%define		_datasnap 2005-11-24
+%define		_datasnap 2005-11-23
 #
 Summary:	PSI - Jabber client
 Summary(de):    PSI - ein Instant Messaging Client-Programm für das Jabber
@@ -79,7 +79,7 @@ napisaæ w³asne okna dialogowe itp. albo poprawiæ obecne.
 #%patch1 -p0
 
 %{__tar} jxf %{SOURCE1}
-cd psi-pedrito-2005-11-23-data
+cd psi-pedrito-%{_datasnap}-data
 cp -r * ..
 cd ..
 
