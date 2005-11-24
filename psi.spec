@@ -131,27 +131,34 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/psi/certs
 %{_datadir}/psi/iconsets
 %{_datadir}/psi/sound
-%lang(ar) %{_datadir}/psi/psi_ar.qm
-%lang(ca) %{_datadir}/psi/psi_ca.qm
+#%lang(ar) %{_datadir}/psi/psi_ar.qm
+%lang(bg) %{_datadir}/psi/psi_bg.qm
+#%lang(ca) %{_datadir}/psi/psi_ca.qm
 %lang(cs) %{_datadir}/psi/psi_cs.qm
-%lang(da) %{_datadir}/psi/psi_da.qm
+#%lang(da) %{_datadir}/psi/psi_da.qm
 %lang(de) %{_datadir}/psi/psi_de.qm
 %lang(el) %{_datadir}/psi/psi_el.qm
 %lang(eo) %{_datadir}/psi/psi_eo.qm
 %lang(es) %{_datadir}/psi/psi_es.qm
-%lang(fi) %{_datadir}/psi/psi_fi.qm
+%lang(et) %{_datadir}/psi/psi_et.qm
+#%lang(fi) %{_datadir}/psi/psi_fi.qm
 %lang(fr) %{_datadir}/psi/psi_fr.qm
-%lang(it) %{_datadir}/psi/psi_it.qm
-%lang(jp) %{_datadir}/psi/psi_jp.qm
+%lang(hu) %{_datadir}/psi/psi_hu.qm
+#%lang(it) %{_datadir}/psi/psi_it.qm
+#%lang(jp) %{_datadir}/psi/psi_jp.qm
 %lang(mk) %{_datadir}/psi/psi_mk.qm
 %lang(nl) %{_datadir}/psi/psi_nl.qm
 %lang(pl) %{_datadir}/psi/psi_pl.qm
-%lang(ptbr) %{_datadir}/psi/psi_ptbr.qm
-%lang(pt) %{_datadir}/psi/psi_pt.qm
+%lang(uk) %{_datadir}/psi/psi_uk.qm
+%lang(pt_BR) %{_datadir}/psi/psi_pt_BR.qm
+#%lang(pt) %{_datadir}/psi/psi_pt.qm
 %lang(ru) %{_datadir}/psi/psi_ru.qm
-%lang(se) %{_datadir}/psi/psi_se.qm
+#%lang(se) %{_datadir}/psi/psi_se.qm
 %lang(sk) %{_datadir}/psi/psi_sk.qm
+%lang(sl) %{_datadir}/psi/psi_sl.qm
 %lang(sr) %{_datadir}/psi/psi_sr.qm
+%lang(uk) %{_datadir}/psi/psi_uk.qm
+%lang(vi) %{_datadir}/psi/psi_vi.qm
 %lang(zh) %{_datadir}/psi/psi_zh.qm
 %{_desktopdir}/*.desktop
 %{_pixmapsdir}/*.png
