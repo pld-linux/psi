@@ -73,7 +73,7 @@ napisaæ w³asne okna dialogowe itp. albo poprawiæ obecne.
 
 %prep
 %setup -q -n %{name}-pedrito-%{_snap}
-%patch0 -p1
+#%patch0 -p1
 #%patch1 -p0
 
 %{__tar} jxf %{SOURCE1}
