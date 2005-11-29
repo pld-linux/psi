@@ -16,8 +16,7 @@ Source1:	http://www.radioemiter.pl/~pedrito/public/jabber/psi-pedrito/%{_datasna
 # Source1-md5:	1398b12cef53fb7c9934c83bd9a1609a
 Source2:	http://michalj.alternatywa.info/psi/patches/emergency.png
 # Source2-md5:	5fa629c5177a7b1c5090428e22b7ec30
-Patch0:		%{name}-customos.patch
-Patch1:		%{name}-desktop.patch
+Patch0:		%{name}-desktop.patch
 URL:		http://psi-pedrito.go.pl/
 BuildRequires:	libstdc++-devel
 BuildRequires:	cyrus-sasl-devel
@@ -74,7 +73,6 @@ napisaæ w³asne okna dialogowe itp. albo poprawiæ obecne.
 %prep
 %setup -q -n %{name}-pedrito-%{_snap}
 #%patch0 -p1
-#%patch1 -p0
 
 %{__tar} jxf %{SOURCE1}
 cd psi-pedrito-%{_datasnap}-data
