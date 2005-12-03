@@ -7,7 +7,7 @@ Summary(de):	PSI - ein Instant Messaging Client-Programm für das Jabber
 Summary(pl):	PSI - klient Jabbera
 Name:		psi
 Version:	0.9.3
-Release:	5
+Release:	6
 License:	GPL v2
 Group:		Applications/Communications
 Source0:	http://dl.sourceforge.net/psi/%{name}-%{version}.tar.bz2
@@ -16,42 +16,8 @@ Source1:	%{name}-richlistview.cpp
 Source2:	%{name}-richlistview.h
 Source3:	%{name}-roster-rich.README
 Source4:	%{name}-indicator.png
-Source10:	%{name}_cs.qm
-# Source10-md5:	917f4fe5257d0e1fe0b5c1bf481cea9f
-Source11:	%{name}_de.qm
-# Source11-md5:	2d0ad7a4a93992cc465ca68261e332c2
-Source12:	%{name}_el.qm
-# Source12-md5:	57fda05d12ad82862aeb4b721d470804
-Source13:	%{name}_eo.qm
-# Source13-md5:	eddf9f560c7dd515452df326235c011e
-Source14:	%{name}_es.qm
-# Source14-md5:	bd3b293ecdafd00e1410cd5804f2dcaa
-Source15:	%{name}_et.qm
-# Source15-md5:	9747ae62d0401b65ccea3531bdc148e0
-Source16:	%{name}_fr.qm
-# Source16-md5:	2109223681611cd89b1a348bb87ab143
-Source17:	%{name}_hr.qm
-# Source17-md5:	4870af33bdd992bb2d7445121cad7b3f
-Source18:	%{name}_mk.qm
-# Source18-md5:	aa34e78f9fd0f8417fb4c997484807c0
-Source19:	%{name}_nl.qm
-# Source19-md5:	31048975699e64f9e6dc4213714b0e0d
-Source20:	%{name}_pl.qm
-# Source20-md5:	e91bfb24cfed80a0932fdf132cee974d
-Source21:	%{name}_pt_br.qm
-# Source21-md5:	d1ea68e6d8fcaa9aa38db8b0973ac791
-Source22:	%{name}_ru.qm
-# Source22-md5:	1b82151552f658e9b94ed6bb4537628d
-Source23:	%{name}_sk.qm
-# Source23-md5:	10a8ec055517db4c0c05a775f283ee88
-Source24:	%{name}_sl.qm
-# Source24-md5:	0c07b479b58f5a411053e3f9b9349616
-Source25:	%{name}_sr.qm
-# Source25-md5:	07781a47ab45059ed15799fed4f32cfe
-Source26:	%{name}_vi.qm
-# Source26-md5:	4d66fd44e634f2d5a7118c2c149c6614
-Source27:       %{name}_zh.qm
-# Source27-md5:	76dc27b07962e8e61b57f53e7c5b2a0d
+Source10:	%{name}-lang-%{version}.tar.bz2
+# Source10-md5:	6e00ec7f0db2d10fdaf5bb1b8b1fc02f
 
 #	from PLD
 Patch0:		%{name}-certs.patch
@@ -70,6 +36,8 @@ Patch26:	%{name}-icondef.xml_status_indicator.patch
 Patch27:	%{name}-settoggles-fix.patch
 Patch28:	%{name}-group_openclose_single_click-mod.patch
 Patch29:	%{name}-empty_group-fix.patch
+#	from Remko
+Patch50:	%{name}-ui_about-includes.patch
 URL:		http://psi.affinix.com/
 BuildRequires:	libstdc++-devel
 BuildRequires:	cyrus-sasl-devel
@@ -134,6 +102,8 @@ chcieliby napisaæ w³asne okna dialogowe albo poprawiæ obecne.
 %patch27 -p1
 %patch28 -p1
 %patch29 -p1
+#	Remko
+%patch50 -p1
 
 %{__perl} -pi -e "s/QString PROG_VERSION = \"0.9.3\";/QString PROG_VERSION = \"0.9.3-%{release}\";/g" src/common.cpp
 %{__perl} -pi -e "s,/usr/local/share/psi,%{_datadir}/psi,g" src/common.cpp
@@ -143,6 +113,7 @@ cp %{SOURCE1} src/richlistview.cpp
 cp %{SOURCE2} src/richlistview.h
 cp %{SOURCE3} README.rich-roster
 cp %{SOURCE4} indicator.png
+tar -xjf %{SOURCE10}
 
 %build
 export QTDIR=%{_prefix}
@@ -169,18 +140,13 @@ export QTDIR=%{_prefix}
 install -d \
 	$RPM_BUILD_ROOT{%{_desktopdir},%{_pixmapsdir}} \
 	$RPM_BUILD_ROOT%{_libdir}/qt/plugins-mt/designer
-
+	
 install psi.desktop $RPM_BUILD_ROOT%{_desktopdir}
 install iconsets/system/default/icon_48.png $RPM_BUILD_ROOT%{_pixmapsdir}/psi.png
 install iconsets/roster/stellar-icq/online.png $RPM_BUILD_ROOT%{_pixmapsdir}/psi-stellar.png
 install indicator.png $RPM_BUILD_ROOT%{_datadir}/psi/iconsets/roster/default/indicator.png
 install libpsi/psiwidgets/*.so $RPM_BUILD_ROOT%{_libdir}/qt/plugins-mt/designer
-
-for i in %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13} %{SOURCE14} %{SOURCE15} %{SOURCE16} \
-    %{SOURCE17} %{SOURCE18} %{SOURCE19} %{SOURCE20} %{SOURCE21} %{SOURCE22} %{SOURCE23} \
-    %{SOURCE24} %{SOURCE25} %{SOURCE26} %{SOURCE27}; do
-    install $i $RPM_BUILD_ROOT%{_datadir}/psi/
-done
+install *.qm $RPM_BUILD_ROOT%{_datadir}/psi
 
 rm -rf $RPM_BUILD_ROOT%{_datadir}/psi/designer
 rm $RPM_BUILD_ROOT%{_datadir}/%{name}/COPYING $RPM_BUILD_ROOT%{_datadir}/%{name}/README
@@ -196,6 +162,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/psi/certs
 %{_datadir}/psi/iconsets
 %{_datadir}/psi/sound
+%lang(bg) %{_datadir}/psi/psi_bg.qm
 %lang(cs) %{_datadir}/psi/psi_cs.qm
 %lang(de) %{_datadir}/psi/psi_de.qm
 %lang(el) %{_datadir}/psi/psi_el.qm
@@ -203,15 +170,16 @@ rm -rf $RPM_BUILD_ROOT
 %lang(es) %{_datadir}/psi/psi_es.qm
 %lang(et) %{_datadir}/psi/psi_et.qm
 %lang(fr) %{_datadir}/psi/psi_fr.qm
-%lang(hr) %{_datadir}/psi/psi_hr.qm
 %lang(mk) %{_datadir}/psi/psi_mk.qm
 %lang(nl) %{_datadir}/psi/psi_nl.qm
 %lang(pl) %{_datadir}/psi/psi_pl.qm
-%lang(pt_BR) %{_datadir}/psi/psi_pt_br.qm
+%lang(pt_BR) %{_datadir}/psi/psi_pt_BR.qm
 %lang(ru) %{_datadir}/psi/psi_ru.qm
 %lang(sk) %{_datadir}/psi/psi_sk.qm
 %lang(sl) %{_datadir}/psi/psi_sl.qm
 %lang(sr) %{_datadir}/psi/psi_sr.qm
+%lang(sr@Latn) %{_datadir}/psi/psi_sr@Latn.qm
+%lang(uk) %{_datadir}/psi/psi_uk.qm
 %lang(vi) %{_datadir}/psi/psi_vi.qm
 %lang(zh_CN) %{_datadir}/psi/psi_zh.qm
 %{_desktopdir}/*.desktop
