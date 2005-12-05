@@ -1,5 +1,5 @@
-%define		snap 20051129
-%define		_snap 2005-11-29
+%define		snap 200512202
+%define		_snap 2005-12-02
 %define		_datasnap 2005-11-23
 #
 Summary:	PSI - Jabber client
@@ -11,7 +11,7 @@ Release:	0.%{snap}.1pedrito
 License:	GPL
 Group:		Applications/Communications
 Source0:	http://www.radioemiter.pl/~pedrito/public/jabber/psi-pedrito/%{_snap}/%{name}-pedrito-%{_snap}.tar.bz2
-# Source0-md5:	8a827ae5deccf7f87fb621a6fc2d7a88
+# Source0-md5:	48da3dcec98aa85f6528fdc04e066fe9
 Source1:	http://www.radioemiter.pl/~pedrito/public/jabber/psi-pedrito/%{_datasnap}/%{name}-pedrito-%{_datasnap}-data.tar.bz2
 # Source1-md5:	1398b12cef53fb7c9934c83bd9a1609a
 Source2:	http://michalj.alternatywa.info/psi/patches/emergency.png
