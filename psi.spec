@@ -1,4 +1,4 @@
-%define		snap 200512209
+%define		snap 20051209
 %define		_snap 2005-12-09
 %define		_datasnap 2005-11-23
 #
