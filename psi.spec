@@ -38,7 +38,7 @@ Patch28:	%{name}-group_openclose_single_click-mod.patch
 Patch29:	%{name}-empty_group-fix.patch
 #	from Remko
 Patch50:	%{name}-ui_about-includes.patch
-URL:		http://psi.affinix.com/
+URL:		http://psi-im.org/
 BuildRequires:	libstdc++-devel
 BuildRequires:	cyrus-sasl-devel
 BuildRequires:	openssl-devel >= 0.9.7c
