@@ -60,7 +60,7 @@ Patch301:	%{name}-enable_thread_in_messages.patch
 Patch400:	%{name}-custom_settings_per_contact.patch
 #	from Darcs repo:
 Patch500:	%{name}-ui_about-includes.patch
-URL:		http://psi.affinix.com/
+URL:		http://psi-im.org/
 BuildRequires:	libstdc++-devel
 BuildRequires:	cyrus-sasl-devel
 BuildRequires:	openssl-devel >= 0.9.7c
