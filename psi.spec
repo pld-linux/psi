@@ -16,13 +16,14 @@ Source1:	%{name}-richlistview.cpp
 Source2:	%{name}-richlistview.h
 Source3:	%{name}-roster-rich.README
 Source4:	%{name}-indicator.png
-Source10:	%{name}-lang-0.9.3.tar.bz2
-# Source10-md5:	6e00ec7f0db2d10fdaf5bb1b8b1fc02f
+Source10:	%{name}-lang-%{version}.tar.bz2
+# Source10-md5:	cc949f271e204aec96b9cf90d3e88f0f
 
 #	from PLD
 Patch0:		%{name}-certs.patch
 Patch1:		%{name}-desktop.patch
 Patch2:		%{name}-home_etc.patch
+Patch3:		%{name}-qca_nolink_fix.patch
 #	from jpc
 Patch10:	%{name}-customos.patch
 #	from SKaZi
@@ -34,10 +35,7 @@ Patch24:	%{name}-nicechats-mod.patch
 Patch25:	%{name}-roster-rich.patch
 Patch26:	%{name}-icondef.xml_status_indicator.patch
 Patch27:	%{name}-settoggles-fix.patch
-Patch28:	%{name}-group_openclose_single_click-mod.patch
-Patch29:	%{name}-empty_group-fix.patch
-#	from Remko
-Patch50:	%{name}-ui_about-includes.patch
+Patch28:	%{name}-empty_group-fix.patch
 URL:		http://psi-im.org/
 BuildRequires:	libstdc++-devel
 BuildRequires:	cyrus-sasl-devel
@@ -89,6 +87,7 @@ chcieliby napisaæ w³asne okna dialogowe albo poprawiæ obecne.
 %patch0 -p1
 %patch1 -p1
 %{?with_home_etc:%patch2 -p1}
+%patch3 -p1
 #	jpc
 %patch10 -p1
 #	SKaZi
@@ -96,16 +95,12 @@ chcieliby napisaæ w³asne okna dialogowe albo poprawiæ obecne.
 %patch21 -p1
 %patch22 -p1
 %patch23 -p1
-%patch24 -p1
+#%patch24 -p1
 %patch25 -p1
 %patch26 -p1
 %patch27 -p1
 %patch28 -p1
-%patch29 -p1
-#	Remko
-%patch50 -p1
 
-%{__perl} -pi -e "s/QString PROG_VERSION = \"0.9.3\";/QString PROG_VERSION = \"0.9.3-%{release}\";/g" src/common.cpp
 %{__perl} -pi -e "s,/usr/local/share/psi,%{_datadir}/psi,g" src/common.cpp
 %{__perl} -pi -e 's/CONFIG \+= debug//g' src/src.pro
 
@@ -113,7 +108,7 @@ cp %{SOURCE1} src/richlistview.cpp
 cp %{SOURCE2} src/richlistview.h
 cp %{SOURCE3} README.rich-roster
 cp %{SOURCE4} indicator.png
-tar -xjf %{SOURCE10}
+tar -jxf %{SOURCE10}
 
 %build
 export QTDIR=%{_prefix}
