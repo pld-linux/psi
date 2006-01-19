@@ -1,0 +1,11 @@
+--- configure.orig	2006-01-16 19:54:04.902009000 +0100
++++ configure	2006-01-16 19:46:06.792009000 +0100
+@@ -778,7 +778,7 @@
+ 		QFile file("src/config.h");
+ 		if ( file.open( IO_WriteOnly ) ) {
+ 			QTextStream stream( &file );
+-			stream << "#define PSI_DATADIR \"" << conf->getenv("DATADIR") << "/psi\"" << endl;
++			stream << "#define PSI_DATADIR \\"" << conf->getenv("DATADIR") << "/psi\\"" << endl;
+ 		}
+ 		
+ 		conf->addDefine("HAVE_CONFIG");
