@@ -6,17 +6,17 @@ Summary:	PSI - Jabber client
 Summary(de):	PSI - ein Instant Messaging Client-Programm für das Jabber
 Summary(pl):	PSI - klient Jabbera
 Name:		psi
-Version:	0.9.3
-Release:	6
+Version:	0.10
+Release:	0.1
 License:	GPL v2
 Group:		Applications/Communications
 Source0:	http://dl.sourceforge.net/psi/%{name}-%{version}.tar.bz2
-# Source0-md5:	d20f3bb530235a246bc2d92308089744
+# Source0-md5:	f0fd4ccf077f7b24e236f71c22649b7b
 Source1:	%{name}-richlistview.cpp
 Source2:	%{name}-richlistview.h
 Source3:	%{name}-roster-rich.README
 Source4:	%{name}-indicator.png
-Source10:	%{name}-lang-%{version}.tar.bz2
+Source10:	%{name}-lang-0.9.3.tar.bz2
 # Source10-md5:	6e00ec7f0db2d10fdaf5bb1b8b1fc02f
 
 #	from PLD
