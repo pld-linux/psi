@@ -140,6 +140,7 @@ install -d \
 	
 install psi.desktop $RPM_BUILD_ROOT%{_desktopdir}
 install iconsets/system/default/icon_48.png $RPM_BUILD_ROOT%{_pixmapsdir}/psi.png
+install indicator.png $RPM_BUILD_ROOT%{_datadir}/psi/iconsets/roster/default/indicator.png
 install libpsi/psiwidgets/*.so $RPM_BUILD_ROOT%{_libdir}/qt/plugins-mt/designer
 install *.qm $RPM_BUILD_ROOT%{_datadir}/psi
 
