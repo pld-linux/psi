@@ -1,15 +1,15 @@
 diff -ru -X exclude psi-clean/src/common.h psi/src/common.h
 --- psi-clean/src/common.h	Tue Jun 08 05:40:46 2004
 +++ psi/src/common.h	Fri Jun 18 08:18:34 2004
-@@ -85,6 +85,9 @@
- 	QString defaultRosterIconset;
+@@ -87,6 +87,9 @@
  	QMap<QString, QString> serviceRosterIconset;
  	QMap<QString, QString> customRosterIconset;
+	int chatOpacity, rosterOpacity;
 +	QString defaultTemplate;	
 +	QMap<QString, QString> customRosterTemplate;
 +	int templFieldTrim;
  
- 	bool useleft, singleclick, askOnline, popupMsgs, popupChats, popupHeadlines, raise;
+ 	bool useleft, singleclick, hideMenubar, askOnline, askOffline, popupMsgs, popupChats, popupHeadlines, popupFiles, raise;
  	bool alwaysOnTop, noAwaySound, noAwayPopup, noUnlistedPopup, rosterAnim, autoVersion, autoVCardOnLogin, xmlConsoleOnLogin;
 diff -ru -X exclude psi-clean/src/contactview.cpp psi/src/contactview.cpp
 --- psi-clean/src/contactview.cpp	Sun Jun 06 20:18:00 2004
