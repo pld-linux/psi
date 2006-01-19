@@ -24,7 +24,6 @@ Patch0:		%{name}-certs.patch
 Patch1:		%{name}-desktop.patch
 Patch2:		%{name}-home_etc.patch
 Patch3:		%{name}-qca_nolink_fix.patch
-Patch4:		%{name}-fix_configure_for_ksh.patch
 #	from jpc
 Patch10:	%{name}-customos.patch
 #	from SKaZi
@@ -89,7 +88,6 @@ chcieliby napisaæ w³asne okna dialogowe albo poprawiæ obecne.
 %patch1 -p1
 %{?with_home_etc:%patch2 -p1}
 %patch3 -p1
-%patch4 -p0
 #	jpc
 %patch10 -p1
 #	SKaZi
@@ -114,6 +112,8 @@ tar -jxf %{SOURCE10}
 
 %build
 export QTDIR=%{_prefix}
+
+%{__sed} -ie 's#\"" << #\\"" << #g' configure
 
 ./configure \
 	--prefix=%{_prefix}
