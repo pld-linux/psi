@@ -7,7 +7,7 @@ Summary(de):	PSI - ein Instant Messaging Client-Programm für das Jabber
 Summary(pl):	PSI - klient Jabbera
 Name:		psi
 Version:	0.10
-Release:	0.1
+Release:	0.2
 License:	GPL v2
 Group:		Applications/Communications
 Source0:	http://dl.sourceforge.net/psi/%{name}-%{version}.tar.bz2
@@ -140,8 +140,6 @@ install -d \
 	
 install psi.desktop $RPM_BUILD_ROOT%{_desktopdir}
 install iconsets/system/default/icon_48.png $RPM_BUILD_ROOT%{_pixmapsdir}/psi.png
-install iconsets/roster/stellar-icq/online.png $RPM_BUILD_ROOT%{_pixmapsdir}/psi-stellar.png
-install indicator.png $RPM_BUILD_ROOT%{_datadir}/psi/iconsets/roster/default/indicator.png
 install libpsi/psiwidgets/*.so $RPM_BUILD_ROOT%{_libdir}/qt/plugins-mt/designer
 install *.qm $RPM_BUILD_ROOT%{_datadir}/psi
 
@@ -160,25 +158,17 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/psi/iconsets
 %{_datadir}/psi/sound
 %lang(bg) %{_datadir}/psi/psi_bg.qm
-%lang(cs) %{_datadir}/psi/psi_cs.qm
-%lang(de) %{_datadir}/psi/psi_de.qm
-%lang(el) %{_datadir}/psi/psi_el.qm
 %lang(eo) %{_datadir}/psi/psi_eo.qm
 %lang(es) %{_datadir}/psi/psi_es.qm
-%lang(et) %{_datadir}/psi/psi_et.qm
 %lang(fr) %{_datadir}/psi/psi_fr.qm
+%lang(hu) %{_datadir}/psi/psi_hu.qm
 %lang(mk) %{_datadir}/psi/psi_mk.qm
 %lang(nl) %{_datadir}/psi/psi_nl.qm
 %lang(pl) %{_datadir}/psi/psi_pl.qm
 %lang(pt_BR) %{_datadir}/psi/psi_pt_BR.qm
-%lang(ru) %{_datadir}/psi/psi_ru.qm
 %lang(sk) %{_datadir}/psi/psi_sk.qm
 %lang(sl) %{_datadir}/psi/psi_sl.qm
-%lang(sr) %{_datadir}/psi/psi_sr.qm
-%lang(sr@Latn) %{_datadir}/psi/psi_sr@Latn.qm
-%lang(uk) %{_datadir}/psi/psi_uk.qm
 %lang(vi) %{_datadir}/psi/psi_vi.qm
-%lang(zh_CN) %{_datadir}/psi/psi_zh.qm
 %{_desktopdir}/*.desktop
 %{_pixmapsdir}/*.png
 
