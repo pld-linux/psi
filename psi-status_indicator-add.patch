@@ -1,6 +1,6 @@
-diff -urN psi-0.9.3.orig/iris/xmpp-im/client.cpp psi-0.9.3/iris/xmpp-im/client.cpp
---- psi-0.9.3.orig/iris/xmpp-im/client.cpp	2004-12-28 21:19:45.000000000 +0100
-+++ psi-0.9.3/iris/xmpp-im/client.cpp	2005-01-13 23:47:01.314289544 +0100
+diff -urN psi-0.10.orig/iris/xmpp-im/client.cpp psi-0.10/iris/xmpp-im/client.cpp
+--- psi-0.10.orig/iris/xmpp-im/client.cpp	2005-08-21 19:44:28.000000000 +0200
++++ psi-0.10/iris/xmpp-im/client.cpp	2006-01-16 20:12:31.562009000 +0100
 @@ -792,10 +792,27 @@
  
  	// unavailable?  remove the resource
@@ -33,10 +33,10 @@ diff -urN psi-0.9.3.orig/iris/xmpp-im/client.cpp psi-0.9.3/iris/xmpp-im/client.c
  			i->resourceList().remove(rit);
  			i->setLastUnavailableStatus(s);
  		}
-diff -urN psi-0.9.3.orig/src/chatdlg.cpp psi-0.9.3/src/chatdlg.cpp
---- psi-0.9.3.orig/src/chatdlg.cpp	2004-12-22 13:37:35.000000000 +0100
-+++ psi-0.9.3/src/chatdlg.cpp	2005-01-13 23:47:01.341285440 +0100
-@@ -474,8 +474,10 @@
+diff -urN psi-0.10.orig/src/chatdlg.cpp psi-0.10/src/chatdlg.cpp
+--- psi-0.10.orig/src/chatdlg.cpp	2006-01-07 22:19:01.000000000 +0100
++++ psi-0.10/src/chatdlg.cpp	2006-01-16 20:12:31.562009000 +0100
+@@ -522,8 +522,10 @@
  			u = ul.first();
  			if(rname.isEmpty()) {
  				// use priority
@@ -48,20 +48,20 @@ diff -urN psi-0.9.3.orig/src/chatdlg.cpp psi-0.9.3/src/chatdlg.cpp
  				else {
  					const UserResource &r = *u->userResourceList().priority();
  					status = makeSTATUS(r.status());
-diff -urN psi-0.9.3.orig/src/common.h psi-0.9.3/src/common.h
---- psi-0.9.3.orig/src/common.h	2004-12-22 13:37:35.000000000 +0100
-+++ psi-0.9.3/src/common.h	2005-01-13 23:47:01.344284984 +0100
-@@ -143,6 +143,7 @@
- 	QStringList gcHighlights, gcNickColors;
+diff -urN psi-0.10.orig/src/common.h psi-0.10/src/common.h
+--- psi-0.10.orig/src/common.h	2005-10-06 15:50:35.000000000 +0200
++++ psi-0.10/src/common.h	2006-01-16 20:13:35.262009000 +0100
+@@ -150,6 +150,7 @@
  
  	bool clNewHeadings;
+ 	bool outlineHeadings;
 +	bool clStIndicator;
  
  	// passive popups
  	bool ppIsOn;
-diff -urN psi-0.9.3.orig/src/contactview.cpp psi-0.9.3/src/contactview.cpp
---- psi-0.9.3.orig/src/contactview.cpp	2004-10-29 19:00:38.000000000 +0200
-+++ psi-0.9.3/src/contactview.cpp	2005-01-13 23:47:01.351283920 +0100
+diff -urN psi-0.10.orig/src/contactview.cpp psi-0.10/src/contactview.cpp
+--- psi-0.10.orig/src/contactview.cpp	2006-01-07 22:19:01.000000000 +0100
++++ psi-0.10/src/contactview.cpp	2006-01-16 20:12:31.882009000 +0100
 @@ -25,6 +25,7 @@
  #include<qheader.h>
  #include<qtimer.h>
@@ -70,7 +70,7 @@ diff -urN psi-0.9.3.orig/src/contactview.cpp psi-0.9.3/src/contactview.cpp
  #include<qpopupmenu.h>
  #include<qmessagebox.h>
  #include<qinputdialog.h>
-@@ -2766,12 +2767,13 @@
+@@ -3018,12 +3019,13 @@
  
  void ContactViewItem::setIcon(const Icon *icon, bool alert)
  {
@@ -85,7 +85,7 @@ diff -urN psi-0.9.3.orig/src/contactview.cpp psi-0.9.3/src/contactview.cpp
  	if ( d->icon ) {
  		disconnect(d->icon, 0, this, 0 );
  		d->icon->stop();
-@@ -2793,12 +2795,42 @@
+@@ -3045,12 +3047,42 @@
  		pix = d->icon->pixmap();
  	}
  
@@ -130,10 +130,10 @@ diff -urN psi-0.9.3.orig/src/contactview.cpp psi-0.9.3/src/contactview.cpp
  }
  
  void ContactViewItem::animateNick()
-diff -urN psi-0.9.3.orig/src/options/opt_appearance.cpp psi-0.9.3/src/options/opt_appearance.cpp
---- psi-0.9.3.orig/src/options/opt_appearance.cpp	2004-11-20 13:03:44.000000000 +0100
-+++ psi-0.9.3/src/options/opt_appearance.cpp	2005-01-13 23:49:08.758915016 +0100
-@@ -147,6 +147,8 @@
+diff -urN psi-0.10.orig/src/options/opt_appearance.cpp psi-0.10/src/options/opt_appearance.cpp
+--- psi-0.10.orig/src/options/opt_appearance.cpp	2006-01-07 22:19:01.000000000 +0100
++++ psi-0.10/src/options/opt_appearance.cpp	2006-01-16 20:12:32.162009000 +0100
+@@ -231,6 +231,8 @@
  		tr("Specifies the foreground animation color for nicks."));
  	QWhatsThis::add(d->pb_cAnimBack,
  		tr("Specifies the background animation color for nicks."));
@@ -142,7 +142,7 @@ diff -urN psi-0.9.3.orig/src/options/opt_appearance.cpp psi-0.9.3/src/options/op
  
  	// Avatars
  	//QWhatsThis::add(d->ck_avatarsChatdlg,
-@@ -160,8 +162,9 @@
+@@ -244,8 +246,9 @@
  	if ( !w )
  		return;
  
@@ -153,7 +153,7 @@ diff -urN psi-0.9.3.orig/src/options/opt_appearance.cpp psi-0.9.3/src/options/op
  
  	int n;
  	for (n = 0; n < 4; ++n)
-@@ -176,9 +179,10 @@
+@@ -260,9 +263,10 @@
  	if ( !w )
  		return;
  
@@ -166,10 +166,10 @@ diff -urN psi-0.9.3.orig/src/options/opt_appearance.cpp psi-0.9.3/src/options/op
  	int n;
  	for (n = 0; n < 4; ++n)
  		le_font[n]->setFont(opt->font[n]);
-diff -urN psi-0.9.3.orig/src/options/opt_appearance-ui.ui psi-0.9.3/src/options/opt_appearance-ui.ui
---- psi-0.9.3.orig/src/options/opt_appearance-ui.ui	2004-11-20 13:03:44.000000000 +0100
-+++ psi-0.9.3/src/options/opt_appearance-ui.ui	2005-01-13 23:47:01.356283160 +0100
-@@ -308,6 +308,14 @@
+diff -urN psi-0.10.orig/src/options/opt_appearance-ui.ui psi-0.10/src/options/opt_appearance-ui.ui
+--- psi-0.10.orig/src/options/opt_appearance-ui.ui	2005-10-14 02:36:14.000000000 +0200
++++ psi-0.10/src/options/opt_appearance-ui.ui	2006-01-16 20:12:32.172009000 +0100
+@@ -368,6 +368,14 @@
                  </widget>
              </grid>
          </widget>
@@ -184,10 +184,10 @@ diff -urN psi-0.9.3.orig/src/options/opt_appearance-ui.ui psi-0.9.3/src/options/
          <widget class="QGroupBox">
              <property name="name">
                  <cstring>groupBox12</cstring>
-diff -urN psi-0.9.3.orig/src/psiiconset.cpp psi-0.9.3/src/psiiconset.cpp
---- psi-0.9.3.orig/src/psiiconset.cpp	2004-06-14 12:34:43.000000000 +0200
-+++ psi-0.9.3/src/psiiconset.cpp	2005-01-13 23:47:01.370281032 +0100
-@@ -516,6 +516,19 @@
+diff -urN psi-0.10.orig/src/psiiconset.cpp psi-0.10/src/psiiconset.cpp
+--- psi-0.10.orig/src/psiiconset.cpp	2005-08-21 19:44:32.000000000 +0200
++++ psi-0.10/src/psiiconset.cpp	2006-01-16 20:12:32.172009000 +0100
+@@ -518,6 +518,19 @@
  	return Icon();
  }
  
@@ -207,9 +207,9 @@ diff -urN psi-0.9.3.orig/src/psiiconset.cpp psi-0.9.3/src/psiiconset.cpp
  Icon *PsiIconset::statusPtr(const XMPP::Jid &jid, int s)
  {
  	return d->jid2icon(jid, status2name(s));
-diff -urN psi-0.9.3.orig/src/psiiconset.h psi-0.9.3/src/psiiconset.h
---- psi-0.9.3.orig/src/psiiconset.h	2003-11-20 04:32:47.000000000 +0100
-+++ psi-0.9.3/src/psiiconset.h	2005-01-13 23:47:01.400276472 +0100
+diff -urN psi-0.10.orig/src/psiiconset.h psi-0.10/src/psiiconset.h
+--- psi-0.10.orig/src/psiiconset.h	2005-08-21 19:44:27.000000000 +0200
++++ psi-0.10/src/psiiconset.h	2006-01-16 20:12:32.542009000 +0100
 @@ -61,9 +61,11 @@
  	// JID-enabled status functions
  	Icon *statusPtr(const XMPP::Jid &, int);
@@ -222,10 +222,10 @@ diff -urN psi-0.9.3.orig/src/psiiconset.h psi-0.9.3/src/psiiconset.h
  
  	// functions to get status icon by transport name
  	Icon *transportStatusPtr(QString name, int);
-diff -urN psi-0.9.3.orig/src/psi_profiles.cpp psi-0.9.3/src/psi_profiles.cpp
---- psi-0.9.3.orig/src/psi_profiles.cpp	2004-12-08 15:42:39.000000000 +0100
-+++ psi-0.9.3/src/psi_profiles.cpp	2005-01-13 23:47:01.406275560 +0100
-@@ -441,6 +441,8 @@
+diff -urN psi-0.10.orig/src/psi_profiles.cpp psi-0.10/src/psi_profiles.cpp
+--- psi-0.10.orig/src/psi_profiles.cpp	2006-01-16 20:08:18.000000000 +0100
++++ psi-0.10/src/psi_profiles.cpp	2006-01-16 20:15:42.392009000 +0100
+@@ -428,6 +428,8 @@
  		prefs.font[fPopup] = font.toString();
  	}
  
@@ -234,18 +234,18 @@ diff -urN psi-0.9.3.orig/src/psi_profiles.cpp psi-0.9.3/src/psi_profiles.cpp
  	// calculate the small font size
  	const int minimumFontSize = 7;
  	prefs.smallFontSize = qApp->font().pointSize();
-@@ -877,6 +879,7 @@
- 		p.appendChild(p_lnf);
- 
- 		p_lnf.appendChild(textTag(doc, "newHeadings", prefs.clNewHeadings));
+@@ -905,6 +907,7 @@
+ 		p_lnf.appendChild(textTag(doc, "chat-opacity", prefs.chatOpacity));
+ 		p_lnf.appendChild(textTag(doc, "roster-opacity", prefs.rosterOpacity));
+ 		p_lnf.appendChild(textTag(doc, "outline-headings", prefs.outlineHeadings));
 +		p_lnf.appendChild(textTag(doc, "statusIndicator", prefs.clStIndicator));
  
  		{
  			QDomElement tag = doc.createElement("colors");
-@@ -1383,6 +1386,7 @@
- 			bool found;
- 
- 			readBoolEntry(p_lnf, "newHeadings", &prefs.clNewHeadings);
+@@ -1483,6 +1486,7 @@
+ 			readBoolEntry(p_lnf, "outline-headings", &prefs.outlineHeadings);
+ 			readNumEntry(p_lnf, "chat-opacity", &prefs.chatOpacity);
+ 			readNumEntry(p_lnf, "roster-opacity", &prefs.rosterOpacity);
 +			readBoolEntry(p_lnf, "statusIndicator", &prefs.clStIndicator);
  
  			QDomElement tag = findSubTag(p_lnf, "colors", &found);
