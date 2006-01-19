@@ -114,6 +114,7 @@ tar -jxf %{SOURCE10}
 export QTDIR=%{_prefix}
 
 ./configure \
+	SH=/bin/bash \
 	--prefix=%{_prefix}
 
 qmake psi.pro \
