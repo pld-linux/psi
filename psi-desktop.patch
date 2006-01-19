@@ -1,6 +1,6 @@
 diff -Nur psi-0.10.orig/psi.desktop psi-0.10/psi.desktop
 --- psi-0.10.orig/psi.desktop	2006-01-19 21:17:58.849492250 +0100
-+++ psi-0.10/psi.desktop	2006-01-19 21:18:31.683544250 +0100
++++ psi-0.10/psi.desktop	2006-01-19 21:23:30.142196750 +0100
 @@ -1,15 +1,14 @@
  [Desktop Entry]
  Type=Application
@@ -9,7 +9,8 @@ diff -Nur psi-0.10.orig/psi.desktop psi-0.10/psi.desktop
  Name=Psi
 -GenericName=Jabber Client
  Comment=Communicate over the Jabber network
- Icon=psi
+-Icon=psi
++Icon=psi.png
  Exec=psi
  Terminal=false
  Categories=Qt;Network;InstantMessaging;
