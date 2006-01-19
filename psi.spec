@@ -90,7 +90,6 @@ chcieliby napisaæ w³asne okna dialogowe albo poprawiæ obecne.
 %{?with_home_etc:%patch2 -p1}
 %patch3 -p1
 %patch4 -p0
-exit 1
 #	jpc
 %patch10 -p1
 #	SKaZi
