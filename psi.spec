@@ -18,6 +18,8 @@ Source3:	%{name}-roster-rich.README
 Source4:	%{name}-indicator.png
 Source10:	%{name}-lang-%{version}.tar.bz2
 # Source10-md5:	cc949f271e204aec96b9cf90d3e88f0f
+Source11:	%{name}-default-iconsets.tar.gz
+# Source11-md5:	b422183d53d8d2b2e8bdc4828b152d43
 
 #	from PLD
 Patch0:		%{name}-certs.patch
@@ -111,6 +113,7 @@ cp %{SOURCE2} src/richlistview.h
 cp %{SOURCE3} README.rich-roster
 cp %{SOURCE4} indicator.png
 tar -jxf %{SOURCE10}
+tar -zxf %{SOURCE11}
 
 %build
 export QTDIR=%{_prefix}
@@ -141,6 +144,8 @@ install -d \
 install psi.desktop $RPM_BUILD_ROOT%{_desktopdir}
 install iconsets/system/default/icon_48.png $RPM_BUILD_ROOT%{_pixmapsdir}/psi.png
 install indicator.png $RPM_BUILD_ROOT%{_datadir}/psi/iconsets/roster/default/indicator.png
+install stellar.jisp $RPM_BUILD_ROOT%{_datadir}/psi/iconsets/system
+install {aim,gadugadu,icq,lightbulb,msn,sms,stellar-icq,transport,yahoo}.jisp $RPM_BUILD_ROOT%{_datadir}/psi/iconsets/roster
 install libpsi/psiwidgets/*.so $RPM_BUILD_ROOT%{_libdir}/qt/plugins-mt/designer
 install *.qm $RPM_BUILD_ROOT%{_datadir}/psi
 
