@@ -1,6 +1,6 @@
 diff -urN psi-0.10.orig/iris/xmpp-im/client.cpp psi-0.10/iris/xmpp-im/client.cpp
 --- psi-0.10.orig/iris/xmpp-im/client.cpp	2005-08-21 19:44:28.000000000 +0200
-+++ psi-0.10/iris/xmpp-im/client.cpp	2006-01-16 20:12:31.562009000 +0100
++++ psi-0.10/iris/xmpp-im/client.cpp	2006-01-21 18:38:28.405294000 +0100
 @@ -792,10 +792,27 @@
  
  	// unavailable?  remove the resource
@@ -35,7 +35,7 @@ diff -urN psi-0.10.orig/iris/xmpp-im/client.cpp psi-0.10/iris/xmpp-im/client.cpp
  		}
 diff -urN psi-0.10.orig/src/chatdlg.cpp psi-0.10/src/chatdlg.cpp
 --- psi-0.10.orig/src/chatdlg.cpp	2006-01-07 22:19:01.000000000 +0100
-+++ psi-0.10/src/chatdlg.cpp	2006-01-16 20:12:31.562009000 +0100
++++ psi-0.10/src/chatdlg.cpp	2006-01-21 18:38:28.415294000 +0100
 @@ -522,8 +522,10 @@
  			u = ul.first();
  			if(rname.isEmpty()) {
@@ -50,7 +50,7 @@ diff -urN psi-0.10.orig/src/chatdlg.cpp psi-0.10/src/chatdlg.cpp
  					status = makeSTATUS(r.status());
 diff -urN psi-0.10.orig/src/common.h psi-0.10/src/common.h
 --- psi-0.10.orig/src/common.h	2005-10-06 15:50:35.000000000 +0200
-+++ psi-0.10/src/common.h	2006-01-16 20:13:35.262009000 +0100
++++ psi-0.10/src/common.h	2006-01-21 18:38:28.415294000 +0100
 @@ -150,6 +150,7 @@
  
  	bool clNewHeadings;
@@ -61,7 +61,7 @@ diff -urN psi-0.10.orig/src/common.h psi-0.10/src/common.h
  	bool ppIsOn;
 diff -urN psi-0.10.orig/src/contactview.cpp psi-0.10/src/contactview.cpp
 --- psi-0.10.orig/src/contactview.cpp	2006-01-07 22:19:01.000000000 +0100
-+++ psi-0.10/src/contactview.cpp	2006-01-16 20:12:31.882009000 +0100
++++ psi-0.10/src/contactview.cpp	2006-01-21 18:38:28.415294000 +0100
 @@ -25,6 +25,7 @@
  #include<qheader.h>
  #include<qtimer.h>
@@ -132,47 +132,39 @@ diff -urN psi-0.10.orig/src/contactview.cpp psi-0.10/src/contactview.cpp
  void ContactViewItem::animateNick()
 diff -urN psi-0.10.orig/src/options/opt_appearance.cpp psi-0.10/src/options/opt_appearance.cpp
 --- psi-0.10.orig/src/options/opt_appearance.cpp	2006-01-07 22:19:01.000000000 +0100
-+++ psi-0.10/src/options/opt_appearance.cpp	2006-01-16 20:12:32.162009000 +0100
-@@ -231,6 +231,8 @@
- 		tr("Specifies the foreground animation color for nicks."));
- 	QWhatsThis::add(d->pb_cAnimBack,
- 		tr("Specifies the background animation color for nicks."));
-+	QWhatsThis::add(d->ck_statusIndicator,
-+		tr("Displays an indicator by the contact name if the contact entered a descriptive text status line."));
++++ psi-0.10/src/options/opt_appearance.cpp	2006-01-21 19:03:59.065294000 +0100
+@@ -104,6 +104,7 @@
  
- 	// Avatars
- 	//QWhatsThis::add(d->ck_avatarsChatdlg,
-@@ -244,8 +246,9 @@
- 	if ( !w )
- 		return;
- 
--	//OptAppearanceUI *d = (OptAppearanceUI *)w;
-+	OptAppearanceUI *d = (OptAppearanceUI *)w;
- 	//opt->avatarsChatdlgEnabled = d->ck_avatarsChatdlg->isChecked(); // Avatars
+ 	opt->clNewHeadings = d->ck_newHeadings->isChecked();	
+ 	opt->outlineHeadings = d->ck_outlineHeadings->isChecked();	
 +	opt->clStIndicator = d->ck_statusIndicator->isChecked();
+ 	opt->rosterOpacity = d->sl_rosterop->value();
+ 	opt->chatOpacity = d->sl_chatdlgop->value();
+ }
+@@ -117,6 +118,7 @@
  
- 	int n;
- 	for (n = 0; n < 4; ++n)
-@@ -260,9 +263,10 @@
- 	if ( !w )
- 		return;
+ 	d->ck_newHeadings->setChecked( opt->clNewHeadings );
+ 	d->ck_outlineHeadings->setChecked( opt->outlineHeadings );
++	d->ck_statusIndicator->setChecked( opt->clStIndicator );
+ 	
+ 	d->sl_rosterop->setValue( opt->rosterOpacity );
+ 	d->sl_chatdlgop->setValue( opt->chatOpacity );
+@@ -262,7 +264,7 @@
  
--	//OptAppearanceUI *d = (OptAppearanceUI *)w;
-+	OptAppearanceUI *d = (OptAppearanceUI *)w;
+ 	//OptAppearanceUI *d = (OptAppearanceUI *)w;
  	//d->ck_avatarsChatdlg->setChecked( opt->avatarsChatdlgEnabled ); // Avatars
 -
-+	d->ck_statusIndicator->setChecked( opt->clStIndicator );
 +	
  	int n;
  	for (n = 0; n < 4; ++n)
  		le_font[n]->setFont(opt->font[n]);
-diff -urN psi-0.10.orig/src/options/opt_appearance-ui.ui psi-0.10/src/options/opt_appearance-ui.ui
---- psi-0.10.orig/src/options/opt_appearance-ui.ui	2005-10-14 02:36:14.000000000 +0200
-+++ psi-0.10/src/options/opt_appearance-ui.ui	2006-01-16 20:12:32.172009000 +0100
-@@ -368,6 +368,14 @@
-                 </widget>
-             </grid>
-         </widget>
+diff -urN psi-0.10.orig/src/options/opt_appearance_misc-ui.ui psi-0.10/src/options/opt_appearance_misc-ui.ui
+--- psi-0.10.orig/src/options/opt_appearance_misc-ui.ui	2005-10-14 02:36:14.000000000 +0200
++++ psi-0.10/src/options/opt_appearance_misc-ui.ui	2006-01-21 18:48:44.155294000 +0100
+@@ -19,6 +19,14 @@
+         <property name="name">
+             <cstring>unnamed</cstring>
+         </property>
 +        <widget class="QCheckBox">
 +            <property name="name">
 +                <cstring>ck_statusIndicator</cstring>
@@ -183,10 +175,10 @@ diff -urN psi-0.10.orig/src/options/opt_appearance-ui.ui psi-0.10/src/options/op
 +        </widget>
          <widget class="QGroupBox">
              <property name="name">
-                 <cstring>groupBox12</cstring>
+                 <cstring>groupBox4</cstring>
 diff -urN psi-0.10.orig/src/psiiconset.cpp psi-0.10/src/psiiconset.cpp
 --- psi-0.10.orig/src/psiiconset.cpp	2005-08-21 19:44:32.000000000 +0200
-+++ psi-0.10/src/psiiconset.cpp	2006-01-16 20:12:32.172009000 +0100
++++ psi-0.10/src/psiiconset.cpp	2006-01-21 18:38:28.425294000 +0100
 @@ -518,6 +518,19 @@
  	return Icon();
  }
@@ -209,7 +201,7 @@ diff -urN psi-0.10.orig/src/psiiconset.cpp psi-0.10/src/psiiconset.cpp
  	return d->jid2icon(jid, status2name(s));
 diff -urN psi-0.10.orig/src/psiiconset.h psi-0.10/src/psiiconset.h
 --- psi-0.10.orig/src/psiiconset.h	2005-08-21 19:44:27.000000000 +0200
-+++ psi-0.10/src/psiiconset.h	2006-01-16 20:12:32.542009000 +0100
++++ psi-0.10/src/psiiconset.h	2006-01-21 18:38:28.425294000 +0100
 @@ -61,9 +61,11 @@
  	// JID-enabled status functions
  	Icon *statusPtr(const XMPP::Jid &, int);
@@ -223,8 +215,8 @@ diff -urN psi-0.10.orig/src/psiiconset.h psi-0.10/src/psiiconset.h
  	// functions to get status icon by transport name
  	Icon *transportStatusPtr(QString name, int);
 diff -urN psi-0.10.orig/src/psi_profiles.cpp psi-0.10/src/psi_profiles.cpp
---- psi-0.10.orig/src/psi_profiles.cpp	2006-01-16 20:08:18.000000000 +0100
-+++ psi-0.10/src/psi_profiles.cpp	2006-01-16 20:15:42.392009000 +0100
+--- psi-0.10.orig/src/psi_profiles.cpp	2006-01-21 18:37:41.000000000 +0100
++++ psi-0.10/src/psi_profiles.cpp	2006-01-21 18:38:28.425294000 +0100
 @@ -428,6 +428,8 @@
  		prefs.font[fPopup] = font.toString();
  	}
