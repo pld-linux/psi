@@ -193,8 +193,169 @@ diff -urN psi-0.10.orig/src/groupchatdlg.cpp psi-0.10/src/groupchatdlg.cpp
  void GCMainDlg::optionsUpdate()
 diff -urN psi-0.10.orig/src/options/opt_appearance.cpp psi-0.10/src/options/opt_appearance.cpp
 --- psi-0.10.orig/src/options/opt_appearance.cpp	2006-01-21 19:04:56.000000000 +0100
-+++ psi-0.10/src/options/opt_appearance.cpp	2006-01-21 19:31:55.475294000 +0100
-@@ -212,6 +212,20 @@
++++ psi-0.10/src/options/opt_appearance.cpp	2006-01-22 14:56:26.320148000 +0100
+@@ -17,6 +17,7 @@
+ #include <qlineedit.h>
+ 
+ #include "opt_appearance-ui.h"
++#include "opt_appearance_fonts-ui.h"
+ #include "opt_appearance_misc-ui.h"
+ 
+ //----------------------------------------------------------------------------
+@@ -58,6 +59,7 @@
+ OptionsTabAppearance::OptionsTabAppearance(QObject *parent) : MetaOptionsTab(parent, "appearance", "", tr("Appearance"), tr("Psi's Appearance"), "psi/appearance")
+ {    
+ 	addTab( new OptionsTabAppearanceGeneral(this) );
++	addTab( new OptionsTabAppearanceFonts(this) );
+ 	addTab( new OptionsTabIconsetEmoticons(this) );
+ 	addTab( new OptionsTabIconsetRoster(this) );
+ 	addTab( new OptionsTabIconsetSystem(this) );
+@@ -130,48 +132,31 @@
+ }
+ 
+ //----------------------------------------------------------------------------
+-// OptionsTabAppearanceGeneral: Fonts & Colours
++// OptionsTabAppearanceFonts
+ //----------------------------------------------------------------------------
+ 
+-OptionsTabAppearanceGeneral::OptionsTabAppearanceGeneral(QObject *parent)
+-: OptionsTab(parent, "appearance_general", "", tr("Fonts && Colors"), tr("Fonts && Color Settings"))
++OptionsTabAppearanceFonts::OptionsTabAppearanceFonts(QObject *parent)
++: OptionsTab(parent, "appearance_fonts", "", tr("Fonts"), tr("Font Settings"))
+ {
+ 	w = 0;
+ 	bg_font = 0;
+-	bg_color = 0;
+ 	o = new Options;
+ }
+ 
+-OptionsTabAppearanceGeneral::~OptionsTabAppearanceGeneral()
++OptionsTabAppearanceFonts::~OptionsTabAppearanceFonts()
+ {
+ 	if ( bg_font )
+ 		delete bg_font;
+-	if ( bg_color )
+-		delete bg_color;
+ 	delete o;
+ }
+ 
+-static QPixmap name2color(QString name) // taken from opt_general.cpp
+-{
+-	QColor c(name);
+-	QPixmap pix(16, 16);
+-	QPainter p(&pix);
+-
+-	p.fillRect(0, 0, pix.width(), pix.height(), QBrush(c));
+-	p.setPen( QColor(0, 0, 0) );
+-	p.drawRect(0, 0, pix.width(), pix.height());
+-	p.end();
+-
+-	return pix;
+-}
+-
+-QWidget *OptionsTabAppearanceGeneral::widget()
++QWidget *OptionsTabAppearanceFonts::widget()
+ {
+ 	if ( w )
+ 		return 0;
+ 
+-	w = new OptAppearanceUI();
+-	OptAppearanceUI *d = (OptAppearanceUI *)w;
++	w = new OptAppearanceFontsUI();
++	OptAppearanceFontsUI *d = (OptAppearanceFontsUI *)w;
+ 
+ 	le_font[0] = d->le_fRoster;
+ 	le_font[1] = d->le_fMessage;
+@@ -200,6 +185,88 @@
+ 	QWhatsThis::add(d->pb_fChat,
+ 		tr("Selects a font for chat windows using the font selection dialog."));
+ 
++	return w;
++}
++
++void OptionsTabAppearanceFonts::applyOptions(Options *opt)
++{
++	if ( !w )
++		return;
++
++	int n;
++	for (n = 0; n < 4; ++n)
++		opt->font[n] = le_font[n]->fontName();
++}
++
++void OptionsTabAppearanceFonts::restoreOptions(const Options *opt)
++{
++	if ( !w )
++		return;
++
++	int n;
++	for (n = 0; n < 4; ++n)
++		le_font[n]->setFont(opt->font[n]);
++}
++
++void OptionsTabAppearanceFonts::setData(PsiCon *, QWidget *parentDialog)
++{
++	parentWidget = parentDialog;
++}
++
++void OptionsTabAppearanceFonts::chooseFont(int x)
++{
++	bool ok;
++	QFont font;
++	font.fromString( le_font[x]->fontName() );
++
++	QString fnt = QFontDialog::getFont(&ok, font, parentWidget).toString();
++	le_font[x]->setFont(fnt);
++
++	if(ok)
++		emit dataChanged();
++}
++
++//----------------------------------------------------------------------------
++// OptionsTabAppearanceGeneral: Colours
++//----------------------------------------------------------------------------
++
++OptionsTabAppearanceGeneral::OptionsTabAppearanceGeneral(QObject *parent)
++: OptionsTab(parent, "appearance_general", "", tr("Colors"), tr("Color Settings"))
++{
++	w = 0;
++	bg_color = 0;
++	o = new Options;
++}
++
++OptionsTabAppearanceGeneral::~OptionsTabAppearanceGeneral()
++{
++	if ( bg_color )
++		delete bg_color;
++	delete o;
++}
++
++static QPixmap name2color(QString name) // taken from opt_general.cpp
++{
++	QColor c(name);
++	QPixmap pix(16, 16);
++	QPainter p(&pix);
++
++	p.fillRect(0, 0, pix.width(), pix.height(), QBrush(c));
++	p.setPen( QColor(0, 0, 0) );
++	p.drawRect(0, 0, pix.width(), pix.height());
++	p.end();
++
++	return pix;
++}
++
++QWidget *OptionsTabAppearanceGeneral::widget()
++{
++	if ( w )
++		return 0;
++
++	w = new OptAppearanceUI();
++	OptAppearanceUI *d = (OptAppearanceUI *)w;
++
+ 	bg_color = new QButtonGroup;
+ 	bg_color->insert(d->pb_cOnline, 0);
+ 	bg_color->insert(d->pb_cOffline, 1);
+@@ -212,6 +279,20 @@
  	bg_color->insert(d->pb_cListBack, 8);
  	bg_color->insert(d->pb_cAnimFront, 9);
  	bg_color->insert(d->pb_cAnimBack, 10);
@@ -215,7 +376,7 @@ diff -urN psi-0.10.orig/src/options/opt_appearance.cpp psi-0.10/src/options/opt_
  	connect(bg_color, SIGNAL(clicked(int)), SLOT(chooseColor(int)));
  
  	QString s = tr("Specifies the text color for a contact name in the main window when that user is \"%1\".");
-@@ -233,6 +247,34 @@
+@@ -233,6 +314,34 @@
  		tr("Specifies the foreground animation color for nicks."));
  	QWhatsThis::add(d->pb_cAnimBack,
  		tr("Specifies the background animation color for nicks."));
@@ -250,28 +411,281 @@ diff -urN psi-0.10.orig/src/options/opt_appearance.cpp psi-0.10/src/options/opt_
  
  	// Avatars
  	//QWhatsThis::add(d->ck_avatarsChatdlg,
-@@ -253,7 +295,7 @@
- 	for (n = 0; n < 4; ++n)
- 		opt->font[n] = le_font[n]->fontName();
+@@ -250,10 +359,7 @@
+ 	//opt->avatarsChatdlgEnabled = d->ck_avatarsChatdlg->isChecked(); // Avatars
  
+ 	int n;
+-	for (n = 0; n < 4; ++n)
+-		opt->font[n] = le_font[n]->fontName();
+-
 -	for (n = 0; n < 11; ++n)
 +	for (n = 0; n < 25; ++n)
  		opt->color[n] = o->color[n];
  }
  
-@@ -269,7 +311,7 @@
- 	for (n = 0; n < 4; ++n)
- 		le_font[n]->setFont(opt->font[n]);
- 
+@@ -266,10 +372,7 @@
+ 	//d->ck_avatarsChatdlg->setChecked( opt->avatarsChatdlgEnabled ); // Avatars
+ 	
+ 	int n;
+-	for (n = 0; n < 4; ++n)
+-		le_font[n]->setFont(opt->font[n]);
+-
 -	for (n = 0; n < 11; ++n) {
 +	for (n = 0; n < 25; ++n) {
  		o->color[n] = opt->color[n];
  		((QPushButton *)bg_color->find(n))->setPixmap(name2color(opt->color[n].name()));
  	}
+@@ -280,19 +383,6 @@
+ 	parentWidget = parentDialog;
+ }
+ 
+-void OptionsTabAppearanceGeneral::chooseFont(int x)
+-{
+-	bool ok;
+-	QFont font;
+-	font.fromString( le_font[x]->fontName() );
+-
+-	QString fnt = QFontDialog::getFont(&ok, font, parentWidget).toString();
+-	le_font[x]->setFont(fnt);
+-
+-	if(ok)
+-		emit dataChanged();
+-}
+-
+ void OptionsTabAppearanceGeneral::chooseColor(int x)
+ {
+ 	QColor c = o->color[x];
+diff -urN psi-0.10.orig/src/options/opt_appearance_fonts-ui.ui psi-0.10/src/options/opt_appearance_fonts-ui.ui
+--- psi-0.10.orig/src/options/opt_appearance_fonts-ui.ui	1970-01-01 01:00:00.000000000 +0100
++++ psi-0.10/src/options/opt_appearance_fonts-ui.ui	2006-01-22 13:50:01.000148000 +0100
+@@ -0,0 +1,166 @@
++<!DOCTYPE UI><UI version="3.1" stdsetdef="1">
++<class>OptAppearanceFontsUI</class>
++<widget class="QWidget">
++    <property name="name">
++        <cstring>OptAppearanceFontsUI</cstring>
++    </property>
++    <property name="geometry">
++        <rect>
++            <x>0</x>
++            <y>0</y>
++            <width>314</width>
++            <height>137</height>
++        </rect>
++    </property>
++    <property name="caption">
++        <string>OptAppearanceFontsUI</string>
++    </property>
++    <vbox>
++        <property name="name">
++            <cstring>unnamed</cstring>
++        </property>
++        <property name="margin">
++            <number>0</number>
++        </property>
++        <widget class="QGroupBox">
++            <property name="name">
++                <cstring>groupBox12</cstring>
++            </property>
++            <property name="title">
++                <string>Fonts</string>
++            </property>
++            <grid>
++                <property name="name">
++                    <cstring>unnamed</cstring>
++                </property>
++                <property name="spacing">
++                    <number>3</number>
++                </property>
++                <widget class="QPushButton" row="1" column="2">
++                    <property name="name">
++                        <cstring>pb_fMessage</cstring>
++                    </property>
++                    <property name="text">
++                        <string>Choose</string>
++                    </property>
++                </widget>
++                <widget class="QPushButton" row="0" column="2">
++                    <property name="name">
++                        <cstring>pb_fRoster</cstring>
++                    </property>
++                    <property name="text">
++                        <string>Choose</string>
++                    </property>
++                </widget>
++                <widget class="QPushButton" row="2" column="2">
++                    <property name="name">
++                        <cstring>pb_fChat</cstring>
++                    </property>
++                    <property name="enabled">
++                        <bool>true</bool>
++                    </property>
++                    <property name="text">
++                        <string>Choose</string>
++                    </property>
++                </widget>
++                <widget class="QPushButton" row="3" column="2">
++                    <property name="name">
++                        <cstring>pb_fPopup</cstring>
++                    </property>
++                    <property name="enabled">
++                        <bool>true</bool>
++                    </property>
++                    <property name="text">
++                        <string>Choose</string>
++                    </property>
++                </widget>
++                <widget class="QLabel" row="3" column="0">
++                    <property name="name">
++                        <cstring>textLabel1</cstring>
++                    </property>
++                    <property name="text">
++                        <string>Popup</string>
++                    </property>
++                </widget>
++                <widget class="QLabel" row="0" column="0">
++                    <property name="name">
++                        <cstring>TextLabel1</cstring>
++                    </property>
++                    <property name="text">
++                        <string>Roster</string>
++                    </property>
++                </widget>
++                <widget class="QLabel" row="1" column="0">
++                    <property name="name">
++                        <cstring>TextLabel1_4</cstring>
++                    </property>
++                    <property name="text">
++                        <string>Message</string>
++                    </property>
++                </widget>
++                <widget class="QLabel" row="2" column="0">
++                    <property name="name">
++                        <cstring>TextLabel1_3</cstring>
++                    </property>
++                    <property name="enabled">
++                        <bool>true</bool>
++                    </property>
++                    <property name="text">
++                        <string>Chat</string>
++                    </property>
++                </widget>
++                <widget class="FontLabel" row="3" column="1">
++                    <property name="name">
++                        <cstring>le_fPopup</cstring>
++                    </property>
++                </widget>
++                <widget class="FontLabel" row="2" column="1">
++                    <property name="name">
++                        <cstring>le_fChat</cstring>
++                    </property>
++                </widget>
++                <widget class="FontLabel" row="1" column="1">
++                    <property name="name">
++                        <cstring>le_fMessage</cstring>
++                    </property>
++                </widget>
++                <widget class="FontLabel" row="0" column="1">
++                    <property name="name">
++                        <cstring>le_fRoster</cstring>
++                    </property>
++                </widget>
++            </grid>
++        </widget>
++    </vbox>
++</widget>
++<customwidgets>
++    <customwidget>
++        <class>FontLabel</class>
++        <header location="local">opt_appearance.h</header>
++        <sizehint>
++            <width>5</width>
++            <height>15</height>
++        </sizehint>
++        <container>0</container>
++        <sizepolicy>
++            <hordata>7</hordata>
++            <verdata>4</verdata>
++            <horstretch>0</horstretch>
++            <verstretch>0</verstretch>
++        </sizepolicy>
++        <pixmap>image0</pixmap>
++    </customwidget>
++</customwidgets>
++<images>
++    <image name="image0">
++        <data format="PNG" length="1002">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b000003b149444154789cad945f4c5b551cc73fe7dc4b7b4bcba0762d45c43114323599ee6192609c51d883892ce083f1718b3ebb185f8dc91e972cf39d2d2a2f1af664b6f1e0fe3863a0718969700eb0c52142da0242a1bd6d696f7bcff101585203ceb8fd9ece39f99dcff9fe7edf939f88c562ec465f5f9fe609442c161362173c3e3eae7b7a7ac8e7f36432196cdbfe4f907c3e4f2291201e8fe338cec3737357e9e8e828aded1e229d650e1f2d51754b082110124c13a4dc5ea341eb9dc284c0558a853f3ce8cb0677ef500fde7d39d2596679e326597b8e9abb85d7a770ab16ab6983ec5a05b487a70e36f0f4e10afe408d6a558310980108478dba4a1e8233990c5d474b64ed39aa3a8fe5f3317fbf81dbd70bccfeb205947632fd74f6589c1c6ea2f70d03a58ba0c1f2c9bdc1b66de3b8256a6e11cbe7e3ee1d181b590124fe2693aeee08d223c82c3a2c24b7b874bec8f26288774f7bd054504aef0dde6e99c0eb83f9fb266323cb80a27fb0958141836044605a2ee5523393371cc646fee2da37195aa35d0c0c5b4859ac03d7e91712dcaac5adab3650a3ff9d08ef7dd8404bb48869e5d958b5b87dadc4c9a1464e9f0d0326df7ebd86bd2e310cb1bf62d384d59441f2d70a070e1c60e09489929b988681bdd9cc97170bcc4c65595f71f8e0e3301337fc24a7732467831875a47f289652b0be5e4151e6d07316c1b0c0340d8ab92023e76d66a6b2840e36d2fb7a13fee632475e6edc367ea98a90fb98b7dd6310ca0328a44761582e1bab41befabcc0ec940d28bc5e93b68e064cab84e1d9beaeb48934eac1f53b01c1b000fca496aa54b61a99fcde61662a4b4b4b23d1680be9d426173e4df3602a48ea411989a4fd590f52a8fd156b05ed9d350e3defe3cfdf4b4c7ce770ea7d3fb9f520afbe1620daeee5c26735d20b9b9cfb6811a754a439e4e5c5639a4caa1e5caf586bfc0197b78702005cb9b4cae4cd3267ce8638fe964bd72b393e39d74928d242617303a756a37f284447770dcdbffc6384a05a85de1306e9a52057c7527c7131c3c42d3f475eb2303c82d4fc3276d6811db37efeb148723082d9b08f79f97c1e5729109a9a28307cc622d2d6cdf52b2b24efe548dedb00142009862cfa879ee1a71f6cec928353511472fbf4389148b0b0e0c108081412458dfe21c9f11351e67e7358595468246d1d1e5e38a6e9e851bc39d84ab502a669331dafec0d8ec7e3e8cb06e1a881d727d1ae40180a434a8c9db129a54126ad48a7358c2b4c5352c8c374bcccdab2bb37d8719cba79fab8211f9df218e0582c261e95f8bfc04f1a1e8bc5c4dfe0a19017a725d8c60000000049454e44ae426082</data>
++    </image>
++</images>
++<tabstops>
++    <tabstop>pb_fRoster</tabstop>
++    <tabstop>pb_fMessage</tabstop>
++    <tabstop>pb_fChat</tabstop>
++    <tabstop>pb_fPopup</tabstop>
++</tabstops>
++<layoutdefaults spacing="6" margin="11"/>
++</UI>
+diff -urN psi-0.10.orig/src/options/opt_appearance.h psi-0.10/src/options/opt_appearance.h
+--- psi-0.10.orig/src/options/opt_appearance.h	2005-08-21 19:44:38.000000000 +0200
++++ psi-0.10/src/options/opt_appearance.h	2006-01-22 13:37:05.970148000 +0100
+@@ -52,6 +52,28 @@
+ 	Options *o;
+ };
+ 
++class OptionsTabAppearanceFonts : public OptionsTab
++{
++	Q_OBJECT
++public:
++	OptionsTabAppearanceFonts(QObject *parent);
++	~OptionsTabAppearanceFonts();
++
++	QWidget *widget();
++	void applyOptions(Options *opt);
++	void restoreOptions(const Options *opt);
++
++private slots:
++	void setData(PsiCon *, QWidget *);
++	void chooseFont(int);
++
++private:
++	QWidget *w, *parentWidget;
++	FontLabel *le_font[4];
++	QButtonGroup *bg_font;
++	Options *o;
++};
++
+ class OptionsTabAppearanceGeneral : public OptionsTab
+ {
+ 	Q_OBJECT
+@@ -66,13 +88,10 @@
+ private slots:
+ 	void setData(PsiCon *, QWidget *);
+ 	void chooseColor(int);
+-	void chooseFont(int);
+ 
+ private:
+ 	QWidget *w, *parentWidget;
+ 	QButtonGroup *bg_color;
+-	FontLabel *le_font[4];
+-	QButtonGroup *bg_font;
+ 	Options *o;
+ };
+ 
 diff -urN psi-0.10.orig/src/options/opt_appearance-ui.ui psi-0.10/src/options/opt_appearance-ui.ui
 --- psi-0.10.orig/src/options/opt_appearance-ui.ui	2005-10-14 02:36:14.000000000 +0200
-+++ psi-0.10/src/options/opt_appearance-ui.ui	2006-01-21 19:41:24.765294000 +0100
-@@ -36,25 +36,99 @@
++++ psi-0.10/src/options/opt_appearance-ui.ui	2006-01-22 13:45:41.130148000 +0100
+@@ -8,8 +8,8 @@
+         <rect>
+             <x>0</x>
+             <y>0</y>
+-            <width>314</width>
+-            <height>461</height>
++            <width>436</width>
++            <height>276</height>
+         </rect>
+     </property>
+     <property name="caption">
+@@ -36,25 +36,77 @@
                  <property name="spacing">
                      <number>3</number>
                  </property>
@@ -354,40 +768,30 @@ diff -urN psi-0.10.orig/src/options/opt_appearance-ui.ui psi-0.10/src/options/op
 +                <widget class="QToolButton" row="3" column="4">
 +                    <property name="name">
 +                        <cstring>pb_cChatSpool</cstring>
-+                    </property>
-+                    <property name="sizePolicy">
-+                        <sizepolicy>
-+                            <hsizetype>0</hsizetype>
-+                            <vsizetype>0</vsizetype>
-+                            <horstretch>0</horstretch>
-+                            <verstretch>0</verstretch>
-+                        </sizepolicy>
-+                    </property>
-+                    <property name="maximumSize">
-+                        <size>
-+                            <width>20</width>
-+                            <height>20</height>
-+                        </size>
-+                    </property>
-+                    <property name="text">
-+                        <string></string>
-+                    </property>
-+                </widget>
+                     </property>
+                     <property name="sizePolicy">
+                         <sizepolicy>
+@@ -74,9 +126,9 @@
+                         <string></string>
+                     </property>
+                 </widget>
+-                <widget class="QToolButton" row="10" column="1">
 +                <widget class="QToolButton" row="10" column="4">
-+                    <property name="name">
+                     <property name="name">
+-                        <cstring>pb_cAnimBack</cstring>
 +                        <cstring>pb_cGChatSpool</cstring>
                      </property>
                      <property name="sizePolicy">
                          <sizepolicy>
-@@ -96,33 +170,179 @@
+@@ -96,33 +148,75 @@
                          <string></string>
                      </property>
                  </widget>
 -                <widget class="QLabel" row="1" column="0">
-+                <widget class="QToolButton" row="12" column="1">
++                <widget class="QToolButton" row="10" column="1">
                      <property name="name">
 -                        <cstring>TextLabel1_2_3</cstring>
-+                        <cstring>pb_cMsgText</cstring>
++                        <cstring>pb_cAnimBack</cstring>
 +                    </property>
 +                    <property name="sizePolicy">
 +                        <sizepolicy>
@@ -409,10 +813,10 @@ diff -urN psi-0.10.orig/src/options/opt_appearance-ui.ui psi-0.10/src/options/op
                      </property>
                  </widget>
 -                <widget class="QLabel" row="2" column="0">
-+                <widget class="QToolButton" row="0" column="4">
++                <widget class="QToolButton" row="12" column="1">
                      <property name="name">
 -                        <cstring>TextLabel1_2</cstring>
-+                        <cstring>pb_cChatBG</cstring>
++                        <cstring>pb_cMsgText</cstring>
 +                    </property>
 +                    <property name="sizePolicy">
 +                        <sizepolicy>
@@ -434,10 +838,10 @@ diff -urN psi-0.10.orig/src/options/opt_appearance-ui.ui psi-0.10/src/options/op
                      </property>
                  </widget>
 -                <widget class="QLabel" row="0" column="0">
-+                <widget class="QToolButton" row="6" column="4">
++                <widget class="QToolButton" row="0" column="4">
                      <property name="name">
 -                        <cstring>TextLabel1_2_6</cstring>
-+                        <cstring>pb_cGChatBG</cstring>
++                        <cstring>pb_cChatBG</cstring>
 +                    </property>
 +                    <property name="sizePolicy">
 +                        <sizepolicy>
@@ -459,9 +863,21 @@ diff -urN psi-0.10.orig/src/options/opt_appearance-ui.ui psi-0.10/src/options/op
                      </property>
                  </widget>
 -                <widget class="QToolButton" row="5" column="1">
-+                <widget class="QLabel" row="10" column="0">
++                <widget class="QToolButton" row="6" column="4">
                      <property name="name">
 -                        <cstring>pb_cProfileBack</cstring>
++                        <cstring>pb_cGChatBG</cstring>
+                     </property>
+                     <property name="sizePolicy">
+                         <sizepolicy>
+@@ -142,9 +236,113 @@
+                         <string></string>
+                     </property>
+                 </widget>
+-                <widget class="QToolButton" row="7" column="1">
++                <widget class="QLabel" row="10" column="0">
+                     <property name="name">
+-                        <cstring>pb_cGroupBack</cstring>
 +                        <cstring>TextLabel1_2_6_2_2</cstring>
 +                    </property>
 +                    <property name="text">
@@ -529,7 +945,7 @@ diff -urN psi-0.10.orig/src/options/opt_appearance-ui.ui psi-0.10/src/options/op
 +                        <cstring>text2_2_4</cstring>
 +                    </property>
 +                    <property name="text">
-+                        <string>Groupchat Nicks</string>
++                        <string>Groupchat Non-colored Nicks</string>
 +                    </property>
 +                </widget>
 +                <widget class="QLabel" row="3" column="3">
@@ -570,154 +986,87 @@ diff -urN psi-0.10.orig/src/options/opt_appearance-ui.ui psi-0.10/src/options/op
                      </property>
                      <property name="sizePolicy">
                          <sizepolicy>
-@@ -142,9 +362,9 @@
-                         <string></string>
-                     </property>
-                 </widget>
--                <widget class="QToolButton" row="7" column="1">
-+                <widget class="QToolButton" row="1" column="4">
-                     <property name="name">
--                        <cstring>pb_cGroupBack</cstring>
-+                        <cstring>pb_cChatMessage</cstring>
-                     </property>
-                     <property name="sizePolicy">
-                         <sizepolicy>
-@@ -164,9 +384,9 @@
+@@ -164,9 +362,9 @@
                          <string></string>
                      </property>
                  </widget>
 -                <widget class="QToolButton" row="3" column="1">
-+                <widget class="QToolButton" row="7" column="4">
++                <widget class="QToolButton" row="1" column="4">
                      <property name="name">
 -                        <cstring>pb_cDND</cstring>
-+                        <cstring>pb_cGChatMessage</cstring>
++                        <cstring>pb_cChatMessage</cstring>
                      </property>
                      <property name="sizePolicy">
                          <sizepolicy>
-@@ -186,9 +406,9 @@
+@@ -186,9 +384,9 @@
                          <string></string>
                      </property>
                  </widget>
 -                <widget class="QToolButton" row="1" column="1">
-+                <widget class="QToolButton" row="8" column="4">
++                <widget class="QToolButton" row="7" column="4">
                      <property name="name">
 -                        <cstring>pb_cOffline</cstring>
-+                        <cstring>pb_cGChatAlert</cstring>
++                        <cstring>pb_cGChatMessage</cstring>
                      </property>
                      <property name="sizePolicy">
                          <sizepolicy>
-@@ -208,9 +428,9 @@
+@@ -208,9 +406,9 @@
                          <string></string>
                      </property>
                  </widget>
 -                <widget class="QToolButton" row="4" column="1">
-+                <widget class="QToolButton" row="11" column="4">
++                <widget class="QToolButton" row="8" column="4">
                      <property name="name">
 -                        <cstring>pb_cProfileFore</cstring>
-+                        <cstring>pb_cGChatNick</cstring>
++                        <cstring>pb_cGChatAlert</cstring>
                      </property>
                      <property name="sizePolicy">
                          <sizepolicy>
-@@ -230,9 +450,9 @@
+@@ -230,9 +428,9 @@
                          <string></string>
                      </property>
                  </widget>
 -                <widget class="QToolButton" row="6" column="1">
-+                <widget class="QToolButton" row="4" column="4">
++                <widget class="QToolButton" row="11" column="4">
                      <property name="name">
 -                        <cstring>pb_cGroupFore</cstring>
-+                        <cstring>pb_cChatTo</cstring>
++                        <cstring>pb_cGChatNick</cstring>
                      </property>
                      <property name="sizePolicy">
                          <sizepolicy>
-@@ -252,9 +472,53 @@
+@@ -252,9 +450,9 @@
                          <string></string>
                      </property>
                  </widget>
 -                <widget class="QToolButton" row="9" column="1">
-+                <widget class="QToolButton" row="2" column="4">
++                <widget class="QToolButton" row="4" column="4">
                      <property name="name">
 -                        <cstring>pb_cAnimFront</cstring>
-+                        <cstring>pb_cChatSys</cstring>
-+                    </property>
-+                    <property name="sizePolicy">
-+                        <sizepolicy>
-+                            <hsizetype>0</hsizetype>
-+                            <vsizetype>0</vsizetype>
-+                            <horstretch>0</horstretch>
-+                            <verstretch>0</verstretch>
-+                        </sizepolicy>
-+                    </property>
-+                    <property name="maximumSize">
-+                        <size>
-+                            <width>20</width>
-+                            <height>20</height>
-+                        </size>
-+                    </property>
-+                    <property name="text">
-+                        <string></string>
-+                    </property>
-+                </widget>
-+                <widget class="QToolButton" row="9" column="4">
-+                    <property name="name">
-+                        <cstring>pb_cGChatSys</cstring>
-+                    </property>
-+                    <property name="sizePolicy">
-+                        <sizepolicy>
-+                            <hsizetype>0</hsizetype>
-+                            <vsizetype>0</vsizetype>
-+                            <horstretch>0</horstretch>
-+                            <verstretch>0</verstretch>
-+                        </sizepolicy>
-+                    </property>
-+                    <property name="maximumSize">
-+                        <size>
-+                            <width>20</width>
-+                            <height>20</height>
-+                        </size>
-+                    </property>
-+                    <property name="text">
-+                        <string></string>
-+                    </property>
-+                </widget>
-+                <widget class="QToolButton" row="2" column="1">
-+                    <property name="name">
-+                        <cstring>pb_cAway</cstring>
++                        <cstring>pb_cChatTo</cstring>
                      </property>
                      <property name="sizePolicy">
                          <sizepolicy>
-@@ -274,6 +538,22 @@
+@@ -274,9 +472,9 @@
                          <string></string>
                      </property>
                  </widget>
-+                <widget class="QLabel" row="6" column="0">
-+                    <property name="name">
-+                        <cstring>TextLabel1_2_5</cstring>
-+                    </property>
-+                    <property name="text">
-+                        <string>Group Heading Foreground</string>
-+                    </property>
-+                </widget>
-+                <widget class="QLabel" row="0" column="0">
-+                    <property name="name">
-+                        <cstring>TextLabel1_2_6</cstring>
-+                    </property>
-+                    <property name="text">
-+                        <string>Online Contacts</string>
-+                    </property>
-+                </widget>
-                 <widget class="QToolButton" row="0" column="1">
+-                <widget class="QToolButton" row="0" column="1">
++                <widget class="QToolButton" row="2" column="4">
                      <property name="name">
-                         <cstring>pb_cOnline</cstring>
-@@ -296,12 +576,48 @@
+-                        <cstring>pb_cOnline</cstring>
++                        <cstring>pb_cChatSys</cstring>
+                     </property>
+                     <property name="sizePolicy">
+                         <sizepolicy>
+@@ -296,57 +494,113 @@
                          <string></string>
                      </property>
                  </widget>
 -                <widget class="QLabel" row="9" column="0">
-+                <widget class="QToolButton" row="3" column="1">
++                <widget class="QToolButton" row="9" column="4">
                      <property name="name">
 -                        <cstring>text3</cstring>
-+                        <cstring>pb_cDND</cstring>
++                        <cstring>pb_cGChatSys</cstring>
 +                    </property>
 +                    <property name="sizePolicy">
 +                        <sizepolicy>
@@ -736,11 +1085,13 @@ diff -urN psi-0.10.orig/src/options/opt_appearance-ui.ui psi-0.10/src/options/op
                      <property name="text">
 -                        <string>Nick Animation Foreground</string>
 +                        <string></string>
-+                    </property>
-+                </widget>
-+                <widget class="QToolButton" row="4" column="1">
-+                    <property name="name">
-+                        <cstring>pb_cProfileFore</cstring>
+                     </property>
+                 </widget>
+-                <widget class="QLabel" row="3" column="0">
++                <widget class="QToolButton" row="2" column="1">
+                     <property name="name">
+-                        <cstring>TextLabel1_2_6_2</cstring>
++                        <cstring>pb_cAway</cstring>
 +                    </property>
 +                    <property name="sizePolicy">
 +                        <sizepolicy>
@@ -755,21 +1106,39 @@ diff -urN psi-0.10.orig/src/options/opt_appearance-ui.ui psi-0.10/src/options/op
 +                            <width>20</width>
 +                            <height>20</height>
 +                        </size>
-+                    </property>
-+                    <property name="text">
-+                        <string></string>
                      </property>
-                 </widget>
-                 <widget class="QLabel" row="3" column="0">
-@@ -312,20 +628,58 @@
-                         <string>DND Contacts</string>
+                     <property name="text">
+-                        <string>DND Contacts</string>
++                        <string></string>
                      </property>
                  </widget>
 -                <widget class="QLabel" row="8" column="0">
-+                <widget class="QToolButton" row="1" column="1">
++                <widget class="QLabel" row="6" column="0">
                      <property name="name">
 -                        <cstring>text2</cstring>
-+                        <cstring>pb_cOffline</cstring>
++                        <cstring>TextLabel1_2_5</cstring>
+                     </property>
+                     <property name="text">
+-                        <string>Contact List Background</string>
++                        <string>Group Heading Foreground</string>
+                     </property>
+                 </widget>
+-                <widget class="QLabel" row="10" column="0">
++                <widget class="QLabel" row="0" column="0">
+                     <property name="name">
+-                        <cstring>text4</cstring>
++                        <cstring>TextLabel1_2_6</cstring>
+                     </property>
+                     <property name="text">
+-                        <string>Nick Animation Background</string>
++                        <string>Online Contacts</string>
+                     </property>
+                 </widget>
+-                <widget class="QLabel" row="4" column="0">
++                <widget class="QToolButton" row="0" column="1">
+                     <property name="name">
+-                        <cstring>TextLabel1_2_5_1</cstring>
++                        <cstring>pb_cOnline</cstring>
 +                    </property>
 +                    <property name="sizePolicy">
 +                        <sizepolicy>
@@ -786,55 +1155,15 @@ diff -urN psi-0.10.orig/src/options/opt_appearance-ui.ui psi-0.10/src/options/op
 +                        </size>
                      </property>
                      <property name="text">
--                        <string>Contact List Background</string>
+-                        <string>Account Heading Foreground</string>
 +                        <string></string>
                      </property>
                  </widget>
--                <widget class="QLabel" row="10" column="0">
-+                <widget class="QLabel" row="1" column="0">
-                     <property name="name">
--                        <cstring>text4</cstring>
-+                        <cstring>TextLabel1_2_3</cstring>
-                     </property>
-                     <property name="text">
--                        <string>Nick Animation Background</string>
-+                        <string>Offline Contacts</string>
-+                    </property>
-+                </widget>
-+                <widget class="QLabel" row="2" column="0">
-+                    <property name="name">
-+                        <cstring>TextLabel1_2</cstring>
-+                    </property>
-+                    <property name="text">
-+                        <string>Away Contacts</string>
-+                    </property>
-+                </widget>
-+                <widget class="QLabel" row="7" column="0">
-+                    <property name="name">
-+                        <cstring>text</cstring>
-+                    </property>
-+                    <property name="text">
-+                        <string>Group Heading Background</string>
-+                    </property>
-+                </widget>
-+                <widget class="QLabel" row="8" column="0">
-+                    <property name="name">
-+                        <cstring>text2</cstring>
-+                    </property>
-+                    <property name="text">
-+                        <string>Contact List Background</string>
-                     </property>
-                 </widget>
-                 <widget class="QLabel" row="4" column="0">
-@@ -336,17 +690,53 @@
-                         <string>Account Heading Foreground</string>
-                     </property>
-                 </widget>
 -                <widget class="QLabel" row="6" column="0">
-+                <widget class="QToolButton" row="7" column="1">
++                <widget class="QToolButton" row="3" column="1">
                      <property name="name">
 -                        <cstring>TextLabel1_2_5</cstring>
-+                        <cstring>pb_cGroupBack</cstring>
++                        <cstring>pb_cDND</cstring>
 +                    </property>
 +                    <property name="sizePolicy">
 +                        <sizepolicy>
@@ -856,10 +1185,183 @@ diff -urN psi-0.10.orig/src/options/opt_appearance-ui.ui psi-0.10/src/options/op
                      </property>
                  </widget>
 -                <widget class="QToolButton" row="2" column="1">
-+                <widget class="QToolButton" row="8" column="1">
++                <widget class="QToolButton" row="4" column="1">
                      <property name="name">
 -                        <cstring>pb_cAway</cstring>
++                        <cstring>pb_cProfileFore</cstring>
+                     </property>
+                     <property name="sizePolicy">
+                         <sizepolicy>
+@@ -366,142 +620,190 @@
+                         <string></string>
+                     </property>
+                 </widget>
+-            </grid>
+-        </widget>
+-        <widget class="QGroupBox">
+-            <property name="name">
+-                <cstring>groupBox12</cstring>
+-            </property>
+-            <property name="title">
+-                <string>Fonts</string>
+-            </property>
+-            <grid>
+-                <property name="name">
+-                    <cstring>unnamed</cstring>
+-                </property>
+-                <property name="spacing">
+-                    <number>3</number>
+-                </property>
+-                <widget class="QPushButton" row="1" column="2">
++                <widget class="QLabel" row="3" column="0">
+                     <property name="name">
+-                        <cstring>pb_fMessage</cstring>
++                        <cstring>TextLabel1_2_6_2</cstring>
+                     </property>
+                     <property name="text">
+-                        <string>Choose</string>
++                        <string>DND Contacts</string>
+                     </property>
+                 </widget>
+-                <widget class="QPushButton" row="0" column="2">
++                <widget class="QToolButton" row="1" column="1">
+                     <property name="name">
+-                        <cstring>pb_fRoster</cstring>
++                        <cstring>pb_cOffline</cstring>
++                    </property>
++                    <property name="sizePolicy">
++                        <sizepolicy>
++                            <hsizetype>0</hsizetype>
++                            <vsizetype>0</vsizetype>
++                            <horstretch>0</horstretch>
++                            <verstretch>0</verstretch>
++                        </sizepolicy>
++                    </property>
++                    <property name="maximumSize">
++                        <size>
++                            <width>20</width>
++                            <height>20</height>
++                        </size>
+                     </property>
+                     <property name="text">
+-                        <string>Choose</string>
++                        <string></string>
+                     </property>
+                 </widget>
+-                <widget class="QPushButton" row="2" column="2">
++                <widget class="QLabel" row="1" column="0">
+                     <property name="name">
+-                        <cstring>pb_fChat</cstring>
+-                    </property>
+-                    <property name="enabled">
+-                        <bool>true</bool>
++                        <cstring>TextLabel1_2_3</cstring>
+                     </property>
+                     <property name="text">
+-                        <string>Choose</string>
++                        <string>Offline Contacts</string>
+                     </property>
+                 </widget>
+-                <widget class="QPushButton" row="3" column="2">
++                <widget class="QLabel" row="2" column="0">
+                     <property name="name">
+-                        <cstring>pb_fPopup</cstring>
++                        <cstring>TextLabel1_2</cstring>
+                     </property>
+-                    <property name="enabled">
+-                        <bool>true</bool>
++                    <property name="text">
++                        <string>Away Contacts</string>
++                    </property>
++                </widget>
++                <widget class="QLabel" row="7" column="0">
++                    <property name="name">
++                        <cstring>text</cstring>
+                     </property>
+                     <property name="text">
+-                        <string>Choose</string>
++                        <string>Group Heading Background</string>
+                     </property>
+                 </widget>
+-                <widget class="QLabel" row="3" column="0">
++                <widget class="QLabel" row="8" column="0">
+                     <property name="name">
+-                        <cstring>textLabel1</cstring>
++                        <cstring>text2</cstring>
+                     </property>
+                     <property name="text">
+-                        <string>Popup</string>
++                        <string>Contact List Background</string>
+                     </property>
+                 </widget>
+-                <widget class="QLabel" row="0" column="0">
++                <widget class="QLabel" row="4" column="0">
+                     <property name="name">
+-                        <cstring>TextLabel1</cstring>
++                        <cstring>TextLabel1_2_5_1</cstring>
+                     </property>
+                     <property name="text">
+-                        <string>Roster</string>
++                        <string>Account Heading Foreground</string>
+                     </property>
+                 </widget>
+-                <widget class="QLabel" row="1" column="0">
++                <widget class="QToolButton" row="7" column="1">
+                     <property name="name">
+-                        <cstring>TextLabel1_4</cstring>
++                        <cstring>pb_cGroupBack</cstring>
++                    </property>
++                    <property name="sizePolicy">
++                        <sizepolicy>
++                            <hsizetype>0</hsizetype>
++                            <vsizetype>0</vsizetype>
++                            <horstretch>0</horstretch>
++                            <verstretch>0</verstretch>
++                        </sizepolicy>
++                    </property>
++                    <property name="maximumSize">
++                        <size>
++                            <width>20</width>
++                            <height>20</height>
++                        </size>
+                     </property>
+                     <property name="text">
+-                        <string>Message</string>
++                        <string></string>
+                     </property>
+                 </widget>
+-                <widget class="QLabel" row="2" column="0">
++                <widget class="QToolButton" row="8" column="1">
+                     <property name="name">
+-                        <cstring>TextLabel1_3</cstring>
 +                        <cstring>pb_cListBack</cstring>
++                    </property>
++                    <property name="sizePolicy">
++                        <sizepolicy>
++                            <hsizetype>0</hsizetype>
++                            <vsizetype>0</vsizetype>
++                            <horstretch>0</horstretch>
++                            <verstretch>0</verstretch>
++                        </sizepolicy>
+                     </property>
+-                    <property name="enabled">
+-                        <bool>true</bool>
++                    <property name="maximumSize">
++                        <size>
++                            <width>20</width>
++                            <height>20</height>
++                        </size>
+                     </property>
+                     <property name="text">
+-                        <string>Chat</string>
++                        <string></string>
+                     </property>
+                 </widget>
+-                <widget class="FontLabel" row="3" column="1">
++                <widget class="QToolButton" row="5" column="1">
+                     <property name="name">
+-                        <cstring>le_fPopup</cstring>
++                        <cstring>pb_cProfileBack</cstring>
 +                    </property>
 +                    <property name="sizePolicy">
 +                        <sizepolicy>
@@ -877,20 +1379,12 @@ diff -urN psi-0.10.orig/src/options/opt_appearance-ui.ui psi-0.10/src/options/op
 +                    </property>
 +                    <property name="text">
 +                        <string></string>
-+                    </property>
-+                </widget>
-+                <widget class="QToolButton" row="5" column="1">
-+                    <property name="name">
-+                        <cstring>pb_cProfileBack</cstring>
-                     </property>
-                     <property name="sizePolicy">
-                         <sizepolicy>
-@@ -366,6 +756,50 @@
-                         <string></string>
                      </property>
                  </widget>
+-                <widget class="FontLabel" row="2" column="1">
 +                <widget class="QToolButton" row="6" column="1">
-+                    <property name="name">
+                     <property name="name">
+-                        <cstring>le_fChat</cstring>
 +                        <cstring>pb_cGroupFore</cstring>
 +                    </property>
 +                    <property name="sizePolicy">
@@ -909,18 +1403,22 @@ diff -urN psi-0.10.orig/src/options/opt_appearance-ui.ui psi-0.10/src/options/op
 +                    </property>
 +                    <property name="text">
 +                        <string></string>
-+                    </property>
-+                </widget>
+                     </property>
+                 </widget>
+-                <widget class="FontLabel" row="1" column="1">
 +                <widget class="QLabel" row="5" column="0">
-+                    <property name="name">
+                     <property name="name">
+-                        <cstring>le_fMessage</cstring>
 +                        <cstring>text_1</cstring>
 +                    </property>
 +                    <property name="text">
 +                        <string>Account Heading Background</string>
-+                    </property>
-+                </widget>
+                     </property>
+                 </widget>
+-                <widget class="FontLabel" row="0" column="1">
 +                <widget class="Line" row="0" column="2" rowspan="13" colspan="1">
-+                    <property name="name">
+                     <property name="name">
+-                        <cstring>le_fRoster</cstring>
 +                        <cstring>line1</cstring>
 +                    </property>
 +                    <property name="frameShape">
@@ -931,15 +1429,46 @@ diff -urN psi-0.10.orig/src/options/opt_appearance-ui.ui psi-0.10/src/options/op
 +                    </property>
 +                    <property name="orientation">
 +                        <enum>Vertical</enum>
-+                    </property>
-+                </widget>
+                     </property>
+                 </widget>
              </grid>
          </widget>
-         <widget class="QGroupBox">
-@@ -514,6 +948,20 @@
+     </vbox>
+ </widget>
+-<customwidgets>
+-    <customwidget>
+-        <class>FontLabel</class>
+-        <header location="local">opt_appearance.h</header>
+-        <sizehint>
+-            <width>5</width>
+-            <height>15</height>
+-        </sizehint>
+-        <container>0</container>
+-        <sizepolicy>
+-            <hordata>7</hordata>
+-            <verdata>4</verdata>
+-            <horstretch>0</horstretch>
+-            <verstretch>0</verstretch>
+-        </sizepolicy>
+-        <pixmap>image0</pixmap>
+-    </customwidget>
+-</customwidgets>
+-<images>
+-    <image name="image0">
+-        <data format="PNG" length="1002">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b000003b149444154789cad945f4c5b551cc73fe7dc4b7b4bcba0762d45c43114323599ee6192609c51d883892ce083f1718b3ebb185f8dc91e972cf39d2d2a2f1af664b6f1e0fe3863a0718969700eb0c52142da0242a1bd6d696f7bcff101585203ceb8fd9ece39f99dcff9fe7edf939f88c562ec465f5f9fe609442c161362173c3e3eae7b7a7ac8e7f36432196cdbfe4f907c3e4f2291201e8fe338cec3737357e9e8e828aded1e229d650e1f2d51754b082110124c13a4dc5ea341eb9dc284c0558a853f3ce8cb0677ef500fde7d39d2596679e326597b8e9abb85d7a770ab16ab6983ec5a05b487a70e36f0f4e10afe408d6a558310980108478dba4a1e8233990c5d474b64ed39aa3a8fe5f3317fbf81dbd70bccfeb205947632fd74f6589c1c6ea2f70d03a58ba0c1f2c9bdc1b66de3b8256a6e11cbe7e3ee1d181b590124fe2693aeee08d223c82c3a2c24b7b874bec8f26288774f7bd054504aef0dde6e99c0eb83f9fb266323cb80a27fb0958141836044605a2ee5523393371cc646fee2da37195aa35d0c0c5b4859ac03d7e91712dcaac5adab3650a3ff9d08ef7dd8404bb48869e5d958b5b87dadc4c9a1464e9f0d0326df7ebd86bd2e310cb1bf62d384d59441f2d70a070e1c60e09489929b988681bdd9cc97170bcc4c65595f71f8e0e3301337fc24a7732467831875a47f289652b0be5e4151e6d07316c1b0c0340d8ab92023e76d66a6b2840e36d2fb7a13fee632475e6edc367ea98a90fb98b7dd6310ca0328a44761582e1bab41befabcc0ec940d28bc5e93b68e064cab84e1d9beaeb48934eac1f53b01c1b000fca496aa54b61a99fcde61662a4b4b4b23d1680be9d426173e4df3602a48ea411989a4fd590f52a8fd156b05ed9d350e3defe3cfdf4b4c7ce770ea7d3fb9f520afbe1620daeee5c26735d20b9b9cfb6811a754a439e4e5c5639a4caa1e5caf586bfc0197b78702005cb9b4cae4cd3267ce8638fe964bd72b393e39d74928d242617303a756a37f284447770dcdbffc6384a05a85de1306e9a52057c7527c7131c3c42d3f475eb2303c82d4fc3276d6811db37efeb148723082d9b08f79f97c1e5729109a9a28307cc622d2d6cdf52b2b24efe548dedb00142009862cfa879ee1a71f6cec928353511472fbf4389148b0b0e0c108081412458dfe21c9f11351e67e7358595468246d1d1e5e38a6e9e851bc39d84ab502a669331dafec0d8ec7e3e8cb06e1a881d727d1ae40180a434a8c9db129a54126ad48a7358c2b4c5352c8c374bcccdab2bb37d8719cba79fab8211f9df218e0582c261e95f8bfc04f1a1e8bc5c4dfe0a19017a725d8c60000000049454e44ae426082</data>
+-    </image>
+-</images>
+ <tabstops>
+     <tabstop>pb_cOnline</tabstop>
+     <tabstop>pb_cOffline</tabstop>
+@@ -514,10 +816,20 @@
      <tabstop>pb_cListBack</tabstop>
      <tabstop>pb_cAnimFront</tabstop>
      <tabstop>pb_cAnimBack</tabstop>
+-    <tabstop>pb_fRoster</tabstop>
+-    <tabstop>pb_fMessage</tabstop>
+-    <tabstop>pb_fChat</tabstop>
+-    <tabstop>pb_fPopup</tabstop>
 +    <tabstop>pb_cMsgBG</tabstop>
 +    <tabstop>pb_cMsgText</tabstop>
 +    <tabstop>pb_cChatBG</tabstop>
@@ -954,9 +1483,9 @@ diff -urN psi-0.10.orig/src/options/opt_appearance-ui.ui psi-0.10/src/options/op
 +    <tabstop>pb_cGChatSys</tabstop>
 +    <tabstop>pb_cGChatSpool</tabstop>
 +    <tabstop>pb_cGChatNick</tabstop>
-     <tabstop>pb_fRoster</tabstop>
-     <tabstop>pb_fMessage</tabstop>
-     <tabstop>pb_fChat</tabstop>
+ </tabstops>
+ <layoutdefaults spacing="6" margin="11"/>
+ </UI>
 diff -urN psi-0.10.orig/src/options/opt_chat.cpp psi-0.10/src/options/opt_chat.cpp
 --- psi-0.10.orig/src/options/opt_chat.cpp	2006-01-07 22:19:01.000000000 +0100
 +++ psi-0.10/src/options/opt_chat.cpp	2006-01-21 16:55:40.855294000 +0100
@@ -1005,6 +1534,17 @@ diff -urN psi-0.10.orig/src/options/opt_chat-ui.ui psi-0.10/src/options/opt_chat
                  <cstring>ck_alertOpenChats</cstring>
              </property>
              <property name="text">
+diff -urN psi-0.10.orig/src/options/options.pri psi-0.10/src/options/options.pri
+--- psi-0.10.orig/src/options/options.pri	2005-08-21 19:44:38.000000000 +0200
++++ psi-0.10/src/options/options.pri	2006-01-22 13:51:04.630148000 +0100
+@@ -42,6 +42,7 @@
+ 	$$PSI_CPP/options/opt_events-ui.ui \
+ 	$$PSI_CPP/options/opt_status-ui.ui \
+ 	$$PSI_CPP/options/opt_appearance-ui.ui \
++	$$PSI_CPP/options/opt_appearance_fonts-ui.ui \
+ 	$$PSI_CPP/options/opt_appearance_misc-ui.ui \
+ 	$$PSI_CPP/options/opt_sound-ui.ui \
+ 	$$PSI_CPP/options/opt_advanced-ui.ui \
 diff -urN psi-0.10.orig/src/psi_profiles.cpp psi-0.10/src/psi_profiles.cpp
 --- psi-0.10.orig/src/psi_profiles.cpp	2006-01-21 19:04:56.000000000 +0100
 +++ psi-0.10/src/psi_profiles.cpp	2006-01-22 00:13:46.605294000 +0100
