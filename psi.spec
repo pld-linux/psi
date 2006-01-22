@@ -7,7 +7,7 @@ Summary(de):	PSI - ein Instant Messaging Client-Programm für das Jabber
 Summary(pl):	PSI - klient Jabbera
 Name:		psi
 Version:	0.10
-Release:	0.3
+Release:	0.4
 License:	GPL v2
 Group:		Applications/Communications
 Source0:	http://dl.sourceforge.net/psi/%{name}-%{version}.tar.bz2
@@ -34,11 +34,12 @@ Patch20:	%{name}-status_indicator-add.patch
 Patch21:	%{name}-no_online_status-mod.patch
 Patch22:	%{name}-status_history-add.patch
 Patch23:	%{name}-icon_buttons_big_return-mod.patch
-Patch24:	%{name}-nicechats-mod.patch
-Patch25:	%{name}-roster-rich.patch
-Patch26:	%{name}-icondef.xml_status_indicator.patch
-Patch27:	%{name}-settoggles-fix.patch
-Patch28:	%{name}-empty_group-fix.patch
+Patch24:	%{name}-roster-rich.patch
+Patch25:	%{name}-icondef.xml_status_indicator.patch
+Patch26:	%{name}-settoggles-fix.patch
+Patch27:	%{name}-empty_group-fix.patch
+#	from Hawk
+Patch30:	%{name}-appearance-mod.patch
 URL:		http://psi-im.org/
 BuildRequires:	libstdc++-devel
 BuildRequires:	cyrus-sasl-devel
@@ -103,7 +104,8 @@ chcieliby napisaæ w³asne okna dialogowe albo poprawiæ obecne.
 %patch25 -p1
 %patch26 -p1
 %patch27 -p1
-%patch28 -p1
+#	Hawk
+%patch30 -p1
 
 %{__perl} -pi -e "s,/usr/local/share/psi,%{_datadir}/psi,g" src/common.cpp
 %{__perl} -pi -e 's/CONFIG \+= debug//g' src/src.pro
