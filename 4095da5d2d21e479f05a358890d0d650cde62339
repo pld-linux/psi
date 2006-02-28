@@ -1,0 +1,3 @@
+- more macros,
+- better C++ optmization (use -fno-exceptions -fno-rtti in CXXFLAGS),
+- better %{debug} support.
