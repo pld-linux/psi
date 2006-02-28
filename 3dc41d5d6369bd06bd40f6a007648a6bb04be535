@@ -1,0 +1,3 @@
+- every patch fixed so it works withou playing with qmake and applying patches
+  in %build stage (it sucks!)
+- still needs a lot of work (e.g. psi-plugin.patch is not correct)
