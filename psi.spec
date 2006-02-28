@@ -39,8 +39,8 @@ Patch27:	%{name}-empty_group-fix.patch
 #	from Hawk
 Patch30:	%{name}-appearance-mod.patch
 URL:		http://psi-im.org/
-BuildRequires:	libstdc++-devel
 BuildRequires:	cyrus-sasl-devel
+BuildRequires:	libstdc++-devel
 BuildRequires:	openssl-devel >= 0.9.7c
 BuildRequires:	qca-devel >= 1.0
 BuildRequires:	qmake
@@ -139,7 +139,7 @@ export QTDIR=%{_prefix}
 install -d \
 	$RPM_BUILD_ROOT{%{_desktopdir},%{_pixmapsdir}} \
 	$RPM_BUILD_ROOT%{_libdir}/qt/plugins-mt/designer
-	
+
 install psi.desktop $RPM_BUILD_ROOT%{_desktopdir}
 install iconsets/system/default/icon_48.png $RPM_BUILD_ROOT%{_pixmapsdir}/psi.png
 install indicator.png $RPM_BUILD_ROOT%{_datadir}/psi/iconsets/roster/default/indicator.png
@@ -154,7 +154,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc ChangeLog README README.rich-roster TODO 
+%doc ChangeLog README README.rich-roster TODO
 %attr(755,root,root) %{_bindir}/*
 %dir %{_datadir}/psi
 %{_datadir}/psi/certs
