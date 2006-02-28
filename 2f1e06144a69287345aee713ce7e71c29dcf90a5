@@ -1,0 +1,5 @@
+- qssl plugin moved to separate spec
+- %install cleanup
+- search for plugins in $HOME, %{_libdir}/psi and current dir (skip searching
+  in %{_datadir} and /usr/X11R6/lib )
+- add dir for plugins to package
