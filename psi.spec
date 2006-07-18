@@ -1,6 +1,6 @@
-%define		snap 20051210
-%define		_snap 2005-12-10
-%define		_datasnap 2005-12-09
+%define		snap 20060203
+%define		_snap 2006-02-03
+%define		_datasnap 2006-02-03
 #
 Summary:	PSI - Jabber client
 Summary(de):    PSI - ein Instant Messaging Client-Programm für das Jabber
@@ -11,12 +11,14 @@ Release:	0.%{snap}.1pedrito
 License:	GPL
 Group:		Applications/Communications
 Source0:	http://www.radioemiter.pl/~pedrito/public/jabber/psi-pedrito/%{_snap}/%{name}-pedrito-%{_snap}.tar.bz2
-# Source0-md5:	4ca4b88e7e28cc8849ae4f01f9c6d66c
+# Source0-md5:	32f7f6caabebfbbc9be5feaeffbb25c1
 Source1:	http://www.radioemiter.pl/~pedrito/public/jabber/psi-pedrito/%{_datasnap}/%{name}-pedrito-%{_datasnap}-data.tar.bz2
-# Source1-md5:	a466a4d57b02552ebd9533671e92ddcb
+# Source1-md5:	3ffd4746e5e27d9172044a184f7c1a09
 Source2:	http://michalj.alternatywa.info/psi/patches/emergency.png
 # Source2-md5:	5fa629c5177a7b1c5090428e22b7ec30
 Patch0:		%{name}-desktop.patch
+Patch1:		%{name}-gcc4.patch
+Patch2:		%{name}-prefix.patch
 URL:		http://psi-pedrito.go.pl/
 BuildRequires:	libstdc++-devel
 BuildRequires:	cyrus-sasl-devel
@@ -25,6 +27,7 @@ BuildRequires:	qca-devel >= 1.0
 BuildRequires:	qmake
 BuildRequires:	qt-devel >= 3.3.2-5
 BuildRequires:	qt-linguist
+BuildRequires:	xorg-lib-libXScrnSaver-devel
 Requires:	qt-plugin-qca-tls >= 1:1.0
 Conflicts:	qt-plugin-ssl = 1.0
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
@@ -73,6 +76,8 @@ napisaæ w³asne okna dialogowe itp. albo poprawiæ obecne.
 %prep
 %setup -q -n %{name}-pedrito-%{_snap}
 #%patch0 -p1
+%patch1 -p1
+%patch2 -p1
 
 %{__tar} jxf %{SOURCE1}
 cd psi-pedrito-%{_datasnap}-data
@@ -123,7 +128,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc README TODO ChangeLog psi-pedrito.txt
+%doc README TODO ChangeLog psi-pedrito.old.txt
 %attr(755,root,root) %{_bindir}/*
 %dir %{_datadir}/psi
 %{_datadir}/psi/certs
@@ -131,14 +136,14 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/psi/sound
 #%lang(ar) %{_datadir}/psi/psi_ar.qm
 %lang(bg) %{_datadir}/psi/psi_bg.qm
-#%lang(ca) %{_datadir}/psi/psi_ca.qm
-%lang(cs) %{_datadir}/psi/psi_cs.qm
+%lang(ca) %{_datadir}/psi/psi_ca.qm
+#%lang(cs) %{_datadir}/psi/psi_cs.qm
 #%lang(da) %{_datadir}/psi/psi_da.qm
-%lang(de) %{_datadir}/psi/psi_de.qm
-%lang(el) %{_datadir}/psi/psi_el.qm
+#%lang(de) %{_datadir}/psi/psi_de.qm
+#%lang(el) %{_datadir}/psi/psi_el.qm
 %lang(eo) %{_datadir}/psi/psi_eo.qm
 %lang(es) %{_datadir}/psi/psi_es.qm
-%lang(et) %{_datadir}/psi/psi_et.qm
+#%lang(et) %{_datadir}/psi/psi_et.qm
 #%lang(fi) %{_datadir}/psi/psi_fi.qm
 %lang(fr) %{_datadir}/psi/psi_fr.qm
 %lang(hu) %{_datadir}/psi/psi_hu.qm
@@ -147,15 +152,14 @@ rm -rf $RPM_BUILD_ROOT
 %lang(mk) %{_datadir}/psi/psi_mk.qm
 %lang(nl) %{_datadir}/psi/psi_nl.qm
 %lang(pl) %{_datadir}/psi/psi_pl.qm
-%lang(uk) %{_datadir}/psi/psi_uk.qm
+%lang(pt) %{_datadir}/psi/psi_pt.qm
 %lang(pt_BR) %{_datadir}/psi/psi_pt_BR.qm
-#%lang(pt) %{_datadir}/psi/psi_pt.qm
-%lang(ru) %{_datadir}/psi/psi_ru.qm
+#%lang(ru) %{_datadir}/psi/psi_ru.qm
 #%lang(se) %{_datadir}/psi/psi_se.qm
 %lang(sk) %{_datadir}/psi/psi_sk.qm
 %lang(sl) %{_datadir}/psi/psi_sl.qm
-%lang(sr) %{_datadir}/psi/psi_sr.qm
-%lang(uk) %{_datadir}/psi/psi_uk.qm
+#%lang(sr) %{_datadir}/psi/psi_sr.qm
+#%lang(uk) %{_datadir}/psi/psi_uk.qm
 %lang(vi) %{_datadir}/psi/psi_vi.qm
 %lang(zh) %{_datadir}/psi/psi_zh.qm
 %{_desktopdir}/*.desktop
