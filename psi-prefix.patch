@@ -1,0 +1,12 @@
+diff -ruN psi-pedrito-2006-02-03./src/common.cpp psi-pedrito-2006-02-03/src/common.cpp
+--- psi-pedrito-2006-02-03./src/common.cpp	2006-02-03 04:54:27.000000000 +0100
++++ psi-pedrito-2006-02-03/src/common.cpp	2006-07-18 14:16:50.905068250 +0200
+@@ -35,7 +35,7 @@
+ #endif
+ 
+ #ifndef PSI_DATADIR
+-#define PSI_DATADIR "/usr/local/share/psi"
++#define PSI_DATADIR "/usr/share/psi"
+ #endif
+ 
+ #include<qregexp.h>
