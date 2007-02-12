@@ -3,8 +3,8 @@
 %bcond_without	home_etc		# Disable the HOME_ETC patch
 #
 Summary:	PSI - Jabber client
-Summary(de):	PSI - ein Instant Messaging Client-Programm für das Jabber
-Summary(pl):	PSI - klient Jabbera
+Summary(de.UTF-8):   PSI - ein Instant Messaging Client-Programm fÃ¼r das Jabber
+Summary(pl.UTF-8):   PSI - klient Jabbera
 Name:		psi
 Version:	0.10
 Release:	2
@@ -56,20 +56,20 @@ based on the Qt library. It supports SSL encrypted connections. The
 default behaviour for SSL was changed so that it looks for SSL
 certificates in $DATADIR/certs or in ~/.psi/certs.
 
-%description -l de
-Psi ist ein Instant Messaging (IM) Client-Programm für das Jabber
+%description -l de.UTF-8
+Psi ist ein Instant Messaging (IM) Client-Programm fÃ¼r das Jabber
 (XMPP) Protokoll, welches das Qt Toolkit nutzt.
 
-%description -l pl
-PSI jest komunikatorem dla otwartego systemu wiadomo¶ci Jabber. Zosta³
-stworzony w oparciu o bibliotekê Qt. PSI wspiera po³±czenia szyfrowane
-SSL. W stosunku do domy¶lnego zachowania komunikatora zosta³a
-wprowadzona zmiana, która powoduje ¿e certyfikaty SSL s± poszukiwane w
+%description -l pl.UTF-8
+PSI jest komunikatorem dla otwartego systemu wiadomoÅ›ci Jabber. ZostaÅ‚
+stworzony w oparciu o bibliotekÄ™ Qt. PSI wspiera poÅ‚Ä…czenia szyfrowane
+SSL. W stosunku do domyÅ›lnego zachowania komunikatora zostaÅ‚a
+wprowadzona zmiana, ktÃ³ra powoduje Å¼e certyfikaty SSL sÄ… poszukiwane w
 katalogu $DATADIR/certs lub ~/.psi/certs.
 
 %package -n qt-designer-psiwidgets
 Summary:	Psi widgets collection for Qt Designer
-Summary(pl):	Kolekcja widgetów Psi do wykorzystania w Projektancie Qt
+Summary(pl.UTF-8):   Kolekcja widgetÃ³w Psi do wykorzystania w Projektancie Qt
 License:	GPL v2
 Group:		X11/Development/Libraries
 
@@ -78,10 +78,10 @@ This is a package of widgets, that are used in Psi You may be
 interested in it, if you want to develop custom dialogs, or hack
 existing ones.
 
-%description -n qt-designer-psiwidgets -l pl
-Pakiet ten zawiera wtyczkê dla programu Qt Designer bêd±c± zbiorem
-widgetów u¿ytych w programie Psi. Mo¿e siê przydaæ tym, którzy
-chcieliby napisaæ w³asne okna dialogowe albo poprawiæ obecne.
+%description -n qt-designer-psiwidgets -l pl.UTF-8
+Pakiet ten zawiera wtyczkÄ™ dla programu Qt Designer bÄ™dÄ…cÄ… zbiorem
+widgetÃ³w uÅ¼ytych w programie Psi. MoÅ¼e siÄ™ przydaÄ‡ tym, ktÃ³rzy
+chcieliby napisaÄ‡ wÅ‚asne okna dialogowe albo poprawiÄ‡ obecne.
 
 %prep
 %setup -q
