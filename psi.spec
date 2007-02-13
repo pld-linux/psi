@@ -3,8 +3,8 @@
 %bcond_without	home_etc		# Disable the HOME_ETC patch
 #
 Summary:	PSI - Jabber client
-Summary(de.UTF-8):   PSI - ein Instant Messaging Client-Programm für das Jabber
-Summary(pl.UTF-8):   PSI - klient Jabbera
+Summary(de.UTF-8):	PSI - ein Instant Messaging Client-Programm für das Jabber
+Summary(pl.UTF-8):	PSI - klient Jabbera
 Name:		psi
 Version:	0.10
 Release:	2
@@ -69,7 +69,7 @@ katalogu $DATADIR/certs lub ~/.psi/certs.
 
 %package -n qt-designer-psiwidgets
 Summary:	Psi widgets collection for Qt Designer
-Summary(pl.UTF-8):   Kolekcja widgetów Psi do wykorzystania w Projektancie Qt
+Summary(pl.UTF-8):	Kolekcja widgetów Psi do wykorzystania w Projektancie Qt
 License:	GPL v2
 Group:		X11/Development/Libraries
 
