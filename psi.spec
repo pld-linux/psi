@@ -44,7 +44,7 @@ BuildRequires:	libstdc++-devel
 BuildRequires:	openssl-devel >= 0.9.7c
 BuildRequires:	qca-devel >= 1.0
 BuildRequires:	qmake
-BuildRequires:	qt-devel >= 3.3.2-5
+BuildRequires:	qt-devel >= 6:3.3.2-5
 BuildRequires:	qt-linguist
 Requires:	qt-plugin-qca-tls >= 1:1.0
 Conflicts:	qt-plugin-ssl = 1.0
