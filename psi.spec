@@ -23,6 +23,8 @@ BuildRequires:	qca-devel >= 2.0.0
 BuildRequires:	qt4-build
 BuildRequires:	qt4-qmake
 BuildRequires:	zlib-devel
+BuildRequires:	xorg-lib-libX11-devel
+BuildRequires:	xorg-proto-scrnsaverproto-devel
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
