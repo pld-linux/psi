@@ -2,7 +2,7 @@
 # - fix configure so it works nicely with pdksh
 #
 Summary:	PSI - Jabber client
-Summary(de.UTF-8):	PSI - ein Instant Messaging Client-Programm für das Jabber
+Summary(de.UTF-8):	PSI - ein Instant Messaging Client-Programm für Jabber
 Summary(pl.UTF-8):	PSI - klient Jabbera
 Name:		psi
 Version:	0.11
