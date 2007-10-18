@@ -1,16 +1,14 @@
-# TODO:
-# - fix configure so it works nicely with pdksh
-#
 Summary:	PSI - Jabber client
 Summary(de.UTF-8):	PSI - ein Instant Messaging Client-Programm für Jabber
 Summary(pl.UTF-8):	PSI - klient Jabbera
 Name:		psi
 Version:	0.11
-Release:	0.1
+Release:	1
 License:	GPL v2
 Group:		Applications/Communications
 Source0:	http://dl.sourceforge.net/psi/%{name}-%{version}.tar.bz2
 # Source0-md5:	6ccc81783eece7959140951289cf5310
+Patch0:		%{name}-configure_fix.patch
 URL:		http://psi-im.org/
 BuildRequires:	Qt3Support-devel
 BuildRequires:	QtCore-devel
@@ -45,22 +43,15 @@ poszukiwane w katalogu $DATADIR/certs lub ~/.psi/certs.
 
 %prep
 %setup -q
+%patch0 -p1
 rm -rf third-party
 
 %build
-export QTDIR=%{_libdir}/qt4
-
-bash ./configure \
+./configure \
 	--prefix=%{_prefix} \
-		--datadir=%{_datadir}
+	--datadir=%{_datadir}
 
-
-%{_libdir}/qt4/bin/qmake psi.pro \
-	QMAKE_CXX="%{__cxx}" \
-	QMAKE_LINK="%{__cxx}" \
-	QMAKE_CXXFLAGS_RELEASE="%{rpmcflags}" \
-	QMAKE_RPATH=
-
+qt4-qmake
 %{__make}
 
 %install
