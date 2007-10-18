@@ -22,9 +22,9 @@ BuildRequires:	openssl-devel >= 0.9.7c
 BuildRequires:	qca-devel >= 2.0.0
 BuildRequires:	qt4-build
 BuildRequires:	qt4-qmake
-BuildRequires:	zlib-devel
 BuildRequires:	xorg-lib-libX11-devel
 BuildRequires:	xorg-proto-scrnsaverproto-devel
+BuildRequires:	zlib-devel
 Requires:	qt4-plugin-qca-ossl
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -35,15 +35,15 @@ default behaviour for SSL was changed so that it looks for SSL
 certificates in $DATADIR/certs or in ~/.psi/certs.
 
 %description -l de.UTF-8
-Psi ist ein Instant Messaging (IM) Client-Programm für das Jabber
-(XMPP) Protokoll, welches das Qt Toolkit nutzt.
+Psi ist ein Instant Messaging (IM) Client-Programm für das
+Jabber-Protokoll (XMPP), welches das Qt Toolkit nutzt.
 
 %description -l pl.UTF-8
-PSI jest komunikatorem dla otwartego systemu wiadomości Jabber. Został
-stworzony w oparciu o bibliotekę Qt. PSI wspiera połączenia szyfrowane
-SSL. W stosunku do domyślnego zachowania komunikatora została
-wprowadzona zmiana, która powoduje że certyfikaty SSL są poszukiwane w
-katalogu $DATADIR/certs lub ~/.psi/certs.
+PSI jest komunikatorem dla otwartego systemu wiadomości Jabber.
+Został stworzony w oparciu o bibliotekę Qt. PSI wspiera połączenia
+szyfrowane SSL. W stosunku do domyślnego zachowania komunikatora
+została wprowadzona zmiana, która powoduje że certyfikaty SSL są
+poszukiwane w katalogu $DATADIR/certs lub ~/.psi/certs.
 
 %prep
 %setup -q
