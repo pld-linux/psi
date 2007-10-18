@@ -50,14 +50,12 @@ poszukiwane w katalogu $DATADIR/certs lub ~/.psi/certs.
 rm -rf third-party
 
 %build
-export QTDIR=%{_libdir}/qt4
-
 bash ./configure \
 	--prefix=%{_prefix} \
 		--datadir=%{_datadir}
 
 
-%{_libdir}/qt4/bin/qmake psi.pro \
+qt4-qmake psi.pro \
 	QMAKE_CXX="%{__cxx}" \
 	QMAKE_LINK="%{__cxx}" \
 	QMAKE_CXXFLAGS_RELEASE="%{rpmcflags}" \
