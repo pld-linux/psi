@@ -33,15 +33,15 @@ default behaviour for SSL was changed so that it looks for SSL
 certificates in $DATADIR/certs or in ~/.psi/certs.
 
 %description -l de.UTF-8
-Psi ist ein Instant Messaging (IM) Client-Programm für das Jabber
-(XMPP) Protokoll, welches das Qt Toolkit nutzt.
+Psi ist ein Instant Messaging (IM) Client-Programm für das
+Jabber-Protokoll (XMPP), welches das Qt Toolkit nutzt.
 
 %description -l pl.UTF-8
-PSI jest komunikatorem dla otwartego systemu wiadomości Jabber. Został
-stworzony w oparciu o bibliotekę Qt. PSI wspiera połączenia szyfrowane
-SSL. W stosunku do domyślnego zachowania komunikatora została
-wprowadzona zmiana, która powoduje że certyfikaty SSL są poszukiwane w
-katalogu $DATADIR/certs lub ~/.psi/certs.
+PSI jest komunikatorem dla otwartego systemu wiadomości Jabber.
+Został stworzony w oparciu o bibliotekę Qt. PSI wspiera połączenia
+szyfrowane SSL. W stosunku do domyślnego zachowania komunikatora
+została wprowadzona zmiana, która powoduje że certyfikaty SSL są
+poszukiwane w katalogu $DATADIR/certs lub ~/.psi/certs.
 
 %prep
 %setup -q
