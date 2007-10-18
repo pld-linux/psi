@@ -52,15 +52,9 @@ rm -rf third-party
 %build
 bash ./configure \
 	--prefix=%{_prefix} \
-		--datadir=%{_datadir}
+	--datadir=%{_datadir}
 
-
-qt4-qmake psi.pro \
-	QMAKE_CXX="%{__cxx}" \
-	QMAKE_LINK="%{__cxx}" \
-	QMAKE_CXXFLAGS_RELEASE="%{rpmcflags}" \
-	QMAKE_RPATH=
-
+qt4-qmake
 %{__make}
 
 %install
