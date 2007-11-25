@@ -1,11 +1,8 @@
-diff -Nur psi-0.10.orig/psi.desktop psi-0.10/psi.desktop
 --- psi-0.10.orig/psi.desktop	2006-01-19 21:17:58.849492250 +0100
 +++ psi-0.10/psi.desktop	2006-01-19 21:23:30.142196750 +0100
-@@ -1,15 +1,14 @@
- [Desktop Entry]
+@@ -3,12 +3,12 @@
+ Version=1.0
  Type=Application
- Version=0.9.4
--Encoding=UTF-8
  Name=Psi
 -GenericName=Jabber Client
  Comment=Communicate over the Jabber network
@@ -13,15 +10,14 @@ diff -Nur psi-0.10.orig/psi.desktop psi-0.10/psi.desktop
 +Icon=psi.png
  Exec=psi
  Terminal=false
- Categories=Qt;Network;InstantMessaging;
- StartupNotify=true
+ Categories=Network;InstantMessaging;Qt;
 +Encoding=UTF-8
  
  # Translations
- GenericName[nl]=Jabber Client
-@@ -26,3 +25,5 @@
- Comment[pl]=Komunikacja poprzez sieć Jabber
- GenericName[pt_BR]=Cliente Jabber
+ GenericName[ca]=Client Jabber
+@@ -27,3 +27,5 @@
  Comment[pt_BR]=Comunique-se através da rede Jabber
+ GenericName[sl]=Odjemalec za Jabber
+ Comment[sl]=Komuniciranje prek omrežja Jabber
 +
 +# vi: encoding=utf-8
