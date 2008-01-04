@@ -18,8 +18,8 @@ BuildRequires:	aspell-devel
 BuildRequires:	libstdc++-devel
 BuildRequires:	openssl-devel >= 0.9.7c
 BuildRequires:	qca-devel >= 2.0.0
-BuildRequires:	qt4-build
-BuildRequires:	qt4-qmake
+BuildRequires:	qt4-build >= 4.3.3-3
+BuildRequires:	qt4-qmake >= 4.3.3-3
 BuildRequires:	xorg-lib-libX11-devel
 BuildRequires:	xorg-proto-scrnsaverproto-devel
 BuildRequires:	zlib-devel
@@ -53,7 +53,7 @@ rm -rf third-party
 	--prefix=%{_prefix} \
 	--datadir=%{_datadir}
 
-qt4-qmake
+qmake-qt4
 %{__make}
 
 %install
