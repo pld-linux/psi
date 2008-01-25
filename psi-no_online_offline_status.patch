@@ -1,0 +1,16 @@
+--- psi-0.11/src/psiaccount.cpp.orig	2007-10-14 16:00:53.000000000 +0200
++++ psi-0.11/src/psiaccount.cpp	2008-01-25 21:00:57.024123617 +0100
+@@ -2782,11 +2782,11 @@
+ void PsiAccount::changeStatus(int x)
+ {
+ 	if(x == STATUS_OFFLINE && !option.askOffline) {
+-		setStatus(Status("","Logged out",0,false));
++		setStatus(Status("","",0,true));
+ 	}
+ 	else {
+ 		if(x == STATUS_ONLINE && !option.askOnline) {
+-			setStatus(Status());
++			setStatus(Status("","",0,true));
+ 		}
+ 		else if(x == STATUS_INVISIBLE){
+ 			Status s("","",0,true);
