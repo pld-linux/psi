@@ -1,19 +1,19 @@
-diff -urN psi-old/src/common.cpp psi/src/common.cpp
---- psi-old/src/common.cpp	2004-03-22 11:48:01.079698856 +0100
-+++ psi/src/common.cpp	2004-03-22 11:49:21.273507544 +0100
-@@ -1145,6 +1145,7 @@
+diff -ur psi-0.11.orig/src/systeminfo.cpp psi-0.11/src/systeminfo.cpp
+--- psi-0.11.orig/src/systeminfo.cpp	2007-10-14 16:00:54.000000000 +0200
++++ psi-0.11/src/systeminfo.cpp	2007-11-25 15:28:41.000000000 +0100
+@@ -52,6 +52,7 @@
  	// get description about os
  	enum LinuxName {
  		LinuxNone = 0,
-+                LinuxCustom,
++		LinuxCustom,
  
  		LinuxMandrake,
  		LinuxDebian,
-@@ -1175,6 +1176,7 @@
- 		QString file;
- 		QString name;
- 	} osInfo[] = {
-+		{ LinuxCustom,		OsUseFile,	getHomeDir()+"/custom-os",	"",			},
- 		{ LinuxMandrake,	OsUseFile,	"/etc/mandrake-release",	"Mandrake Linux"	},
- 		{ LinuxDebian,		OsAppendFile,	"/etc/debian_version",		"Debian GNU/Linux"	},
- 		{ LinuxGentoo,		OsUseFile,	"/etc/gentoo-release",		"Gentoo Linux"		},
+@@ -100,6 +101,7 @@
+ 		// many distros use the /etc/redhat-release for compatibility, so RedHat will be the last :)
+ 		{ LinuxRedHat,		OsUseFile,	"/etc/redhat-release",		"RedHat Linux"		},
+ 
++		{ LinuxCustom,		OsUseFile,	getHomeDir()+"/custom-os",	""			},
+ 		{ LinuxNone,		OsUseName,	"",				""			}
+ 	};
+ 
