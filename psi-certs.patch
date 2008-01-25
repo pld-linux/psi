@@ -1,12 +1,11 @@
-diff -urN psi-old/src/psi_profiles.cpp psi/src/psi_profiles.cpp
---- psi-old/src/psi_profiles.cpp	2004-02-16 01:28:59.895369360 +0100
-+++ psi/src/psi_profiles.cpp	2004-02-16 01:29:11.992530312 +0100
-@@ -434,7 +434,7 @@
- 	prefs.onevent[eSend]    = g.pathBase + "/sound/send.wav";
+--- psi-0.11/src/psi_profiles.cpp.orig	2007-10-14 16:00:53.000000000 +0200
++++ psi-0.11/src/psi_profiles.cpp	2008-01-25 16:39:11.509545735 +0100
+@@ -561,7 +561,7 @@
+ 	prefs.onevent[eFTComplete] = ApplicationInfo::resourcesDir() + "/sound/ft_complete.wav";
  
  	// Added by Kiko 020621: sets up the default certificate store
--	prefs.trustCertStoreDir = g.pathBase + "/certs";
-+	prefs.trustCertStoreDir = g.pathHome + "/certs";
+-	prefs.trustCertStoreDir = ApplicationInfo::resourcesDir() + "/certs";
++	prefs.trustCertStoreDir = ApplicationInfo::homeDir() + "/certs";
  
  	prefs.sizeEventDlg = EventDlg::defaultSize();
  	prefs.sizeChatDlg = ChatDlg::defaultSize();
