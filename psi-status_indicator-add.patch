@@ -58,7 +58,7 @@ diff -urN psi-0.11.orig/src/common.h psi-0.11/src/common.h
  	bool ppIsOn;
 diff -urN psi-0.11.orig/src/contactview.cpp psi-0.11/src/contactview.cpp
 --- psi-0.11.orig/src/contactview.cpp	2007-10-14 16:00:51.000000000 +0200
-+++ psi-0.11/src/contactview.cpp	2008-01-25 18:42:31.806073588 +0100
++++ psi-0.11/src/contactview.cpp	2008-01-25 20:53:48.792407367 +0100
 @@ -26,6 +26,7 @@
  #include <q3header.h>
  #include <qtimer.h>
@@ -89,7 +89,7 @@ diff -urN psi-0.11.orig/src/contactview.cpp psi-0.11/src/contactview.cpp
  	if ( icon ) {
  		if ( !alert )
  			d->icon = new PsiIcon(*icon);
-@@ -3403,16 +3405,44 @@
+@@ -3403,16 +3405,47 @@
  			connect(d->icon, SIGNAL(pixmapChanged()), SLOT(iconUpdated()));
  		}
  		d->icon->activated();
@@ -105,35 +105,38 @@ diff -urN psi-0.11.orig/src/contactview.cpp psi-0.11/src/contactview.cpp
  {
 -	setPixmap(0, d->icon ? d->icon->pixmap() : QPixmap());
 +	QPixmap out(d->icon ? d->icon->pixmap() : QPixmap());
++
 +	// add status indicator to contact icon
-+	if(d->u && !out.isNull()){
-+		bool ind = false;
++	if(d->u && !out.isNull()) {
++		bool has_indicator = false;
 +		if(!d->u->userResourceList().isEmpty() && option.clStIndicator) {
 +			UserResourceList srl = d->u->userResourceList();
 +
 +			for(UserResourceList::ConstIterator rit = srl.begin(); rit != srl.end(); ++rit)
-+				if(!(*rit).status().status().isEmpty()) { ind = true; break; }
-+			
++				if(!(*rit).status().status().isEmpty()) { has_indicator = true; break; }
 +		} 
 +		else if(!d->u->lastUnavailableStatus().status().isEmpty() && option.clStIndicator)
-+			ind = true;
++			has_indicator = true;
 +
-+		if(ind) {
-+			const QPixmap &ipix = is->indicator(d->u->jid()).pixmap();
-+			// sum masks
-+			if(out.hasAlpha() && ipix.hasAlpha()){
-+				QBitmap mask(*out.mask());
-+				const QBitmap* imask = ipix.mask();
-+				bitBlt(&mask, (mask.width() - imask->width())/2, (mask.height() - imask->height())/2, 
-+					imask, 0, 0, imask->width(), imask->height(), 
-+					QPixmap::OrROP);
++		if(has_indicator) {
++			const QPixmap &ipix = PsiIconset::instance()->indicator(d->u->jid()).pixmap();
++			QPainter i(&out);
++
++			if(out.hasAlpha() && ipix.hasAlpha()) {
++				// sum alpha channels
++				QPixmap mask(out.alphaChannel());
++				QPixmap imask(ipix.alphaChannel());
++				QPainter m(&mask);
++
++				m.drawPixmap((mask.width() - imask.width()) / 2, (mask.height() - imask.height()) / 2,
++					mask);
 +				out.setMask(mask);
 +			}
-+			bitBlt(&out, (out.width() - ipix.width())/2, (out.height() - ipix.height())/2, 
-+				&ipix, 0, 0, ipix.width(), ipix.height(), 
-+				QPixmap::CopyROP);
++			i.drawPixmap((out.width() - ipix.width()) / 2, (out.height() - ipix.height()) / 2,
++				ipix);
 +		}
 +	}
++
 +	setPixmap(0, out);
  }
  
