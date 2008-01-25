@@ -8,17 +8,17 @@ License:	GPL v2
 Group:		Applications/Communications
 Source0:	http://dl.sourceforge.net/psi/%{name}-%{version}.tar.bz2
 # Source0-md5:	6ccc81783eece7959140951289cf5310
+Source1:	%{name}-indicator.png
 Patch0:		%{name}-fix_configure_for_ksh.patch
 Patch1:		%{name}-desktop.patch
 Patch2:		%{name}-home_etc.patch
 Patch3:		%{name}-certs.patch
 Patch4:		%{name}-customos.patch
-Patch20:	%{name}-status_indicator-add.patch
-Patch21:	%{name}-no_online_status-mod.patch
+Patch5:		%{name}-no_online_offline_status.patch
+Patch6:		%{name}-status_indicator-add.patch
 Patch22:	%{name}-status_history-add.patch
 Patch23:	%{name}-icon_buttons_big_return-mod.patch
 Patch24:	%{name}-roster-rich.patch
-Patch25:	%{name}-icondef.xml_status_indicator.patch
 Patch26:	%{name}-settoggles-fix.patch
 Patch27:	%{name}-empty_group-fix.patch
 Patch30:	%{name}-appearance-mod.patch
@@ -63,15 +63,16 @@ poszukiwane w katalogu $DATADIR/certs lub ~/.psi/certs.
 %{?with_home_etc:%patch2 -p1}
 %patch3 -p1
 %patch4 -p1
-#%patch20 -p1
-#%patch21 -p1
-#%patch25 -p1
+%patch5 -p1
+%patch6 -p1
 #%patch27 -p1
 #%patch30 -p1
 #%patch22 -p1
 #%patch23 -p1
 #%patch24 -p1
 #%patch26 -p1
+
+cp %{SOURCE1} indicator.png
 
 rm -rf third-party
 
@@ -90,6 +91,8 @@ export QTDIR=%{_libdir}/qt4
 
 %{__make} install \
 	INSTALL_ROOT=$RPM_BUILD_ROOT
+
+install indicator.png $RPM_BUILD_ROOT%{_datadir}/psi/iconsets/roster/default/indicator.png
 
 %clean
 rm -rf $RPM_BUILD_ROOT
