@@ -1,8 +1,26 @@
---- configure.orig	2006-01-16 19:54:04.902009000 +0100
-+++ configure	2006-01-16 19:46:06.792009000 +0100
-@@ -778,7 +778,7 @@
+--- configure.orig	2007-10-14 16:00:49.000000000 +0200
++++ configure	2008-01-25 15:31:19.691535871 +0100
+@@ -701,7 +701,7 @@
+ 			if(QFile::exists(path))
+ 			{
+ 				QString certPathString = 
+-					"QCA_SYSTEMSTORE_PATH=\\\\\\\\\\\\\"" + path + "\\\\\\\\\\\\\"";
++					"QCA_SYSTEMSTORE_PATH=" + path + "";
+ 				conf->addDefine(certPathString);
+ 				return true;
+ 			}
+@@ -746,7 +746,7 @@
+ 
+ 		// Qt<4.2 workaround
+ 		QString certPathString = 
+-			"QCA_SYSTEMSTORE_PATH=\\\\\\\\\\\\\"" + path + "\\\\\\\\\\\\\"";
++			"QCA_SYSTEMSTORE_PATH=" + path + "";
+ 		conf->addDefine(certPathString);
+ 
+ 		return true;
+@@ -1078,7 +1078,7 @@
  		QFile file("src/config.h");
- 		if ( file.open( IO_WriteOnly ) ) {
+ 		if ( file.open(QIODevice::WriteOnly | QIODevice::Text) ) {
  			QTextStream stream( &file );
 -			stream << "#define PSI_DATADIR \"" << conf->getenv("DATADIR") << "/psi\"" << endl;
 +			stream << "#define PSI_DATADIR \\"" << conf->getenv("DATADIR") << "/psi\\"" << endl;
