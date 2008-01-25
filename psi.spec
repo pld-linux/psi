@@ -8,16 +8,11 @@ License:	GPL v2
 Group:		Applications/Communications
 Source0:	http://dl.sourceforge.net/psi/%{name}-%{version}.tar.bz2
 # Source0-md5:	6ccc81783eece7959140951289cf5310
-
-#	from PLD
-Patch0:		%{name}-certs.patch
+Patch0:		%{name}-fix_configure_for_ksh.patch
 Patch1:		%{name}-desktop.patch
 Patch2:		%{name}-home_etc.patch
-Patch3:		%{name}-qca_nolink_fix.patch
-Patch4:		%{name}-fix_configure_for_ksh.patch
-#	from jpc
-Patch10:	%{name}-customos.patch
-#	from SKaZi
+Patch3:		%{name}-certs.patch
+Patch4:		%{name}-customos.patch
 Patch20:	%{name}-status_indicator-add.patch
 Patch21:	%{name}-no_online_status-mod.patch
 Patch22:	%{name}-status_history-add.patch
@@ -26,11 +21,8 @@ Patch24:	%{name}-roster-rich.patch
 Patch25:	%{name}-icondef.xml_status_indicator.patch
 Patch26:	%{name}-settoggles-fix.patch
 Patch27:	%{name}-empty_group-fix.patch
-#	from Hawk
 Patch30:	%{name}-appearance-mod.patch
-
 URL:		http://psi-im.org/
-#BuildRequires:	backport-patches-from-psi-0_10
 BuildRequires:	Qt3Support-devel
 BuildRequires:	QtCore-devel
 BuildRequires:	QtNetwork-devel
@@ -66,26 +58,20 @@ poszukiwane w katalogu $DATADIR/certs lub ~/.psi/certs.
 
 %prep
 %setup -q
-
-#	PLD
-#%patch0 -p1
+%patch0 -p0
 %patch1 -p1
 %{?with_home_etc:%patch2 -p1}
-#%patch3 -p1
-%patch4 -p0
-#	jpc
-%patch10 -p1
-#	SKaZi
-%patch20 -p1
-%patch21 -p1
-#%patch22 -p1
-#%patch23 -p1 #
-#%patch24 -p1
-%patch25 -p1
-#%patch26 -p1 #
-%patch27 -p1
-#	Hawk
+%patch3 -p1
+%patch4 -p1
+#%patch20 -p1
+#%patch21 -p1
+#%patch25 -p1
+#%patch27 -p1
 #%patch30 -p1
+#%patch22 -p1
+#%patch23 -p1
+#%patch24 -p1
+#%patch26 -p1
 
 rm -rf third-party
 
