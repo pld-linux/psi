@@ -1,27 +1,24 @@
-diff -ur psi-0.11.orig/iris/xmpp-im/client.cpp psi-0.11/iris/xmpp-im/client.cpp
+diff -urN psi-0.11.orig/iris/xmpp-im/client.cpp psi-0.11/iris/xmpp-im/client.cpp
 --- psi-0.11.orig/iris/xmpp-im/client.cpp	2007-10-14 16:00:50.000000000 +0200
-+++ psi-0.11/iris/xmpp-im/client.cpp	2007-11-25 15:29:32.000000000 +0100
-@@ -789,10 +789,27 @@
++++ psi-0.11/iris/xmpp-im/client.cpp	2008-01-25 18:48:00.863060210 +0100
+@@ -789,9 +789,26 @@
  
  	// unavailable?  remove the resource
  	if(!s.isAvailable()) {
 -		if(found) {
--			(*rit).setStatus(s);
--			debug(QString("Client: Removing resource from [%1]: name=[%2]\n").arg(i->jid().full()).arg(j.resource()));
--			resourceUnavailable(j, *rit);
 +		Resource r;
 +		if(!found) {
-+			//if (!s.status().isEmpty()) {
-+				r = Resource(j.resource(), s);
-+				i->resourceList() += r;
-+				debug(QString("Client: Adding resource to [%1]: name=[%2]\n").arg(i->jid().full()).arg(j.resource()));
-+				resourceAvailable(j, r);
++			r = Resource(j.resource(), s);
++			i->resourceList() += r;
++			debug(QString("Client: Adding resource to [%1]: name=[%2]\n").arg(i->jid().full()).arg(j.resource()));
++			resourceAvailable(j, r);
 +		} 
 +		else {
-+				(*rit).setStatus(s);
-+				r = *rit;
-+				debug(QString("Client: Updating resource to [%1]: name=[%2]\n").arg(i->jid().full()).arg(j.resource()));
-+				resourceAvailable(j, r);			
+ 			(*rit).setStatus(s);
+-			debug(QString("Client: Removing resource from [%1]: name=[%2]\n").arg(i->jid().full()).arg(j.resource()));
++			r = *rit;
++			debug(QString("Client: Updating resource to [%1]: name=[%2]\n").arg(i->jid().full()).arg(j.resource()));
++			resourceAvailable(j, r);			
 +		}
 +		
 +		rit = i->resourceList().find(j.resource());
@@ -29,13 +26,13 @@ diff -ur psi-0.11.orig/iris/xmpp-im/client.cpp psi-0.11/iris/xmpp-im/client.cpp
 +		
 + 		if(found) {
 + 			(*rit).setStatus(s);
-+ 			debug(QString("Client: Removing resource from [%1]: name=[%2]\n").arg(i->jid().full()).arg(j.resource())); 	resourceUnavailable(j, *rit);
++ 			debug(QString("Client: Removing resource from [%1]: name=[%2]\n").arg(i->jid().full()).arg(j.resource()));
+ 			resourceUnavailable(j, *rit);
  			i->resourceList().remove(rit);
  			i->setLastUnavailableStatus(s);
- 		}
-diff -ur psi-0.11.orig/src/chatdlg.cpp psi-0.11/src/chatdlg.cpp
+diff -urN psi-0.11.orig/src/chatdlg.cpp psi-0.11/src/chatdlg.cpp
 --- psi-0.11.orig/src/chatdlg.cpp	2007-10-14 16:00:51.000000000 +0200
-+++ psi-0.11/src/chatdlg.cpp	2007-11-25 15:29:32.000000000 +0100
++++ psi-0.11/src/chatdlg.cpp	2008-01-25 18:27:20.605745518 +0100
 @@ -575,8 +575,10 @@
  			u = ul.first();
  			if(rname.isEmpty()) {
@@ -48,9 +45,9 @@ diff -ur psi-0.11.orig/src/chatdlg.cpp psi-0.11/src/chatdlg.cpp
  				else {
  					const UserResource &r = *u->userResourceList().priority();
  					status = makeSTATUS(r.status());
-diff -ur psi-0.11.orig/src/common.h psi-0.11/src/common.h
+diff -urN psi-0.11.orig/src/common.h psi-0.11/src/common.h
 --- psi-0.11.orig/src/common.h	2007-10-14 16:00:51.000000000 +0200
-+++ psi-0.11/src/common.h	2007-11-25 15:29:32.000000000 +0100
++++ psi-0.11/src/common.h	2008-01-25 18:27:20.605745518 +0100
 @@ -124,6 +124,7 @@
  
  	bool clNewHeadings;
@@ -59,9 +56,9 @@ diff -ur psi-0.11.orig/src/common.h psi-0.11/src/common.h
  
  	// passive popups
  	bool ppIsOn;
-diff -ur psi-0.11.orig/src/contactview.cpp psi-0.11/src/contactview.cpp
+diff -urN psi-0.11.orig/src/contactview.cpp psi-0.11/src/contactview.cpp
 --- psi-0.11.orig/src/contactview.cpp	2007-10-14 16:00:51.000000000 +0200
-+++ psi-0.11/src/contactview.cpp	2007-11-25 15:54:38.000000000 +0100
++++ psi-0.11/src/contactview.cpp	2008-01-25 18:42:31.806073588 +0100
 @@ -26,6 +26,7 @@
  #include <q3header.h>
  #include <qtimer.h>
@@ -84,18 +81,30 @@ diff -ur psi-0.11.orig/src/contactview.cpp psi-0.11/src/contactview.cpp
  
  	if ( d->icon ) {
  		disconnect(d->icon, 0, this, 0 );
-@@ -3407,12 +3410,42 @@
- 		pix = d->icon->pixmap();
+@@ -3392,7 +3395,6 @@
+ 		d->icon = 0;
+ 	}
+ 
+-	QPixmap pix;
+ 	if ( icon ) {
+ 		if ( !alert )
+ 			d->icon = new PsiIcon(*icon);
+@@ -3403,16 +3405,44 @@
+ 			connect(d->icon, SIGNAL(pixmapChanged()), SLOT(iconUpdated()));
+ 		}
+ 		d->icon->activated();
+-
+-		pix = d->icon->pixmap();
  	}
  
 -	setPixmap(0, pix);
-+	iconUpdated(pix);
++	iconUpdated();
  }
  
  void ContactViewItem::iconUpdated()
  {
 -	setPixmap(0, d->icon ? d->icon->pixmap() : QPixmap());
-+	QPixmap out(pix);
++	QPixmap out(d->icon ? d->icon->pixmap() : QPixmap());
 +	// add status indicator to contact icon
 +	if(d->u && !out.isNull()){
 +		bool ind = false;
@@ -129,26 +138,27 @@ diff -ur psi-0.11.orig/src/contactview.cpp psi-0.11/src/contactview.cpp
  }
  
  void ContactViewItem::animateNick()
-diff -ur psi-0.11.orig/src/options/opt_appearance.cpp psi-0.11/src/options/opt_appearance.cpp
+diff -urN psi-0.11.orig/src/options/opt_appearance.cpp psi-0.11/src/options/opt_appearance.cpp
 --- psi-0.11.orig/src/options/opt_appearance.cpp	2007-10-14 16:00:52.000000000 +0200
-+++ psi-0.11/src/options/opt_appearance.cpp	2007-11-25 15:39:58.000000000 +0100
-@@ -113,6 +113,7 @@
++++ psi-0.11/src/options/opt_appearance.cpp	2008-01-25 18:27:20.619079539 +0100
+@@ -111,6 +111,7 @@
  
+ 	OptAppearanceMiscUI *d = (OptAppearanceMiscUI *)w;
+ 
++	opt->clStIndicator = d->ck_statusIndicator->isChecked();
  	opt->clNewHeadings = d->ck_newHeadings->isChecked();	
  	opt->outlineHeadings = d->ck_outlineHeadings->isChecked();	
-+	opt->clStIndicator = d->ck_statusIndicator->isChecked();
  	PsiOptions::instance()->setOption("options.ui.contactlist.opacity", d->sl_rosterop->value());
- 	PsiOptions::instance()->setOption("options.ui.chat.opacity", d->sl_chatdlgop->value());
- }
-@@ -126,6 +127,7 @@
+@@ -124,6 +125,8 @@
  
+ 	OptAppearanceMiscUI *d = (OptAppearanceMiscUI *)w;
+ 
++	d->ck_statusIndicator->setChecked( opt->clStIndicator );
++
  	d->ck_newHeadings->setChecked( opt->clNewHeadings );
  	d->ck_outlineHeadings->setChecked( opt->outlineHeadings );
-+	d->ck_statusIndicator->setChecked( opt->clStIndicator );
  	
- 	d->sl_rosterop->setValue( PsiOptions::instance()->getOption("options.ui.contactlist.opacity").toInt() );
- 	d->sl_chatdlgop->setValue( PsiOptions::instance()->getOption("options.ui.chat.opacity").toInt() );
-@@ -279,7 +281,7 @@
+@@ -279,7 +282,7 @@
  
  	//OptAppearanceUI *d = (OptAppearanceUI *)w;
  	//d->ck_avatarsChatdlg->setChecked( opt->avatarsChatdlgEnabled ); // Avatars
@@ -157,24 +167,49 @@ diff -ur psi-0.11.orig/src/options/opt_appearance.cpp psi-0.11/src/options/opt_a
  	int n;
  	for (n = 0; n < 4; ++n)
  		le_font[n]->setFont(opt->font[n]);
-diff -ur psi-0.11.orig/src/options/opt_appearance_misc.ui psi-0.11/src/options/opt_appearance_misc.ui
+diff -urN psi-0.11.orig/src/options/opt_appearance_misc.ui psi-0.11/src/options/opt_appearance_misc.ui
 --- psi-0.11.orig/src/options/opt_appearance_misc.ui	2007-10-14 16:00:52.000000000 +0200
-+++ psi-0.11/src/options/opt_appearance_misc.ui	2007-11-25 16:02:07.000000000 +0100
-@@ -23,6 +23,11 @@
++++ psi-0.11/src/options/opt_appearance_misc.ui	2008-01-25 18:27:20.619079539 +0100
+@@ -23,6 +23,28 @@
      <number>6</number>
     </property>
     <item>
-+    <widget class="QCheckBox" name="ck_statusIndicator" >
-+     <property name="text">
-+      <string>Show indicator for text statuses</string>
++    <widget class="QGroupBox" name="gb_statusIndicator" >
++     <property name="title" >
++      <string>Status indicator</string>
 +     </property>
++     <layout class="QGridLayout" >
++      <property name="margin" >
++       <number>8</number>
++      </property>
++      <property name="spacing" >
++       <number>6</number>
++      </property>
++      <item row="1" column="0" >
++       <widget class="QCheckBox" name="ck_statusIndicator" >
++        <property name="text">
++         <string>Show indicator for text statuses</string>
++        </property>
++       </widget>
++      </item>
++     </layout>
 +    </widget>
++   </item>
++   <item>
      <widget class="QGroupBox" name="groupBox4" >
       <property name="title" >
        <string>Headings</string>
-diff -ur psi-0.11.orig/src/psiiconset.cpp psi-0.11/src/psiiconset.cpp
+@@ -143,6 +165,7 @@
+  <layoutdefault spacing="6" margin="11" />
+  <pixmapfunction>qPixmapFromMimeSource</pixmapfunction>
+  <tabstops>
++  <tabstop>ck_statusIndicator</tabstop>
+   <tabstop>ck_outlineHeadings</tabstop>
+   <tabstop>ck_newHeadings</tabstop>
+   <tabstop>sl_rosterop</tabstop>
+diff -urN psi-0.11.orig/src/psiiconset.cpp psi-0.11/src/psiiconset.cpp
 --- psi-0.11.orig/src/psiiconset.cpp	2007-10-14 16:00:53.000000000 +0200
-+++ psi-0.11/src/psiiconset.cpp	2007-11-25 15:46:38.000000000 +0100
++++ psi-0.11/src/psiiconset.cpp	2008-01-25 18:27:20.619079539 +0100
 @@ -523,6 +523,19 @@
  	return PsiIcon();
  }
@@ -195,9 +230,9 @@ diff -ur psi-0.11.orig/src/psiiconset.cpp psi-0.11/src/psiiconset.cpp
  PsiIcon *PsiIconset::statusPtr(const XMPP::Jid &jid, int s)
  {
  	return d->jid2icon(jid, status2name(s));
-diff -ur psi-0.11.orig/src/psiiconset.h psi-0.11/src/psiiconset.h
+diff -urN psi-0.11.orig/src/psiiconset.h psi-0.11/src/psiiconset.h
 --- psi-0.11.orig/src/psiiconset.h	2007-10-14 16:00:53.000000000 +0200
-+++ psi-0.11/src/psiiconset.h	2007-11-25 15:42:04.000000000 +0100
++++ psi-0.11/src/psiiconset.h	2008-01-25 18:27:20.619079539 +0100
 @@ -64,9 +64,11 @@
  	// JID-enabled status functions
  	PsiIcon *statusPtr(const XMPP::Jid &, int);
@@ -210,9 +245,9 @@ diff -ur psi-0.11.orig/src/psiiconset.h psi-0.11/src/psiiconset.h
  
  	// functions to get status icon by transport name
  	PsiIcon *transportStatusPtr(QString name, int);
-diff -ur psi-0.11.orig/src/psi_profiles.cpp psi-0.11/src/psi_profiles.cpp
---- psi-0.11.orig/src/psi_profiles.cpp	2007-10-14 16:00:53.000000000 +0200
-+++ psi-0.11/src/psi_profiles.cpp	2007-11-25 15:40:54.000000000 +0100
+diff -urN psi-0.11.orig/src/psi_profiles.cpp psi-0.11/src/psi_profiles.cpp
+--- psi-0.11.orig/src/psi_profiles.cpp	2008-01-25 18:08:13.000000000 +0100
++++ psi-0.11/src/psi_profiles.cpp	2008-01-25 18:27:20.619079539 +0100
 @@ -535,6 +535,8 @@
  		prefs.font[fPopup] = font.toString();
  	}
