@@ -13,6 +13,17 @@ diff -urN psi-0.11.orig/iconsets/roster/default/icondef.xml psi-0.11/iconsets/ro
  	<!-- Special icons -->
  	<icon>
  		<x xmlns='name'>psi/chat</x>
+diff -urN psi-0.11.orig/iconsets.qrc psi-0.11/iconsets.qrc
+--- psi-0.11.orig/iconsets.qrc	2007-10-14 16:00:49.000000000 +0200
++++ psi-0.11/iconsets.qrc	2008-01-25 23:10:56.169394807 +0100
+@@ -18,6 +18,7 @@
+ 		<file>iconsets/roster/default/offline.png</file>
+ 		<file>iconsets/roster/default/online.png</file>
+ 		<file>iconsets/roster/default/perr.png</file>
++		<file>iconsets/roster/default/indicator.png</file>
+ 		<file>iconsets/roster/default/system.png</file>
+ 		<file>iconsets/roster/default/xa.png</file>
+ 
 diff -urN psi-0.11.orig/iris/xmpp-im/client.cpp psi-0.11/iris/xmpp-im/client.cpp
 --- psi-0.11.orig/iris/xmpp-im/client.cpp	2007-10-14 16:00:50.000000000 +0200
 +++ psi-0.11/iris/xmpp-im/client.cpp	2008-01-25 18:48:00.863060210 +0100
@@ -73,7 +84,7 @@ diff -urN psi-0.11.orig/src/common.h psi-0.11/src/common.h
  	bool ppIsOn;
 diff -urN psi-0.11.orig/src/contactview.cpp psi-0.11/src/contactview.cpp
 --- psi-0.11.orig/src/contactview.cpp	2007-10-14 16:00:51.000000000 +0200
-+++ psi-0.11/src/contactview.cpp	2008-01-25 20:53:48.792407367 +0100
++++ psi-0.11/src/contactview.cpp	2008-01-25 23:34:55.711825614 +0100
 @@ -26,6 +26,7 @@
  #include <q3header.h>
  #include <qtimer.h>
@@ -145,7 +156,7 @@ diff -urN psi-0.11.orig/src/contactview.cpp psi-0.11/src/contactview.cpp
 +
 +				m.drawPixmap((mask.width() - imask.width()) / 2, (mask.height() - imask.height()) / 2,
 +					mask);
-+				out.setMask(mask);
++				out.setAlphaChannel(mask);
 +			}
 +			i.drawPixmap((out.width() - ipix.width()) / 2, (out.height() - ipix.height()) / 2,
 +				ipix);
