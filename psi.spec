@@ -16,12 +16,10 @@ Patch3:		%{name}-certs.patch
 Patch4:		%{name}-customos.patch
 Patch5:		%{name}-no_online_offline_status.patch
 Patch6:		%{name}-status_indicator-add.patch
-Patch22:	%{name}-status_history-add.patch
-Patch23:	%{name}-icon_buttons_big_return-mod.patch
-Patch24:	%{name}-roster-rich.patch
-Patch26:	%{name}-settoggles-fix.patch
-Patch27:	%{name}-empty_group-fix.patch
-Patch30:	%{name}-appearance-mod.patch
+Patch7:		%{name}-icon_buttons_big_return-mod.patch
+Patch8:		%{name}-empty_group-fix.patch
+Patch9:		%{name}-settoggles-fix.patch
+Patch10:	%{name}-appearance-mod.patch
 URL:		http://psi-im.org/
 BuildRequires:	Qt3Support-devel
 BuildRequires:	QtCore-devel
@@ -65,12 +63,10 @@ poszukiwane w katalogu $DATADIR/certs lub ~/.psi/certs.
 %patch4 -p1
 %patch5 -p1
 %patch6 -p1
-#%patch27 -p1
-#%patch30 -p1
-#%patch22 -p1
-#%patch23 -p1
-#%patch24 -p1
-#%patch26 -p1
+%patch7 -p1
+%patch8 -p1
+%patch9 -p1
+#%patch10 -p1
 
 cp %{SOURCE1} iconset/roster/default/indicator.png
 
