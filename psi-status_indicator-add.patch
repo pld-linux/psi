@@ -1,7 +1,7 @@
-diff -ur psi-0.11.orig/iris/xmpp-im/client.cpp psi-0.11/iris/xmpp-im/client.cpp
---- psi-0.11.orig/iris/xmpp-im/client.cpp	2007-10-14 16:00:50.000000000 +0200
-+++ psi-0.11/iris/xmpp-im/client.cpp	2007-11-25 15:29:32.000000000 +0100
-@@ -789,10 +789,27 @@
+diff -urN psi-0.10.orig/iris/xmpp-im/client.cpp psi-0.10/iris/xmpp-im/client.cpp
+--- psi-0.10.orig/iris/xmpp-im/client.cpp	2005-08-21 19:44:28.000000000 +0200
++++ psi-0.10/iris/xmpp-im/client.cpp	2006-01-21 18:38:28.405294000 +0100
+@@ -792,10 +792,27 @@
  
  	// unavailable?  remove the resource
  	if(!s.isAvailable()) {
@@ -33,10 +33,10 @@ diff -ur psi-0.11.orig/iris/xmpp-im/client.cpp psi-0.11/iris/xmpp-im/client.cpp
  			i->resourceList().remove(rit);
  			i->setLastUnavailableStatus(s);
  		}
-diff -ur psi-0.11.orig/src/chatdlg.cpp psi-0.11/src/chatdlg.cpp
---- psi-0.11.orig/src/chatdlg.cpp	2007-10-14 16:00:51.000000000 +0200
-+++ psi-0.11/src/chatdlg.cpp	2007-11-25 15:29:32.000000000 +0100
-@@ -575,8 +575,10 @@
+diff -urN psi-0.10.orig/src/chatdlg.cpp psi-0.10/src/chatdlg.cpp
+--- psi-0.10.orig/src/chatdlg.cpp	2006-01-07 22:19:01.000000000 +0100
++++ psi-0.10/src/chatdlg.cpp	2006-01-21 18:38:28.415294000 +0100
+@@ -522,8 +522,10 @@
  			u = ul.first();
  			if(rname.isEmpty()) {
  				// use priority
@@ -48,10 +48,10 @@ diff -ur psi-0.11.orig/src/chatdlg.cpp psi-0.11/src/chatdlg.cpp
  				else {
  					const UserResource &r = *u->userResourceList().priority();
  					status = makeSTATUS(r.status());
-diff -ur psi-0.11.orig/src/common.h psi-0.11/src/common.h
---- psi-0.11.orig/src/common.h	2007-10-14 16:00:51.000000000 +0200
-+++ psi-0.11/src/common.h	2007-11-25 15:29:32.000000000 +0100
-@@ -124,6 +124,7 @@
+diff -urN psi-0.10.orig/src/common.h psi-0.10/src/common.h
+--- psi-0.10.orig/src/common.h	2005-10-06 15:50:35.000000000 +0200
++++ psi-0.10/src/common.h	2006-01-21 18:38:28.415294000 +0100
+@@ -150,6 +150,7 @@
  
  	bool clNewHeadings;
  	bool outlineHeadings;
@@ -59,32 +59,33 @@ diff -ur psi-0.11.orig/src/common.h psi-0.11/src/common.h
  
  	// passive popups
  	bool ppIsOn;
-diff -ur psi-0.11.orig/src/contactview.cpp psi-0.11/src/contactview.cpp
---- psi-0.11.orig/src/contactview.cpp	2007-10-14 16:00:51.000000000 +0200
-+++ psi-0.11/src/contactview.cpp	2007-11-25 15:54:38.000000000 +0100
-@@ -26,6 +26,7 @@
- #include <q3header.h>
- #include <qtimer.h>
- #include <qpainter.h>
-+#include <qbitmap.h>
- #include <q3popupmenu.h>
- #include <qmessagebox.h>
- #include <qinputdialog.h>
-@@ -3378,11 +3379,13 @@
+diff -urN psi-0.10.orig/src/contactview.cpp psi-0.10/src/contactview.cpp
+--- psi-0.10.orig/src/contactview.cpp	2006-01-07 22:19:01.000000000 +0100
++++ psi-0.10/src/contactview.cpp	2006-01-21 18:38:28.415294000 +0100
+@@ -25,6 +25,7 @@
+ #include<qheader.h>
+ #include<qtimer.h>
+ #include<qpainter.h>
++#include<qbitmap.h>
+ #include<qpopupmenu.h>
+ #include<qmessagebox.h>
+ #include<qinputdialog.h>
+@@ -3018,12 +3019,13 @@
  
- void ContactViewItem::setIcon(const PsiIcon *icon, bool alert)
+ void ContactViewItem::setIcon(const Icon *icon, bool alert)
  {
 +	/* needed by status indicator :o|
  	if ( d->lastIcon == icon ) {
  		return; // cause less flicker. but still have to run calltree valgring skin on psi while online (mblsha).
  	}
  	else
- 		d->lastIcon = (PsiIcon *)icon;
+ 		d->lastIcon = (Icon *)icon;
+-
 +	*/
- 
  	if ( d->icon ) {
  		disconnect(d->icon, 0, this, 0 );
-@@ -3407,12 +3410,42 @@
+ 		d->icon->stop();
+@@ -3045,12 +3047,42 @@
  		pix = d->icon->pixmap();
  	}
  
@@ -92,9 +93,9 @@ diff -ur psi-0.11.orig/src/contactview.cpp psi-0.11/src/contactview.cpp
 +	iconUpdated(pix);
  }
  
- void ContactViewItem::iconUpdated()
+ void ContactViewItem::iconUpdated(const QPixmap &pix)
  {
--	setPixmap(0, d->icon ? d->icon->pixmap() : QPixmap());
+-	setPixmap(0, pix);
 +	QPixmap out(pix);
 +	// add status indicator to contact icon
 +	if(d->u && !out.isNull()){
@@ -129,26 +130,26 @@ diff -ur psi-0.11.orig/src/contactview.cpp psi-0.11/src/contactview.cpp
  }
  
  void ContactViewItem::animateNick()
-diff -ur psi-0.11.orig/src/options/opt_appearance.cpp psi-0.11/src/options/opt_appearance.cpp
---- psi-0.11.orig/src/options/opt_appearance.cpp	2007-10-14 16:00:52.000000000 +0200
-+++ psi-0.11/src/options/opt_appearance.cpp	2007-11-25 15:39:58.000000000 +0100
-@@ -113,6 +113,7 @@
+diff -urN psi-0.10.orig/src/options/opt_appearance.cpp psi-0.10/src/options/opt_appearance.cpp
+--- psi-0.10.orig/src/options/opt_appearance.cpp	2006-01-07 22:19:01.000000000 +0100
++++ psi-0.10/src/options/opt_appearance.cpp	2006-01-21 19:03:59.065294000 +0100
+@@ -104,6 +104,7 @@
  
  	opt->clNewHeadings = d->ck_newHeadings->isChecked();	
  	opt->outlineHeadings = d->ck_outlineHeadings->isChecked();	
 +	opt->clStIndicator = d->ck_statusIndicator->isChecked();
- 	PsiOptions::instance()->setOption("options.ui.contactlist.opacity", d->sl_rosterop->value());
- 	PsiOptions::instance()->setOption("options.ui.chat.opacity", d->sl_chatdlgop->value());
+ 	opt->rosterOpacity = d->sl_rosterop->value();
+ 	opt->chatOpacity = d->sl_chatdlgop->value();
  }
-@@ -126,6 +127,7 @@
+@@ -117,6 +118,7 @@
  
  	d->ck_newHeadings->setChecked( opt->clNewHeadings );
  	d->ck_outlineHeadings->setChecked( opt->outlineHeadings );
 +	d->ck_statusIndicator->setChecked( opt->clStIndicator );
  	
- 	d->sl_rosterop->setValue( PsiOptions::instance()->getOption("options.ui.contactlist.opacity").toInt() );
- 	d->sl_chatdlgop->setValue( PsiOptions::instance()->getOption("options.ui.chat.opacity").toInt() );
-@@ -279,7 +281,7 @@
+ 	d->sl_rosterop->setValue( opt->rosterOpacity );
+ 	d->sl_chatdlgop->setValue( opt->chatOpacity );
+@@ -262,7 +264,7 @@
  
  	//OptAppearanceUI *d = (OptAppearanceUI *)w;
  	//d->ck_avatarsChatdlg->setChecked( opt->avatarsChatdlgEnabled ); // Avatars
@@ -157,63 +158,66 @@ diff -ur psi-0.11.orig/src/options/opt_appearance.cpp psi-0.11/src/options/opt_a
  	int n;
  	for (n = 0; n < 4; ++n)
  		le_font[n]->setFont(opt->font[n]);
-diff -ur psi-0.11.orig/src/options/opt_appearance_misc.ui psi-0.11/src/options/opt_appearance_misc.ui
---- psi-0.11.orig/src/options/opt_appearance_misc.ui	2007-10-14 16:00:52.000000000 +0200
-+++ psi-0.11/src/options/opt_appearance_misc.ui	2007-11-25 16:02:07.000000000 +0100
-@@ -23,6 +23,11 @@
-     <number>6</number>
-    </property>
-    <item>
-+    <widget class="QCheckBox" name="ck_statusIndicator" >
-+     <property name="text">
-+      <string>Show indicator for text statuses</string>
-+     </property>
-+    </widget>
-     <widget class="QGroupBox" name="groupBox4" >
-      <property name="title" >
-       <string>Headings</string>
-diff -ur psi-0.11.orig/src/psiiconset.cpp psi-0.11/src/psiiconset.cpp
---- psi-0.11.orig/src/psiiconset.cpp	2007-10-14 16:00:53.000000000 +0200
-+++ psi-0.11/src/psiiconset.cpp	2007-11-25 15:46:38.000000000 +0100
-@@ -523,6 +523,19 @@
- 	return PsiIcon();
+diff -urN psi-0.10.orig/src/options/opt_appearance_misc-ui.ui psi-0.10/src/options/opt_appearance_misc-ui.ui
+--- psi-0.10.orig/src/options/opt_appearance_misc-ui.ui	2005-10-14 02:36:14.000000000 +0200
++++ psi-0.10/src/options/opt_appearance_misc-ui.ui	2006-01-21 18:48:44.155294000 +0100
+@@ -19,6 +19,14 @@
+         <property name="name">
+             <cstring>unnamed</cstring>
+         </property>
++        <widget class="QCheckBox">
++            <property name="name">
++                <cstring>ck_statusIndicator</cstring>
++            </property>
++            <property name="text">
++                <string>Show indicator for text statuses</string>
++            </property>
++        </widget>
+         <widget class="QGroupBox">
+             <property name="name">
+                 <cstring>groupBox4</cstring>
+diff -urN psi-0.10.orig/src/psiiconset.cpp psi-0.10/src/psiiconset.cpp
+--- psi-0.10.orig/src/psiiconset.cpp	2005-08-21 19:44:32.000000000 +0200
++++ psi-0.10/src/psiiconset.cpp	2006-01-21 18:38:28.425294000 +0100
+@@ -518,6 +518,19 @@
+ 	return Icon();
  }
  
-+PsiIcon *PsiIconset::indicatorPtr(const XMPP::Jid &jid)
++Icon *PsiIconset::indicatorPtr(const XMPP::Jid &jid)
 +{
 +	return d->jid2icon(jid, "psi/statInd");
 +}
 +
-+PsiIcon PsiIconset::indicator(const XMPP::Jid &jid)
++Icon PsiIconset::indicator(const XMPP::Jid &jid)
 +{
-+	PsiIcon *icon = indicatorPtr(jid);
++	Icon *icon = indicatorPtr(jid);
 +	if ( icon )
 +		return *icon;
-+	return PsiIcon();
++	return Icon();
 +}
 +
- PsiIcon *PsiIconset::statusPtr(const XMPP::Jid &jid, int s)
+ Icon *PsiIconset::statusPtr(const XMPP::Jid &jid, int s)
  {
  	return d->jid2icon(jid, status2name(s));
-diff -ur psi-0.11.orig/src/psiiconset.h psi-0.11/src/psiiconset.h
---- psi-0.11.orig/src/psiiconset.h	2007-10-14 16:00:53.000000000 +0200
-+++ psi-0.11/src/psiiconset.h	2007-11-25 15:42:04.000000000 +0100
-@@ -64,9 +64,11 @@
+diff -urN psi-0.10.orig/src/psiiconset.h psi-0.10/src/psiiconset.h
+--- psi-0.10.orig/src/psiiconset.h	2005-08-21 19:44:27.000000000 +0200
++++ psi-0.10/src/psiiconset.h	2006-01-21 18:38:28.425294000 +0100
+@@ -61,9 +61,11 @@
  	// JID-enabled status functions
- 	PsiIcon *statusPtr(const XMPP::Jid &, int);
- 	PsiIcon *statusPtr(const XMPP::Jid &, const XMPP::Status &);
-+	PsiIcon *indicatorPtr(const XMPP::Jid &);
+ 	Icon *statusPtr(const XMPP::Jid &, int);
+ 	Icon *statusPtr(const XMPP::Jid &, const XMPP::Status &);
++	Icon *indicatorPtr(const XMPP::Jid &);
  
- 	PsiIcon status(const XMPP::Jid &, int);
- 	PsiIcon status(const XMPP::Jid &, const XMPP::Status &);
-+	PsiIcon indicator(const XMPP::Jid &);
+ 	Icon status(const XMPP::Jid &, int);
+ 	Icon status(const XMPP::Jid &, const XMPP::Status &);
++	Icon indicator(const XMPP::Jid &);
  
  	// functions to get status icon by transport name
- 	PsiIcon *transportStatusPtr(QString name, int);
-diff -ur psi-0.11.orig/src/psi_profiles.cpp psi-0.11/src/psi_profiles.cpp
---- psi-0.11.orig/src/psi_profiles.cpp	2007-10-14 16:00:53.000000000 +0200
-+++ psi-0.11/src/psi_profiles.cpp	2007-11-25 15:40:54.000000000 +0100
-@@ -535,6 +535,8 @@
+ 	Icon *transportStatusPtr(QString name, int);
+diff -urN psi-0.10.orig/src/psi_profiles.cpp psi-0.10/src/psi_profiles.cpp
+--- psi-0.10.orig/src/psi_profiles.cpp	2006-01-21 18:37:41.000000000 +0100
++++ psi-0.10/src/psi_profiles.cpp	2006-01-21 18:38:28.425294000 +0100
+@@ -428,6 +428,8 @@
  		prefs.font[fPopup] = font.toString();
  	}
  
@@ -222,19 +226,19 @@ diff -ur psi-0.11.orig/src/psi_profiles.cpp psi-0.11/src/psi_profiles.cpp
  	// calculate the small font size
  	const int minimumFontSize = 7;
  	prefs.smallFontSize = qApp->font().pointSize();
-@@ -987,6 +989,7 @@
- 
- 		p_lnf.appendChild(textTag(doc, "newHeadings", prefs.clNewHeadings));
+@@ -905,6 +907,7 @@
+ 		p_lnf.appendChild(textTag(doc, "chat-opacity", prefs.chatOpacity));
+ 		p_lnf.appendChild(textTag(doc, "roster-opacity", prefs.rosterOpacity));
  		p_lnf.appendChild(textTag(doc, "outline-headings", prefs.outlineHeadings));
 +		p_lnf.appendChild(textTag(doc, "statusIndicator", prefs.clStIndicator));
  
  		{
  			QDomElement tag = doc.createElement("colors");
-@@ -1543,6 +1546,7 @@
- 
- 			readBoolEntry(p_lnf, "newHeadings", &prefs.clNewHeadings);
+@@ -1483,6 +1486,7 @@
  			readBoolEntry(p_lnf, "outline-headings", &prefs.outlineHeadings);
+ 			readNumEntry(p_lnf, "chat-opacity", &prefs.chatOpacity);
+ 			readNumEntry(p_lnf, "roster-opacity", &prefs.rosterOpacity);
 +			readBoolEntry(p_lnf, "statusIndicator", &prefs.clStIndicator);
- 			migrateIntEntry(p_lnf, "chat-opacity", "options.ui.chat.opacity");
- 			migrateIntEntry(p_lnf, "roster-opacity", "options.ui.contactlist.opacity");
  
+ 			QDomElement tag = findSubTag(p_lnf, "colors", &found);
+ 			if(found) {
