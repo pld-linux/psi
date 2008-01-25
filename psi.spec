@@ -68,7 +68,7 @@ poszukiwane w katalogu $DATADIR/certs lub ~/.psi/certs.
 %patch9 -p1
 #%patch10 -p1
 
-cp %{SOURCE1} iconset/roster/default/indicator.png
+cp %{SOURCE1} iconsets/roster/default/indicator.png
 
 rm -rf third-party
 
