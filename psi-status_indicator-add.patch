@@ -1,3 +1,18 @@
+diff -urN psi-0.11.orig/iconsets/roster/default/icondef.xml psi-0.11/iconsets/roster/default/icondef.xml
+--- psi-0.11.orig/iconsets/roster/default/icondef.xml	2007-10-14 16:00:49.000000000 +0200
++++ psi-0.11/iconsets/roster/default/icondef.xml	2008-01-25 21:12:38.285216894 +0100
+@@ -63,6 +63,11 @@
+ 		<object mime='image/png'>perr.png</object>
+ 	</icon>
+ 
++	<icon>
++		<x xmlns='name'>psi/statInd</x>
++		<object mime='image/png'>indicator.png</object>
++	</icon>
++
+ 	<!-- Special icons -->
+ 	<icon>
+ 		<x xmlns='name'>psi/chat</x>
 diff -urN psi-0.11.orig/iris/xmpp-im/client.cpp psi-0.11/iris/xmpp-im/client.cpp
 --- psi-0.11.orig/iris/xmpp-im/client.cpp	2007-10-14 16:00:50.000000000 +0200
 +++ psi-0.11/iris/xmpp-im/client.cpp	2008-01-25 18:48:00.863060210 +0100
