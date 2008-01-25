@@ -1,6 +1,5 @@
-diff -ur psi-0.11.orig/src/systeminfo.cpp psi-0.11/src/systeminfo.cpp
---- psi-0.11.orig/src/systeminfo.cpp	2007-10-14 16:00:54.000000000 +0200
-+++ psi-0.11/src/systeminfo.cpp	2007-11-25 15:28:41.000000000 +0100
+--- psi-0.11/src/systeminfo.cpp.orig	2007-10-14 16:00:54.000000000 +0200
++++ psi-0.11/src/systeminfo.cpp	2008-01-25 16:36:04.883197197 +0100
 @@ -52,6 +52,7 @@
  	// get description about os
  	enum LinuxName {
@@ -13,7 +12,7 @@ diff -ur psi-0.11.orig/src/systeminfo.cpp psi-0.11/src/systeminfo.cpp
  		// many distros use the /etc/redhat-release for compatibility, so RedHat will be the last :)
  		{ LinuxRedHat,		OsUseFile,	"/etc/redhat-release",		"RedHat Linux"		},
  
-+		{ LinuxCustom,		OsUseFile,	getHomeDir()+"/custom-os",	""			},
++		{ LinuxCustom,		OsUseFile,	ApplicationInfo::homeDir() + "/custom-os",	""	},
  		{ LinuxNone,		OsUseName,	"",				""			}
  	};
  
