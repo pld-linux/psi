@@ -72,7 +72,7 @@ poszukiwane w katalogu $DATADIR/certs lub ~/.psi/certs.
 #%patch24 -p1
 #%patch26 -p1
 
-cp %{SOURCE1} indicator.png
+cp %{SOURCE1} iconset/roster/default/indicator.png
 
 rm -rf third-party
 
@@ -91,8 +91,6 @@ export QTDIR=%{_libdir}/qt4
 
 %{__make} install \
 	INSTALL_ROOT=$RPM_BUILD_ROOT
-
-install indicator.png $RPM_BUILD_ROOT%{_datadir}/psi/iconsets/roster/default/indicator.png
 
 %clean
 rm -rf $RPM_BUILD_ROOT
