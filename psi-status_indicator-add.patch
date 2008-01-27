@@ -1,6 +1,6 @@
 diff -urN psi-0.11.orig/iconsets/roster/default/icondef.xml psi-0.11/iconsets/roster/default/icondef.xml
 --- psi-0.11.orig/iconsets/roster/default/icondef.xml	2007-10-14 16:00:49.000000000 +0200
-+++ psi-0.11/iconsets/roster/default/icondef.xml	2008-01-25 21:12:38.285216894 +0100
++++ psi-0.11/iconsets/roster/default/icondef.xml	2008-01-27 17:04:53.000000000 +0100
 @@ -63,6 +63,11 @@
  		<object mime='image/png'>perr.png</object>
  	</icon>
@@ -15,7 +15,7 @@ diff -urN psi-0.11.orig/iconsets/roster/default/icondef.xml psi-0.11/iconsets/ro
  		<x xmlns='name'>psi/chat</x>
 diff -urN psi-0.11.orig/iconsets.qrc psi-0.11/iconsets.qrc
 --- psi-0.11.orig/iconsets.qrc	2007-10-14 16:00:49.000000000 +0200
-+++ psi-0.11/iconsets.qrc	2008-01-25 23:10:56.169394807 +0100
++++ psi-0.11/iconsets.qrc	2008-01-27 17:04:53.000000000 +0100
 @@ -18,6 +18,7 @@
  		<file>iconsets/roster/default/offline.png</file>
  		<file>iconsets/roster/default/online.png</file>
@@ -26,7 +26,7 @@ diff -urN psi-0.11.orig/iconsets.qrc psi-0.11/iconsets.qrc
  
 diff -urN psi-0.11.orig/iris/xmpp-im/client.cpp psi-0.11/iris/xmpp-im/client.cpp
 --- psi-0.11.orig/iris/xmpp-im/client.cpp	2007-10-14 16:00:50.000000000 +0200
-+++ psi-0.11/iris/xmpp-im/client.cpp	2008-01-25 18:48:00.863060210 +0100
++++ psi-0.11/iris/xmpp-im/client.cpp	2008-01-27 17:04:53.000000000 +0100
 @@ -789,9 +789,26 @@
  
  	// unavailable?  remove the resource
@@ -58,7 +58,7 @@ diff -urN psi-0.11.orig/iris/xmpp-im/client.cpp psi-0.11/iris/xmpp-im/client.cpp
  			i->setLastUnavailableStatus(s);
 diff -urN psi-0.11.orig/src/chatdlg.cpp psi-0.11/src/chatdlg.cpp
 --- psi-0.11.orig/src/chatdlg.cpp	2007-10-14 16:00:51.000000000 +0200
-+++ psi-0.11/src/chatdlg.cpp	2008-01-25 18:27:20.605745518 +0100
++++ psi-0.11/src/chatdlg.cpp	2008-01-27 17:04:53.000000000 +0100
 @@ -575,8 +575,10 @@
  			u = ul.first();
  			if(rname.isEmpty()) {
@@ -73,7 +73,7 @@ diff -urN psi-0.11.orig/src/chatdlg.cpp psi-0.11/src/chatdlg.cpp
  					status = makeSTATUS(r.status());
 diff -urN psi-0.11.orig/src/common.h psi-0.11/src/common.h
 --- psi-0.11.orig/src/common.h	2007-10-14 16:00:51.000000000 +0200
-+++ psi-0.11/src/common.h	2008-01-25 18:27:20.605745518 +0100
++++ psi-0.11/src/common.h	2008-01-27 17:04:53.000000000 +0100
 @@ -124,6 +124,7 @@
  
  	bool clNewHeadings;
@@ -84,7 +84,7 @@ diff -urN psi-0.11.orig/src/common.h psi-0.11/src/common.h
  	bool ppIsOn;
 diff -urN psi-0.11.orig/src/contactview.cpp psi-0.11/src/contactview.cpp
 --- psi-0.11.orig/src/contactview.cpp	2007-10-14 16:00:51.000000000 +0200
-+++ psi-0.11/src/contactview.cpp	2008-01-25 23:34:55.711825614 +0100
++++ psi-0.11/src/contactview.cpp	2008-01-27 18:13:36.000000000 +0100
 @@ -26,6 +26,7 @@
  #include <q3header.h>
  #include <qtimer.h>
@@ -93,7 +93,34 @@ diff -urN psi-0.11.orig/src/contactview.cpp psi-0.11/src/contactview.cpp
  #include <q3popupmenu.h>
  #include <qmessagebox.h>
  #include <qinputdialog.h>
-@@ -3378,11 +3379,13 @@
+@@ -3289,11 +3290,16 @@
+ 	repaint();
+ }
+ 
+-void ContactViewItem::resetStatus()
++void ContactViewItem::resetIcon()
+ {
+ 	if ( !d->alerting && d->u ) {
+ 		setIcon(PsiIconset::instance()->statusPtr(d->u));
+ 	}
++}
++
++void ContactViewItem::resetStatus()
++{
++	resetIcon();
+ 
+ 	// If the status is shown, update the text of the item too
+ 	if (static_cast<ContactView*>(Q3ListViewItem::listView())->isShowStatusMsg())
+@@ -3302,6 +3308,8 @@
+ 
+ void ContactViewItem::resetName(bool forceNoStatusMsg)
+ {
++	resetIcon();
++
+ 	if ( d->u ) {
+ 		QString s = JIDUtil::nickOrJid(d->u->name(), d->u->jid().full());
+ 			
+@@ -3378,11 +3386,13 @@
  
  void ContactViewItem::setIcon(const PsiIcon *icon, bool alert)
  {
@@ -107,7 +134,7 @@ diff -urN psi-0.11.orig/src/contactview.cpp psi-0.11/src/contactview.cpp
  
  	if ( d->icon ) {
  		disconnect(d->icon, 0, this, 0 );
-@@ -3392,7 +3395,6 @@
+@@ -3392,7 +3402,6 @@
  		d->icon = 0;
  	}
  
@@ -115,7 +142,7 @@ diff -urN psi-0.11.orig/src/contactview.cpp psi-0.11/src/contactview.cpp
  	if ( icon ) {
  		if ( !alert )
  			d->icon = new PsiIcon(*icon);
-@@ -3403,16 +3405,46 @@
+@@ -3403,16 +3412,46 @@
  			connect(d->icon, SIGNAL(pixmapChanged()), SLOT(iconUpdated()));
  		}
  		d->icon->activated();
@@ -166,9 +193,20 @@ diff -urN psi-0.11.orig/src/contactview.cpp psi-0.11/src/contactview.cpp
  }
  
  void ContactViewItem::animateNick()
+diff -urN psi-0.11.orig/src/contactview.h psi-0.11/src/contactview.h
+--- psi-0.11.orig/src/contactview.h	2007-10-14 16:00:51.000000000 +0200
++++ psi-0.11/src/contactview.h	2008-01-27 18:12:08.000000000 +0100
+@@ -362,6 +362,7 @@
+ 	void clearAlert();
+ 	void setIcon(const PsiIcon *, bool alert = false);
+ 
++	void resetIcon();
+ 	void resetStatus();
+ 	void resetName(bool forceNoStatusMsg = false); // use this to cancel a rename
+ 	void resetGroupName();
 diff -urN psi-0.11.orig/src/options/opt_appearance.cpp psi-0.11/src/options/opt_appearance.cpp
 --- psi-0.11.orig/src/options/opt_appearance.cpp	2007-10-14 16:00:52.000000000 +0200
-+++ psi-0.11/src/options/opt_appearance.cpp	2008-01-25 18:27:20.619079539 +0100
++++ psi-0.11/src/options/opt_appearance.cpp	2008-01-27 17:04:53.000000000 +0100
 @@ -111,6 +111,7 @@
  
  	OptAppearanceMiscUI *d = (OptAppearanceMiscUI *)w;
@@ -197,7 +235,7 @@ diff -urN psi-0.11.orig/src/options/opt_appearance.cpp psi-0.11/src/options/opt_
  		le_font[n]->setFont(opt->font[n]);
 diff -urN psi-0.11.orig/src/options/opt_appearance_misc.ui psi-0.11/src/options/opt_appearance_misc.ui
 --- psi-0.11.orig/src/options/opt_appearance_misc.ui	2007-10-14 16:00:52.000000000 +0200
-+++ psi-0.11/src/options/opt_appearance_misc.ui	2008-01-25 18:27:20.619079539 +0100
++++ psi-0.11/src/options/opt_appearance_misc.ui	2008-01-27 17:04:53.000000000 +0100
 @@ -9,7 +9,7 @@
      <x>0</x>
      <y>0</y>
@@ -246,7 +284,7 @@ diff -urN psi-0.11.orig/src/options/opt_appearance_misc.ui psi-0.11/src/options/
    <tabstop>sl_rosterop</tabstop>
 diff -urN psi-0.11.orig/src/psiiconset.cpp psi-0.11/src/psiiconset.cpp
 --- psi-0.11.orig/src/psiiconset.cpp	2007-10-14 16:00:53.000000000 +0200
-+++ psi-0.11/src/psiiconset.cpp	2008-01-25 18:27:20.619079539 +0100
++++ psi-0.11/src/psiiconset.cpp	2008-01-27 17:04:53.000000000 +0100
 @@ -523,6 +523,19 @@
  	return PsiIcon();
  }
@@ -269,7 +307,7 @@ diff -urN psi-0.11.orig/src/psiiconset.cpp psi-0.11/src/psiiconset.cpp
  	return d->jid2icon(jid, status2name(s));
 diff -urN psi-0.11.orig/src/psiiconset.h psi-0.11/src/psiiconset.h
 --- psi-0.11.orig/src/psiiconset.h	2007-10-14 16:00:53.000000000 +0200
-+++ psi-0.11/src/psiiconset.h	2008-01-25 18:27:20.619079539 +0100
++++ psi-0.11/src/psiiconset.h	2008-01-27 17:04:53.000000000 +0100
 @@ -64,9 +64,11 @@
  	// JID-enabled status functions
  	PsiIcon *statusPtr(const XMPP::Jid &, int);
@@ -283,8 +321,8 @@ diff -urN psi-0.11.orig/src/psiiconset.h psi-0.11/src/psiiconset.h
  	// functions to get status icon by transport name
  	PsiIcon *transportStatusPtr(QString name, int);
 diff -urN psi-0.11.orig/src/psi_profiles.cpp psi-0.11/src/psi_profiles.cpp
---- psi-0.11.orig/src/psi_profiles.cpp	2008-01-25 18:08:13.000000000 +0100
-+++ psi-0.11/src/psi_profiles.cpp	2008-01-25 18:27:20.619079539 +0100
+--- psi-0.11.orig/src/psi_profiles.cpp	2008-01-27 17:04:22.000000000 +0100
++++ psi-0.11/src/psi_profiles.cpp	2008-01-27 17:04:53.000000000 +0100
 @@ -535,6 +535,8 @@
  		prefs.font[fPopup] = font.toString();
  	}
