@@ -115,7 +115,7 @@ diff -urN psi-0.11.orig/src/contactview.cpp psi-0.11/src/contactview.cpp
  	if ( icon ) {
  		if ( !alert )
  			d->icon = new PsiIcon(*icon);
-@@ -3403,16 +3405,47 @@
+@@ -3403,16 +3405,46 @@
  			connect(d->icon, SIGNAL(pixmapChanged()), SLOT(iconUpdated()));
  		}
  		d->icon->activated();
@@ -146,8 +146,6 @@ diff -urN psi-0.11.orig/src/contactview.cpp psi-0.11/src/contactview.cpp
 +
 +		if(has_indicator) {
 +			const QPixmap &ipix = PsiIconset::instance()->indicator(d->u->jid()).pixmap();
-+			QPainter i(&out);
-+
 +			if(out.hasAlpha() && ipix.hasAlpha()) {
 +				// sum alpha channels
 +				QPixmap mask(out.alphaChannel());
@@ -158,6 +156,7 @@ diff -urN psi-0.11.orig/src/contactview.cpp psi-0.11/src/contactview.cpp
 +					mask);
 +				out.setAlphaChannel(mask);
 +			}
++			QPainter i(&out);
 +			i.drawPixmap((out.width() - ipix.width()) / 2, (out.height() - ipix.height()) / 2,
 +				ipix);
 +		}
@@ -199,6 +198,15 @@ diff -urN psi-0.11.orig/src/options/opt_appearance.cpp psi-0.11/src/options/opt_
 diff -urN psi-0.11.orig/src/options/opt_appearance_misc.ui psi-0.11/src/options/opt_appearance_misc.ui
 --- psi-0.11.orig/src/options/opt_appearance_misc.ui	2007-10-14 16:00:52.000000000 +0200
 +++ psi-0.11/src/options/opt_appearance_misc.ui	2008-01-25 18:27:20.619079539 +0100
+@@ -9,7 +9,7 @@
+     <x>0</x>
+     <y>0</y>
+     <width>354</width>
+-    <height>189</height>
++    <height>255</height>
+    </rect>
+   </property>
+   <property name="windowTitle" >
 @@ -23,6 +23,28 @@
      <number>6</number>
     </property>
@@ -214,7 +222,7 @@ diff -urN psi-0.11.orig/src/options/opt_appearance_misc.ui psi-0.11/src/options/
 +      <property name="spacing" >
 +       <number>6</number>
 +      </property>
-+      <item row="1" column="0" >
++      <item row="0" column="0" >
 +       <widget class="QCheckBox" name="ck_statusIndicator" >
 +        <property name="text">
 +         <string>Show indicator for text statuses</string>
