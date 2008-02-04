@@ -3,7 +3,7 @@ Summary(de.UTF-8):	PSI - ein Instant Messaging Client-Programm für Jabber
 Summary(pl.UTF-8):	PSI - klient Jabbera
 Name:		psi
 Version:	0.11
-Release:	2
+Release:	3
 License:	GPL v2
 Group:		Applications/Communications
 Source0:	http://dl.sourceforge.net/psi/%{name}-%{version}.tar.bz2
@@ -20,6 +20,7 @@ Patch7:		%{name}-empty_group-fix.patch
 Patch8:		%{name}-settoggles-fix.patch
 Patch9:		%{name}-status_indicator-add.patch
 Patch10:	%{name}-appearance-mod.patch
+Patch11:	%{name}-version.patch
 URL:		http://psi-im.org/
 BuildRequires:	Qt3Support-devel
 BuildRequires:	QtCore-devel
@@ -68,6 +69,7 @@ poszukiwane w katalogu $DATADIR/certs lub ~/.psi/certs.
 %patch8 -p1
 %patch9 -p1
 %patch10 -p1
+%patch11 -p1
 
 cp %{SOURCE1} iconsets/roster/default/indicator.png
 
