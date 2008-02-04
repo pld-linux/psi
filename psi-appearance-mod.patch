@@ -1733,10 +1733,15 @@ diff -urN psi-0.11.orig/src/psi_profiles.cpp psi-0.11/src/psi_profiles.cpp
 diff -urN psi-0.11.orig/src/statusdlg.cpp psi-0.11/src/statusdlg.cpp
 --- psi-0.11.orig/src/statusdlg.cpp	2007-10-14 16:00:54.000000000 +0200
 +++ psi-0.11/src/statusdlg.cpp	2008-01-27 16:51:50.000000000 +0100
-@@ -191,6 +191,11 @@
+@@ -191,6 +191,16 @@
  	hb->addStretch(1);
  	hb->addWidget(pb2);
  
++	QPalette le_priority_palette = d->le_priority->palette();
++	le_priority_palette.setColor(QColorGroup::Base, option.color[cStatBG]);
++	le_priority_palette.setColor(QColorGroup::Text, option.color[cStatText]);
++	d->le_priority->setPalette(le_priority_palette);
++
 +	QPalette te_palette = d->te->palette();
 +	te_palette.setColor(QColorGroup::Base, option.color[cStatBG]);
 +	te_palette.setColor(QColorGroup::Text, option.color[cStatText]);
