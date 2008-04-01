@@ -36,6 +36,7 @@ BuildRequires:	xorg-lib-libX11-devel
 BuildRequires:	xorg-proto-scrnsaverproto-devel
 BuildRequires:	zlib-devel
 Requires:	qt4-plugin-qca-ossl
+Suggests:	gpgme >= 1.0.0
 Obsoletes:	qt-designer-psiwidgets
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
