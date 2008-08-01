@@ -3,18 +3,18 @@ Summary(de.UTF-8):	PSI - ein Instant Messaging Client-Programm für Jabber
 Summary(pl.UTF-8):	PSI - klient Jabbera
 Name:		psi
 Version:	0.12
-Release:	0.1.RC4
+# TODO: fix or drop patches before rel 1
+Release:	0.1
 License:	GPL v2
 Group:		Applications/Communications
-Source0:	http://dl.sourceforge.net/psi/%{name}-%{version}-RC4.tar.bz2
-# Source0-md5:	7d12728b30df86c72297d8a9fc8afea8
+Source0:	http://dl.sourceforge.net/psi/%{name}-%{version}.tar.bz2
+# Source0-md5:	47b654c944ef8766b860fe0645615d18
 Source1:	%{name}-indicator.png
 Patch0:		%{name}-fix_configure_for_ksh.patch
 Patch1:		%{name}-desktop.patch
 Patch2:		%{name}-home_etc.patch
 #Patch3:		%{name}-certs.patch
 Patch4:		%{name}-customos.patch
-Patch5:		%{name}-no_online_offline_status.patch
 Patch6:		%{name}-icon_buttons_big_return-mod.patch
 Patch7:		%{name}-empty_group-fix.patch
 #Patch8:		%{name}-settoggles-fix.patch
@@ -60,13 +60,12 @@ została wprowadzona zmiana, która powoduje że certyfikaty SSL są
 poszukiwane w katalogu $DATADIR/certs lub ~/.psi/certs.
 
 %prep
-%setup -q -n %{name}-%{version}-RC4
+%setup -q
 %patch0 -p0
 %patch1 -p1
 %{?with_home_etc:%patch2 -p1}
 #%patch3 -p1
 %patch4 -p1
-%patch5 -p1
 %patch6 -p1
 %patch7 -p1
 #%patch8 -p1
