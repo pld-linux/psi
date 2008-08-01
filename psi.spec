@@ -12,8 +12,11 @@ Patch0:		%{name}-fix_configure_for_ksh.patch
 Patch1:		%{name}-desktop.patch
 Patch2:		%{name}-home_etc.patch
 Patch3:		%{name}-customos.patch
-Patch4:		%{name}-icon_buttons_big_return-mod.patch
-Patch5:		%{name}-empty_group-fix.patch
+Patch4:		%{name}-no_online_offline_status.patch
+Patch5:		%{name}-icon_buttons_big_return-mod.patch
+Patch6:		%{name}-empty_group-fix.patch
+Patch7:		%{name}-status_indicator-add.patch
+Patch8:		%{name}-appearance-mod.patch
 URL:		http://psi-im.org/
 BuildRequires:	Qt3Support-devel
 BuildRequires:	QtCore-devel
@@ -25,7 +28,7 @@ BuildRequires:	openssl-devel >= 0.9.7c
 BuildRequires:	qca-devel >= 2.0.0
 BuildRequires:	qt4-build >= 4.3.3-3
 BuildRequires:	qt4-qmake >= 4.3.3-3
-BuildRequires:	QtDBus-devel >= 4.3.3-3
+#BuildRequires:	QtDBus-devel >= 4.3.3-3
 BuildRequires:	xorg-lib-libX11-devel
 BuildRequires:	xorg-lib-libXScrnSaver-devel
 BuildRequires:	xorg-proto-scrnsaverproto-devel
@@ -60,6 +63,10 @@ poszukiwane w katalogu $DATADIR/certs lub ~/.psi/certs.
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
+%patch6 -p1
+# TODO
+#%patch7 -p1
+#%patch8 -p1
 
 rm -rf third-party
 
