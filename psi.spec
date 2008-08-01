@@ -13,14 +13,11 @@ Source1:	%{name}-indicator.png
 Patch0:		%{name}-fix_configure_for_ksh.patch
 Patch1:		%{name}-desktop.patch
 Patch2:		%{name}-home_etc.patch
-#Patch3:		%{name}-certs.patch
-Patch4:		%{name}-customos.patch
-Patch6:		%{name}-icon_buttons_big_return-mod.patch
-Patch7:		%{name}-empty_group-fix.patch
-#Patch8:		%{name}-settoggles-fix.patch
+Patch3:		%{name}-customos.patch
+Patch4:		%{name}-icon_buttons_big_return-mod.patch
+Patch5:		%{name}-empty_group-fix.patch
 #Patch9:		%{name}-status_indicator-add.patch
-#Patch10:	%{name}-appearance-mod.patch
-#Patch11:	%{name}-version.patch
+#Patch10:		%{name}-appearance-mod.patch
 URL:		http://psi-im.org/
 BuildRequires:	Qt3Support-devel
 BuildRequires:	QtCore-devel
@@ -64,12 +61,9 @@ poszukiwane w katalogu $DATADIR/certs lub ~/.psi/certs.
 %patch0 -p0
 %patch1 -p1
 %{?with_home_etc:%patch2 -p1}
-#%patch3 -p1
+%patch3 -p1
 %patch4 -p1
-%patch6 -p1
-%patch7 -p1
-#%patch8 -p1
-#%patch9 -p1
+%patch5 -p1
 #%patch10 -p1
 #%patch11 -p1
 
