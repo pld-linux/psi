@@ -1,226 +1,80 @@
-diff -urN psi-0.11.orig/src/chatdlg.cpp psi-0.11/src/chatdlg.cpp
---- psi-0.11.orig/src/chatdlg.cpp	2008-01-26 22:03:04.000000000 +0100
-+++ psi-0.11/src/chatdlg.cpp	2008-01-27 16:17:37.000000000 +0100
-@@ -776,6 +776,21 @@
- 	setWindowIcon(IconsetFactory::icon("psi/start-chat").icon());
- #endif
- 
-+	QPalette log_palette = ui_.log->palette();
-+	QPalette mle_palette = ui_.mle->palette();
-+	QPalette le_jid_palette = ui_.le_jid->palette();
-+
-+	log_palette.setColor(QColorGroup::Base, option.color[cChatBG]);
-+	log_palette.setColor(QColorGroup::Text, option.color[cChatText]);
-+	mle_palette.setColor(QColorGroup::Base, option.color[cChatBG]);
-+	mle_palette.setColor(QColorGroup::Text, option.color[cChatText]);
-+	le_jid_palette.setColor(QColorGroup::Base, option.color[cChatBG]);
-+	le_jid_palette.setColor(QColorGroup::Text, option.color[cChatText]);
-+
-+	ui_.log->setPalette(log_palette);
-+	ui_.mle->setPalette(mle_palette);
-+	ui_.le_jid->setPalette(le_jid_palette);
-+
- 	setWindowOpacity(double(qMax(MINIMUM_OPACITY,PsiOptions::instance()->getOption("options.ui.chat.opacity").toInt()))/100);
+diff -urN psi-0.12.orig/options/default.xml psi-0.12/options/default.xml
+--- psi-0.12.orig/options/default.xml	2008-05-13 03:57:35.000000000 +0200
++++ psi-0.12/options/default.xml	2008-08-09 22:01:13.000000000 +0200
+@@ -214,6 +214,12 @@
+ 			<last-used-save-path type="QString"></last-used-save-path>
+ 			<look>
+ 				<colors>
++					<chat>
++						<incoming-messages-color type="QColor" >#0000ff</incoming-messages-color>
++						<outgoing-messages-color type="QColor" >#ff0000</outgoing-messages-color>
++						<spooled-messages-color type="QColor" >#008000</spooled-messages-color>
++						<system-messages-color type="QColor" >#00a000</system-messages-color>
++					</chat>
+ 					<contactlist>
+ 						<background type="QColor">#ffffff</background>
+ 						<grouping>
+@@ -232,6 +238,12 @@
+ 						</status>
+ 						<status-messages type="QColor">#808080</status-messages>
+ 					</contactlist>
++					<groupchat>
++						<alert-messages-color type="QColor" >#ff0000</alert-messages-color>
++						<default-nick-color type="QColor" >#000000</default-nick-color>
++						<spooled-messages-color type="QColor" >#008000</spooled-messages-color>
++						<system-messages-color type="QColor" >#00a000</system-messages-color>
++					</groupchat>
+ 					<muc>
+ 						<nick-colors type="QStringList" >
+ 							<item>Blue</item>
+diff -urN psi-0.12.orig/src/groupchatdlg.cpp psi-0.12/src/groupchatdlg.cpp
+--- psi-0.12.orig/src/groupchatdlg.cpp	2008-03-19 21:59:10.000000000 +0100
++++ psi-0.12/src/groupchatdlg.cpp	2008-08-09 18:34:42.000000000 +0200
+@@ -1207,7 +1207,7 @@
+ 	bool doInsert = t.date() != lastMsgTime_.date();
+ 	lastMsgTime_ = t;
+ 	if (doInsert) {
+-		QString color = "#00A000";
++		QString color = PsiOptions::instance()->getOption("options.ui.look.colors.groupchat.system-messages-color").toString();
+ 		ui_.log->appendText(QString("<font color=\"%1\">*** %2</font>").arg(color).arg(t.date().toString(Qt::ISODate)));
+ 	}
  }
+@@ -1226,7 +1226,7 @@
  
-@@ -1023,7 +1038,7 @@
- void ChatDlg::appendSysMsg(const QString &str)
- {
- 	QString timestr = ui_.log->formatTimeStamp(QDateTime::currentDateTime());
--	ui_.log->appendText(QString("<font color=\"#00A000\">[%1]").arg(timestr) + QString(" *** %1</font>").arg(str));
-+	ui_.log->appendText(QString("<font color=\"" + option.color[cChatSys].name() + "\">[%1]").arg(timestr) + QString(" *** %1</font>").arg(str));
- }
- 
- void ChatDlg::appendMessage(const Message &m, bool local)
-@@ -1032,14 +1047,14 @@
- 
- 	if(local) {
- 		who = d->pa->nick();
--		color = "#FF0000";
-+		color = option.color[cChatTo].name();
- 	}
- 	else {
- 		who = d->dispNick;
--		color = "#0000FF";
-+		color = option.color[cChatFrom].name();
- 	}
- 	if(m.spooled())
--		color = "#008000";
-+		color = option.color[cChatSpool].name();
- 
- 	// figure out the encryption state
- 	bool encChanged = false;
-@@ -1067,7 +1082,10 @@
- 		}
- 	}
- 
--	QString timestr = ui_.log->formatTimeStamp(m.timeStamp());
-+	QString timestr;
-+	if(option.showTimeStamps) {
-+		timestr = QString("[%1] ").arg(ui_.log->formatTimeStamp(m.timeStamp()));
-+	}
- 	bool emote = false;
- 
- 	QString me_cmd = "/me ";
-@@ -1103,14 +1121,18 @@
- 
- 	who = Qt::escape(who);
- 
-+	if(!emote) {
-+		txt = QString("<span style=\"color: %1\">").arg(option.color[cChatText].name()) + txt +"</span>";
-+	}
-+
- 	if(emote) {
--		ui_.log->appendText(QString("<span style=\"color: %1\">").arg(color) + QString("[%1]").arg(timestr) + QString(" *%1 ").arg(who) + txt + "</span>");
-+		ui_.log->appendText(QString("<span style=\"color: %1\"><i>").arg(color) + timestr + QString(" **%1 ").arg(who) + txt + "</i></span>");
- 	}
- 	else {
- 		if(option.chatSays)
--			ui_.log->appendText(QString("<p style=\"color: %1\">").arg(color) + QString("[%1] ").arg(timestr) + tr("%1 says:").arg(who) + "</p>" + txt);
-+			ui_.log->appendText(QString("<p style=\"color: %1\">").arg(color) + timestr + tr("%1 says:").arg(who) + "</p>" + txt);
- 		else
--			ui_.log->appendText(QString("<span style=\"color: %1\">").arg(color) + QString("[%1] &lt;").arg(timestr) + who + QString("&gt;</span> ") + txt);
-+			ui_.log->appendText(QString("<span style=\"color: %1\">").arg(color) + timestr + who + QString(":</span> ") + txt);
- 	}
- 	if(!m.subject().isEmpty()) {
- 		ui_.log->appendText(QString("<b>") + tr("Subject:") + "</b> " + QString("%1").arg(TextUtil::plain2rich(m.subject())));
-diff -urN psi-0.11.orig/src/common.h psi-0.11/src/common.h
---- psi-0.11.orig/src/common.h	2008-01-26 22:03:04.000000000 +0100
-+++ psi-0.11/src/common.h	2008-01-27 16:46:50.000000000 +0100
-@@ -46,6 +46,22 @@
- 	cListBack, 
- 	cAnimFront, 
- 	cAnimBack,
-+	cChatBG,
-+	cChatText,
-+	cChatSys,
-+	cChatSpool,
-+	cChatTo,
-+	cChatFrom,
-+	cGChatBG,
-+	cGChatText,
-+	cGChatAlert,
-+	cGChatSys,
-+	cGChatSpool,
-+	cGChatNick,
-+	cMsgBG,
-+	cMsgText,
-+	cStatBG,
-+	cStatText,
- 	cStatus,
- 	cNumColors // A guard to store the number of colors
- };
-@@ -97,7 +113,7 @@
- 	QString player;
- 
- 	bool ignoreHeadline, ignoreNonRoster, excludeGroupChatsFromIgnore, scrollTo, keepSizes, useEmoticons, alertOpenChats;
--	bool raiseChatWindow, showSubjects, showCounter, chatSays, showGroupCounts;
-+	bool raiseChatWindow, showSubjects, showCounter, chatSays, showTimeStamps, showGroupCounts;
- 
- 	QSize sizeEventDlg, sizeChatDlg, sizeTabDlg;
- 	bool jidComplete, grabUrls, noGCSound;
-diff -urN psi-0.11.orig/src/eventdlg.cpp psi-0.11/src/eventdlg.cpp
---- psi-0.11.orig/src/eventdlg.cpp	2007-10-14 16:00:51.000000000 +0200
-+++ psi-0.11/src/eventdlg.cpp	2008-01-27 17:00:36.000000000 +0100
-@@ -1386,6 +1386,30 @@
- 			setWindowIcon(d->anim->icon());
- 	}
- #endif
-+
-+	if(d->composing) {
-+		QPalette le_to_palette = d->le_to->palette();
-+		le_to_palette.setColor(QColorGroup::Base, option.color[cMsgBG]);
-+		le_to_palette.setColor(QColorGroup::Text, option.color[cMsgText]);
-+		d->le_to->setPalette(le_to_palette);
-+	}
-+	else {
-+		QPalette le_from_palette = d->le_from->palette();
-+		le_from_palette.setColor(QColorGroup::Base, option.color[cMsgBG]);
-+		le_from_palette.setColor(QColorGroup::Text, option.color[cMsgText]);
-+		d->le_from->setPalette(le_from_palette);
-+	}
-+
-+	QPalette le_subj_palette = d->le_subj->palette();
-+	QPalette mle_palette = d->mle->palette();
-+
-+	le_subj_palette.setColor(QColorGroup::Base, option.color[cMsgBG]);
-+	le_subj_palette.setColor(QColorGroup::Text, option.color[cMsgText]);
-+	mle_palette.setColor(QColorGroup::Base, option.color[cMsgBG]);
-+	mle_palette.setColor(QColorGroup::Text, option.color[cMsgText]);
-+
-+	d->le_subj->setPalette(le_subj_palette);
-+	d->mle->setPalette(mle_palette);
- }
- 
- QSize EventDlg::defaultSize()
-diff -urN psi-0.11.orig/src/groupchatdlg.cpp psi-0.11/src/groupchatdlg.cpp
---- psi-0.11.orig/src/groupchatdlg.cpp	2007-10-14 16:00:51.000000000 +0200
-+++ psi-0.11/src/groupchatdlg.cpp	2008-01-27 16:25:16.000000000 +0100
-@@ -1229,7 +1229,7 @@
- 		time = ts;
- 
+ 	updateLastMsgTime(time);
  	QString timestr = ui_.log->formatTimeStamp(time);
 -	ui_.log->appendText(QString("<font color=\"#00A000\">[%1]").arg(timestr) + QString(" *** %1</font>").arg(Qt::escape(str)));
-+	ui_.log->appendText(QString("<font color=\"" + option.color[cGChatSys].name() + "\">[%1]").arg(timestr) + QString(" *** %1</font>").arg(Qt::escape(str)));
++	ui_.log->appendText(QString("<font color=\"" + PsiOptions::instance()->getOption("options.ui.look.colors.groupchat.system-messages-color").toString() +  "\">[%1]").arg(timestr) + QString(" *** %1</font>").arg(Qt::escape(str)));
  
  	if(alert)
  		doAlert();
-@@ -1250,7 +1250,7 @@
- 	}
- 
- 	if(!option.gcNickColoring || option.gcNickColors.empty()) {
+@@ -1249,7 +1249,7 @@
+ 	QStringList nickColors = PsiOptions::instance()->getOption("options.ui.look.colors.muc.nick-colors").toStringList();
+ 	
+ 	if(!PsiOptions::instance()->getOption("options.ui.muc.use-nick-coloring").toBool() || nickColors.empty()) {
 -		return "#000000";
-+		return option.color[cGChatNick].name();
++		return PsiOptions::instance()->getOption("options.ui.look.colors.groupchat.default-nick-color").toString();
  	}
- 	else if(sender == -1 || option.gcNickColors.size() == 1) {
- 		return option.gcNickColors[option.gcNickColors.size()-1];
-@@ -1278,14 +1278,14 @@
- 		color = "#0000FF";
- 	}*/
+ 	else if(sender == -1 || nickColors.size() == 1) {
+ 		return nickColors[nickColors.size()-1];
+@@ -1280,12 +1280,12 @@
  	nickcolor = getNickColor(who);
--	textcolor = ui_.log->palette().active().text().name();
-+	textcolor = option.color[cGChatText].name();
+ 	textcolor = ui_.log->palette().active().text().name();
  	if(alert) {
 -		textcolor = "#FF0000";
-+		textcolor = option.color[cGChatAlert].name();
++		textcolor = PsiOptions::instance()->getOption("options.ui.look.colors.groupchat.alert-messages-color").toString();
  		alerttagso = "<b>";
  		alerttagsc = "</b>";
  	}
  	if(m.spooled())
 -		nickcolor = "#008000"; //color = "#008000";
-+		nickcolor = option.color[cGChatSpool].name();
++		nickcolor = PsiOptions::instance()->getOption("options.ui.look.colors.groupchat.spooled-messages-color").toString();
  
  	QString timestr = ui_.log->formatTimeStamp(m.timeStamp());
  
-@@ -1443,6 +1443,25 @@
- #ifndef Q_WS_MAC
- 	setWindowIcon(IconsetFactory::icon("psi/groupChat").icon());
- #endif
-+
-+	QPalette le_topic_palette = ui_.le_topic->palette();
-+	QPalette lv_users_palette = ui_.lv_users->palette();
-+	QPalette log_palette = ui_.log->palette();
-+	QPalette mle_palette = ui_.mle->palette();
-+
-+	le_topic_palette.setColor(QColorGroup::Base, option.color[cGChatBG]);
-+	le_topic_palette.setColor(QColorGroup::Text, option.color[cGChatText]);
-+	lv_users_palette.setColor(QColorGroup::Base, option.color[cGChatBG]);
-+	lv_users_palette.setColor(QColorGroup::Text, option.color[cGChatText]);
-+	log_palette.setColor(QColorGroup::Base, option.color[cGChatBG]);
-+	log_palette.setColor(QColorGroup::Text, option.color[cGChatText]);
-+	mle_palette.setColor(QColorGroup::Base, option.color[cGChatBG]);
-+	mle_palette.setColor(QColorGroup::Text, option.color[cGChatText]);
-+
-+	ui_.log->setPalette(log_palette);
-+	ui_.mle->setPalette(log_palette);
-+	ui_.le_topic->setPalette(log_palette);
-+	ui_.lv_users->setPalette(log_palette);
- }
- 
- void GCMainDlg::optionsUpdate()
-diff -urN psi-0.11.orig/src/options/opt_appearance.cpp psi-0.11/src/options/opt_appearance.cpp
---- psi-0.11.orig/src/options/opt_appearance.cpp	2008-01-26 22:03:04.000000000 +0100
-+++ psi-0.11/src/options/opt_appearance.cpp	2008-01-27 16:49:30.000000000 +0100
+diff -urN psi-0.12.orig/src/options/opt_appearance.cpp psi-0.12/src/options/opt_appearance.cpp
+--- psi-0.12.orig/src/options/opt_appearance.cpp	2008-01-12 03:48:36.000000000 +0100
++++ psi-0.12/src/options/opt_appearance.cpp	2008-08-09 21:09:33.000000000 +0200
 @@ -17,6 +17,7 @@
  #include <qlineedit.h>
  
@@ -250,7 +104,7 @@ diff -urN psi-0.11.orig/src/options/opt_appearance.cpp psi-0.11/src/options/opt_
  	addTab( new OptionsTabIconsetEmoticons(this) );
  	addTab( new OptionsTabIconsetRoster(this) );
  	addTab( new OptionsTabIconsetSystem(this) );
-@@ -140,22 +148,19 @@
+@@ -135,21 +143,18 @@
  }
  
  //----------------------------------------------------------------------------
@@ -265,7 +119,6 @@ diff -urN psi-0.11.orig/src/options/opt_appearance.cpp psi-0.11/src/options/opt_
  	w = 0;
 -	bg_font = 0;
  	bg_color = 0;
- 	o = new Options;
  }
  
  OptionsTabAppearanceGeneral::~OptionsTabAppearanceGeneral()
@@ -274,8 +127,8 @@ diff -urN psi-0.11.orig/src/options/opt_appearance.cpp psi-0.11/src/options/opt_
 -		delete bg_font;
  	if ( bg_color )
  		delete bg_color;
- 	delete o;
-@@ -183,33 +188,6 @@
+ }
+@@ -175,33 +180,6 @@
  	w = new OptAppearanceUI();
  	OptAppearanceUI *d = (OptAppearanceUI *)w;
  
@@ -309,46 +162,26 @@ diff -urN psi-0.11.orig/src/options/opt_appearance.cpp psi-0.11/src/options/opt_
  	bg_color = new QButtonGroup;
  	bg_color->insert(d->pb_cOnline);
  	bg_color->insert(d->pb_cOffline);
-@@ -222,6 +200,22 @@
+@@ -214,6 +192,15 @@
  	bg_color->insert(d->pb_cListBack);
  	bg_color->insert(d->pb_cAnimFront);
  	bg_color->insert(d->pb_cAnimBack);
-+	bg_color->insert(d->pb_cChatBG);
-+	bg_color->insert(d->pb_cChatText);
 +	bg_color->insert(d->pb_cChatSys);
 +	bg_color->insert(d->pb_cChatSpool);
 +	bg_color->insert(d->pb_cChatTo);
 +	bg_color->insert(d->pb_cChatFrom);
-+	bg_color->insert(d->pb_cGChatBG);
-+	bg_color->insert(d->pb_cGChatText);
 +	bg_color->insert(d->pb_cGChatAlert);
 +	bg_color->insert(d->pb_cGChatSys);
 +	bg_color->insert(d->pb_cGChatSpool);
 +	bg_color->insert(d->pb_cGChatNick);
-+	bg_color->insert(d->pb_cMsgBG);
-+	bg_color->insert(d->pb_cMsgText);
-+	bg_color->insert(d->pb_cStatBG);
-+	bg_color->insert(d->pb_cStatText);
++
  	bg_color->insert(d->pb_cStatus);
  	connect(bg_color, SIGNAL(buttonClicked(QAbstractButton*)), SLOT(chooseColor(QAbstractButton*)));
  
-@@ -234,8 +228,6 @@
- 		s.arg(tr("away")));
- 	QWhatsThis::add(d->pb_cDND,
- 		s.arg(tr("do not disturb")));
--	QWhatsThis::add(d->pb_cStatus,
--		s.arg(tr("Status message")));
- 	QWhatsThis::add(d->pb_cProfileBack,
- 		tr("Specifies the background color for an account name in the main window."));
- 	QWhatsThis::add(d->pb_cGroupBack,
-@@ -246,6 +238,40 @@
+@@ -238,6 +225,22 @@
  		tr("Specifies the foreground animation color for nicks."));
  	QWhatsThis::add(d->pb_cAnimBack,
  		tr("Specifies the background animation color for nicks."));
-+	QWhatsThis::add(d->pb_cChatBG,
-+		tr("Specifies the background color for the chat window."));
-+	QWhatsThis::add(d->pb_cChatText,
-+		tr("Specifies the text color for chat messages."));
 +	QWhatsThis::add(d->pb_cChatSys,
 +		tr("Specifies the color for system chat messages."));
 +	QWhatsThis::add(d->pb_cChatSpool,
@@ -357,10 +190,6 @@ diff -urN psi-0.11.orig/src/options/opt_appearance.cpp psi-0.11/src/options/opt_
 +		tr("Specifies the nick color for sent chat messages."));
 +	QWhatsThis::add(d->pb_cChatFrom,
 +		tr("Specifies the nick color for recieved chat messages."));
-+	QWhatsThis::add(d->pb_cGChatBG,
-+		tr("Specifies the background color for the groupchat window."));
-+	QWhatsThis::add(d->pb_cGChatText,
-+		tr("Specifies the text color for groupchat messages."));
 +	QWhatsThis::add(d->pb_cGChatAlert,
 +		tr("Specifies the color for alert groupchat messages."));
 +	QWhatsThis::add(d->pb_cGChatSys,
@@ -369,40 +198,64 @@ diff -urN psi-0.11.orig/src/options/opt_appearance.cpp psi-0.11/src/options/opt_
 +		tr("Specifies the color for spooled groupchat messages."));
 +	QWhatsThis::add(d->pb_cGChatNick,
 +		tr("Specifies the default nick color for groupchat messages."));
-+	QWhatsThis::add(d->pb_cMsgBG,
-+		tr("Specifies the background color for the message window."));
-+	QWhatsThis::add(d->pb_cMsgText,
-+		tr("Specifies the text color for messages."));
-+	QWhatsThis::add(d->pb_cStatBG,
-+		tr("Specifies the background color for the status window."));
-+	QWhatsThis::add(d->pb_cStatText,
-+		tr("Specifies the text color for the status window."));
-+	QWhatsThis::add(d->pb_cStatus,
-+		s.arg(tr("Status message")));
  
  	// Avatars
  	//QWhatsThis::add(d->ck_avatarsChatdlg,
-@@ -268,9 +294,6 @@
- 	//opt->avatarsChatdlgEnabled = d->ck_avatarsChatdlg->isChecked(); // Avatars
+@@ -265,11 +268,6 @@
+ 	OptAppearanceUI *d = (OptAppearanceUI *)w;
+ 	//LEGOPTS.avatarsChatdlgEnabled = d->ck_avatarsChatdlg->isChecked(); // Avatars
  
- 	int n;
--	for (n = 0; n < 4; ++n)
--		opt->font[n] = le_font[n]->fontName();
+-	PsiOptions::instance()->setOption("options.ui.look.font.contactlist", d->le_fRoster->fontName());
+-	PsiOptions::instance()->setOption("options.ui.look.font.message", d->le_fMessage->fontName());
+-	PsiOptions::instance()->setOption("options.ui.look.font.chat", d->le_fChat->fontName());
+-	PsiOptions::instance()->setOption("options.ui.look.font.passive-popup", d->le_fPopup->fontName());
 -
- 	for (n = 0; n < cNumColors; ++n)
- 		opt->color[n] = o->color[n];
+ 	PsiOptions::instance()->setOption("options.ui.look.colors.contactlist.status.online", getColor(d->pb_cOnline));
+ 	PsiOptions::instance()->setOption("options.ui.look.colors.contactlist.status.offline", getColor(d->pb_cOffline));
+ 	PsiOptions::instance()->setOption("options.ui.look.colors.contactlist.status.away", getColor(d->pb_cAway));
+@@ -281,6 +279,14 @@
+ 	PsiOptions::instance()->setOption("options.ui.look.colors.contactlist.background", getColor(d->pb_cListBack));
+ 	PsiOptions::instance()->setOption("options.ui.look.contactlist.status-change-animation.color1", getColor(d->pb_cAnimFront));
+ 	PsiOptions::instance()->setOption("options.ui.look.contactlist.status-change-animation.color2", getColor(d->pb_cAnimBack));
++	PsiOptions::instance()->setOption("options.ui.look.colors.chat.system-messages-color", getColor(d->pb_cChatSys));
++	PsiOptions::instance()->setOption("options.ui.look.colors.chat.spooled-messages-color", getColor(d->pb_cChatSpool));
++	PsiOptions::instance()->setOption("options.ui.look.colors.chat.outgoing-messages-color", getColor(d->pb_cChatTo));
++	PsiOptions::instance()->setOption("options.ui.look.colors.chat.incoming-messages-color", getColor(d->pb_cChatFrom));
++	PsiOptions::instance()->setOption("options.ui.look.colors.groupchat.alert-messages-color", getColor(d->pb_cGChatAlert));
++	PsiOptions::instance()->setOption("options.ui.look.colors.groupchat.system-messages-color", getColor(d->pb_cGChatSys));
++	PsiOptions::instance()->setOption("options.ui.look.colors.groupchat.spooled-messages-color", getColor(d->pb_cGChatSpool));
++	PsiOptions::instance()->setOption("options.ui.look.colors.groupchat.default-nick-color", getColor(d->pb_cGChatNick));
+ 	PsiOptions::instance()->setOption("options.ui.look.colors.contactlist.status-messages", getColor(d->pb_cStatus));
  }
-@@ -284,9 +307,6 @@
- 	//d->ck_avatarsChatdlg->setChecked( opt->avatarsChatdlgEnabled ); // Avatars
- 	
- 	int n;
--	for (n = 0; n < 4; ++n)
--		le_font[n]->setFont(opt->font[n]);
+ 
+@@ -298,11 +304,6 @@
+ 	OptAppearanceUI *d = (OptAppearanceUI *)w;
+ 	//d->ck_avatarsChatdlg->setChecked( LEGOPTS.avatarsChatdlgEnabled ); // Avatars
+ 
+-	d->le_fRoster->setFont(PsiOptions::instance()->getOption("options.ui.look.font.contactlist").toString());
+-	d->le_fMessage->setFont(PsiOptions::instance()->getOption("options.ui.look.font.message").toString());
+-	d->le_fChat->setFont(PsiOptions::instance()->getOption("options.ui.look.font.chat").toString());
+-	d->le_fPopup->setFont(PsiOptions::instance()->getOption("options.ui.look.font.passive-popup").toString());
 -
- 	for (n = 0; n < cNumColors; ++n) {
- 		o->color[n] = opt->color[n];
- 		((QPushButton*) (bg_color->buttons()[n]))->setPixmap(name2color(opt->color[n].name()));
-@@ -298,20 +318,6 @@
+ 	restoreColor(d->pb_cOnline, PsiOptions::instance()->getOption("options.ui.look.colors.contactlist.status.online").value<QColor>());
+ 	restoreColor(d->pb_cOffline, PsiOptions::instance()->getOption("options.ui.look.colors.contactlist.status.offline").value<QColor>());
+ 	restoreColor(d->pb_cAway, PsiOptions::instance()->getOption("options.ui.look.colors.contactlist.status.away").value<QColor>());
+@@ -314,6 +315,14 @@
+ 	restoreColor(d->pb_cListBack, PsiOptions::instance()->getOption("options.ui.look.colors.contactlist.background").value<QColor>());
+ 	restoreColor(d->pb_cAnimFront, PsiOptions::instance()->getOption("options.ui.look.contactlist.status-change-animation.color1").value<QColor>());
+ 	restoreColor(d->pb_cAnimBack, PsiOptions::instance()->getOption("options.ui.look.contactlist.status-change-animation.color2").value<QColor>());
++	restoreColor(d->pb_cChatSys, PsiOptions::instance()->getOption("options.ui.look.colors.chat.system-messages-color").value<QColor>());
++	restoreColor(d->pb_cChatSpool, PsiOptions::instance()->getOption("options.ui.look.colors.chat.spooled-messages-color").value<QColor>());
++	restoreColor(d->pb_cChatTo, PsiOptions::instance()->getOption("options.ui.look.colors.chat.outgoing-messages-color").value<QColor>());
++	restoreColor(d->pb_cChatFrom, PsiOptions::instance()->getOption("options.ui.look.colors.chat.incoming-messages-color").value<QColor>());
++	restoreColor(d->pb_cGChatAlert, PsiOptions::instance()->getOption("options.ui.look.colors.groupchat.alert-messages-color").value<QColor>());
++	restoreColor(d->pb_cGChatSys, PsiOptions::instance()->getOption("options.ui.look.colors.groupchat.system-messages-color").value<QColor>());
++	restoreColor(d->pb_cGChatSpool, PsiOptions::instance()->getOption("options.ui.look.colors.groupchat.spooled-messages-color").value<QColor>());
++	restoreColor(d->pb_cGChatNick, PsiOptions::instance()->getOption("options.ui.look.colors.groupchat.default-nick-color").value<QColor>());
+ 	restoreColor(d->pb_cStatus, PsiOptions::instance()->getOption("options.ui.look.colors.contactlist.status-messages").value<QColor>());
+ }
+ 
+@@ -322,20 +331,6 @@
  	parentWidget = parentDialog;
  }
  
@@ -423,7 +276,7 @@ diff -urN psi-0.11.orig/src/options/opt_appearance.cpp psi-0.11/src/options/opt_
  void OptionsTabAppearanceGeneral::chooseColor(QAbstractButton* button)
  {
  	QColor c;
-@@ -327,3 +333,103 @@
+@@ -352,3 +347,106 @@
  		emit dataChanged();
  	}
  }
@@ -433,18 +286,16 @@ diff -urN psi-0.11.orig/src/options/opt_appearance.cpp psi-0.11/src/options/opt_
 +//----------------------------------------------------------------------------
 +
 +OptionsTabAppearanceFonts::OptionsTabAppearanceFonts(QObject *parent)
-+: OptionsTab(parent, "appearance_fonts", "", tr("Fonts"), tr("Font Settings"))
++: OptionsTab(parent, "appearance_general", "", tr("Fonts"), tr("Fonts"))
 +{
 +	w = 0;
 +	bg_font = 0;
-+	o = new Options;
 +}
 +
 +OptionsTabAppearanceFonts::~OptionsTabAppearanceFonts()
 +{
 +	if ( bg_font )
 +		delete bg_font;
-+	delete o;
 +}
 +
 +QWidget *OptionsTabAppearanceFonts::widget()
@@ -481,32 +332,37 @@ diff -urN psi-0.11.orig/src/options/opt_appearance.cpp psi-0.11/src/options/opt_
 +		tr("Selects a font for message windows using the font selection dialog."));
 +	QWhatsThis::add(d->pb_fChat,
 +		tr("Selects a font for chat windows using the font selection dialog."));
-+
++	
 +	return w;
 +}
 +
-+void OptionsTabAppearanceFonts::applyOptions(Options *opt)
++
++void OptionsTabAppearanceFonts::applyOptions()
 +{
 +	if ( !w )
 +		return;
 +
-+	//OptAppearanceFontsUI *d = (OptAppearanceFontsUI *)w;
++	OptAppearanceFontsUI *d = (OptAppearanceFontsUI *)w;
++	//LEGOPTS.avatarsChatdlgEnabled = d->ck_avatarsChatdlg->isChecked(); // Avatars
 +
-+	int n;
-+	for (n = 0; n < 4; ++n)
-+		opt->font[n] = le_font[n]->fontName();
++	PsiOptions::instance()->setOption("options.ui.look.font.contactlist", d->le_fRoster->fontName());
++	PsiOptions::instance()->setOption("options.ui.look.font.message", d->le_fMessage->fontName());
++	PsiOptions::instance()->setOption("options.ui.look.font.chat", d->le_fChat->fontName());
++	PsiOptions::instance()->setOption("options.ui.look.font.passive-popup", d->le_fPopup->fontName());
 +}
 +
-+void OptionsTabAppearanceFonts::restoreOptions(const Options *opt)
++void OptionsTabAppearanceFonts::restoreOptions()
 +{
 +	if ( !w )
 +		return;
 +
-+	//OptAppearanceFontsUI *d = (OptAppearanceFontsUI *)w;
-+	
-+	int n;
-+	for (n = 0; n < 4; ++n)
-+		le_font[n]->setFont(opt->font[n]);
++	OptAppearanceFontsUI *d = (OptAppearanceFontsUI *)w;
++	//d->ck_avatarsChatdlg->setChecked( LEGOPTS.avatarsChatdlgEnabled ); // Avatars
++
++	d->le_fRoster->setFont(PsiOptions::instance()->getOption("options.ui.look.font.contactlist").toString());
++	d->le_fMessage->setFont(PsiOptions::instance()->getOption("options.ui.look.font.message").toString());
++	d->le_fChat->setFont(PsiOptions::instance()->getOption("options.ui.look.font.chat").toString());
++	d->le_fPopup->setFont(PsiOptions::instance()->getOption("options.ui.look.font.passive-popup").toString());
 +}
 +
 +void OptionsTabAppearanceFonts::setData(PsiCon *, QWidget *parentDialog)
@@ -527,9 +383,9 @@ diff -urN psi-0.11.orig/src/options/opt_appearance.cpp psi-0.11/src/options/opt_
 +	if(ok)
 +		emit dataChanged();
 +}
-diff -urN psi-0.11.orig/src/options/opt_appearance_fonts.ui psi-0.11/src/options/opt_appearance_fonts.ui
---- psi-0.11.orig/src/options/opt_appearance_fonts.ui	1970-01-01 01:00:00.000000000 +0100
-+++ psi-0.11/src/options/opt_appearance_fonts.ui	2008-01-27 13:33:31.000000000 +0100
+diff -urN psi-0.12.orig/src/options/opt_appearance_fonts.ui psi-0.12/src/options/opt_appearance_fonts.ui
+--- psi-0.12.orig/src/options/opt_appearance_fonts.ui	1970-01-01 01:00:00.000000000 +0100
++++ psi-0.12/src/options/opt_appearance_fonts.ui	2008-08-09 18:34:42.000000000 +0200
 @@ -0,0 +1,142 @@
 +<ui version="4.0" >
 + <author></author>
@@ -541,7 +397,7 @@ diff -urN psi-0.11.orig/src/options/opt_appearance_fonts.ui psi-0.11/src/options
 +   <rect>
 +    <x>0</x>
 +    <y>0</y>
-+    <width>455</width>
++    <width>402</width>
 +    <height>184</height>
 +   </rect>
 +  </property>
@@ -567,8 +423,19 @@ diff -urN psi-0.11.orig/src/options/opt_appearance_fonts.ui psi-0.11/src/options
 +      <property name="spacing" >
 +       <number>6</number>
 +      </property>
-+      <item row="2" column="1" colspan="3" >
-+       <widget class="FontLabel" name="le_fChat" />
++      <item row="0" column="0" >
++       <widget class="QLabel" name="tl_fRoster" >
++        <property name="text" >
++         <string>Roster</string>
++        </property>
++       </widget>
++      </item>
++      <item row="1" column="0" >
++       <widget class="QLabel" name="tl_fMessage" >
++        <property name="text" >
++         <string>Message</string>
++        </property>
++       </widget>
 +      </item>
 +      <item row="2" column="0" >
 +       <widget class="QLabel" name="tl_fChat" >
@@ -580,10 +447,29 @@ diff -urN psi-0.11.orig/src/options/opt_appearance_fonts.ui psi-0.11/src/options
 +        </property>
 +       </widget>
 +      </item>
-+      <item row="1" column="0" >
-+       <widget class="QLabel" name="tl_fMessage" >
++      <item row="3" column="0" >
++       <widget class="QLabel" name="tl_fPopup" >
 +        <property name="text" >
-+         <string>Message</string>
++         <string>Popup</string>
++        </property>
++       </widget>
++      </item>
++      <item row="0" column="1" colspan="3" >
++       <widget class="FontLabel" name="le_fRoster" />
++      </item>
++      <item row="1" column="1" colspan="3" >
++       <widget class="FontLabel" name="le_fMessage" />
++      </item>
++      <item row="2" column="1" colspan="3" >
++       <widget class="FontLabel" name="le_fChat" />
++      </item>
++      <item row="3" column="1" colspan="3" >
++       <widget class="FontLabel" name="le_fPopup" />
++      </item>
++      <item row="0" column="4" >
++       <widget class="QPushButton" name="pb_fRoster" >
++        <property name="text" >
++         <string>Choose</string>
 +        </property>
 +       </widget>
 +      </item>
@@ -614,36 +500,6 @@ diff -urN psi-0.11.orig/src/options/opt_appearance_fonts.ui psi-0.11/src/options
 +        </property>
 +       </widget>
 +      </item>
-+      <item row="0" column="4" >
-+       <widget class="QPushButton" name="pb_fRoster" >
-+        <property name="text" >
-+         <string>Choose</string>
-+        </property>
-+       </widget>
-+      </item>
-+      <item row="0" column="0" >
-+       <widget class="QLabel" name="tl_fRoster" >
-+        <property name="text" >
-+         <string>Roster</string>
-+        </property>
-+       </widget>
-+      </item>
-+      <item row="3" column="0" >
-+       <widget class="QLabel" name="tl_fPopup" >
-+        <property name="text" >
-+         <string>Popup</string>
-+        </property>
-+       </widget>
-+      </item>
-+      <item row="3" column="1" colspan="3" >
-+       <widget class="FontLabel" name="le_fPopup" />
-+      </item>
-+      <item row="1" column="1" colspan="3" >
-+       <widget class="FontLabel" name="le_fMessage" />
-+      </item>
-+      <item row="0" column="1" colspan="3" >
-+       <widget class="FontLabel" name="le_fRoster" />
-+      </item>
 +     </layout>
 +    </widget>
 +   </item>
@@ -673,10 +529,10 @@ diff -urN psi-0.11.orig/src/options/opt_appearance_fonts.ui psi-0.11/src/options
 + <resources/>
 + <connections/>
 +</ui>
-diff -urN psi-0.11.orig/src/options/opt_appearance.h psi-0.11/src/options/opt_appearance.h
---- psi-0.11.orig/src/options/opt_appearance.h	2007-10-14 16:00:52.000000000 +0200
-+++ psi-0.11/src/options/opt_appearance.h	2008-01-27 00:28:32.000000000 +0100
-@@ -67,11 +67,30 @@
+diff -urN psi-0.12.orig/src/options/opt_appearance.h psi-0.12/src/options/opt_appearance.h
+--- psi-0.12.orig/src/options/opt_appearance.h	2008-01-12 01:45:25.000000000 +0100
++++ psi-0.12/src/options/opt_appearance.h	2008-08-09 18:34:42.000000000 +0200
+@@ -65,11 +65,29 @@
  private slots:
  	void setData(PsiCon *, QWidget *);
  	void chooseColor(QAbstractButton* button);
@@ -685,7 +541,6 @@ diff -urN psi-0.11.orig/src/options/opt_appearance.h psi-0.11/src/options/opt_ap
  private:
  	QWidget *w, *parentWidget;
  	QButtonGroup *bg_color;
-+	Options *o;
 +};
 +
 +class OptionsTabAppearanceFonts : public OptionsTab
@@ -696,8 +551,8 @@ diff -urN psi-0.11.orig/src/options/opt_appearance.h psi-0.11/src/options/opt_ap
 +	~OptionsTabAppearanceFonts();
 +
 +	QWidget *widget();
-+	void applyOptions(Options *opt);
-+	void restoreOptions(const Options *opt);
++	void applyOptions();
++	void restoreOptions();
 +
 +private slots:
 +	void setData(PsiCon *, QWidget *);
@@ -707,27 +562,69 @@ diff -urN psi-0.11.orig/src/options/opt_appearance.h psi-0.11/src/options/opt_ap
 +	QWidget *w, *parentWidget;
  	FontLabel *le_font[4];
  	QButtonGroup *bg_font;
- 	Options *o;
-diff -urN psi-0.11.orig/src/options/opt_appearance.ui psi-0.11/src/options/opt_appearance.ui
---- psi-0.11.orig/src/options/opt_appearance.ui	2008-01-27 13:32:53.000000000 +0100
-+++ psi-0.11/src/options/opt_appearance.ui	2008-01-27 16:49:51.000000000 +0100
+ };
+diff -urN psi-0.12.orig/src/options/opt_appearance.ui psi-0.12/src/options/opt_appearance.ui
+--- psi-0.12.orig/src/options/opt_appearance.ui	2007-05-07 20:00:07.000000000 +0200
++++ psi-0.12/src/options/opt_appearance.ui	2008-08-09 18:34:42.000000000 +0200
 @@ -8,8 +8,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
 -    <width>402</width>
 -    <height>333</height>
-+    <width>507</width>
-+    <height>414</height>
++    <width>474</width>
++    <height>310</height>
     </rect>
    </property>
    <property name="windowTitle" >
-@@ -34,62 +34,107 @@
+@@ -34,63 +34,99 @@
        <property name="spacing" >
         <number>6</number>
        </property>
 -      <item row="0" column="3" >
 +      <item row="0" column="0" >
++       <widget class="QLabel" name="tl_cProfileFore" >
++        <property name="text" >
++         <string>Account heading foreground</string>
++        </property>
++       </widget>
++      </item>
++      <item row="1" column="0" >
++       <widget class="QLabel" name="tl_cProfileBack" >
++        <property name="text" >
++         <string>Account heading background</string>
++        </property>
++       </widget>
++      </item>
++      <item row="2" column="0" >
++       <widget class="QLabel" name="tl_cGroupFore" >
++        <property name="text" >
++         <string>Group heading foreground</string>
++        </property>
++       </widget>
++      </item>
++      <item row="3" column="0" >
++       <widget class="QLabel" name="tl_cGroupBack" >
++        <property name="text" >
++         <string>Group heading background</string>
++        </property>
++       </widget>
++      </item>
++      <item row="4" column="0" >
++       <widget class="QLabel" name="tl_cAnimFront" >
++        <property name="text" >
++         <string>Nick animation foreground</string>
++        </property>
++       </widget>
++      </item>
++      <item row="5" column="0" >
++       <widget class="QLabel" name="tl_cAnimBack" >
++        <property name="text" >
++         <string>Nick animation background</string>
++        </property>
++       </widget>
++      </item>
++      <item row="6" column="0" >
         <widget class="QLabel" name="tl_cOnline" >
          <property name="text" >
           <string>Online contacts</string>
@@ -735,7 +632,7 @@ diff -urN psi-0.11.orig/src/options/opt_appearance.ui psi-0.11/src/options/opt_a
         </widget>
        </item>
 -      <item row="1" column="3" >
-+      <item row="1" column="0" >
++      <item row="7" column="0" >
         <widget class="QLabel" name="TextLabel1_2" >
          <property name="text" >
           <string>Away contacts</string>
@@ -743,7 +640,7 @@ diff -urN psi-0.11.orig/src/options/opt_appearance.ui psi-0.11/src/options/opt_a
         </widget>
        </item>
 -      <item row="2" column="3" >
-+      <item row="2" column="0" >
++      <item row="8" column="0" >
         <widget class="QLabel" name="tl_cDND" >
          <property name="text" >
           <string>DND contacts</string>
@@ -751,7 +648,7 @@ diff -urN psi-0.11.orig/src/options/opt_appearance.ui psi-0.11/src/options/opt_a
         </widget>
        </item>
 -      <item row="3" column="3" >
-+      <item row="3" column="0" >
++      <item row="9" column="0" >
         <widget class="QLabel" name="tl_cOffline" >
          <property name="text" >
           <string>Offline contacts</string>
@@ -762,112 +659,69 @@ diff -urN psi-0.11.orig/src/options/opt_appearance.ui psi-0.11/src/options/opt_a
 -       <spacer>
 -        <property name="orientation" >
 -         <enum>Qt::Horizontal</enum>
-+      <item row="4" column="0" >
-+       <widget class="QLabel" name="tl_cListBack" >
-+        <property name="text" >
-+         <string>Contact list background</string>
++      <item row="0" column="1" >
++       <widget class="QToolButton" name="pb_cProfileFore" >
++        <property name="sizePolicy" >
++         <sizepolicy>
++          <hsizetype>0</hsizetype>
++          <vsizetype>0</vsizetype>
++          <horstretch>0</horstretch>
++          <verstretch>0</verstretch>
++         </sizepolicy>
          </property>
 -        <property name="sizeHint" >
--         <size>
++        <property name="maximumSize" >
+          <size>
 -          <width>111</width>
--          <height>20</height>
--         </size>
-+       </widget>
-+      </item>
-+      <item row="5" column="0" >
-+       <widget class="QLabel" name="tl_cProfileFore" >
-+        <property name="text" >
-+         <string>Account heading foreground</string>
++          <width>20</width>
+           <height>20</height>
+          </size>
          </property>
 -       </spacer>
-+       </widget>
-       </item>
+-      </item>
 -      <item row="4" column="3" >
 -       <widget class="QLabel" name="tl_cListBack" >
-+      <item row="6" column="0" >
-+       <widget class="QLabel" name="tl_cProfileBack" >
-         <property name="text" >
+-        <property name="text" >
 -         <string>Contact list background</string>
-+         <string>Account heading background</string>
-         </property>
-        </widget>
-       </item>
+-        </property>
+-       </widget>
+-      </item>
 -      <item row="5" column="3" >
 -       <widget class="QLabel" name="tl_cStatus" >
-+      <item row="7" column="0" >
-+       <widget class="QLabel" name="tl_cGroupFore" >
          <property name="text" >
 -         <string>Status messages</string>
-+         <string>Group heading foreground</string>
++         <string/>
          </property>
         </widget>
        </item>
 -      <item row="0" column="4" >
-+      <item row="8" column="0" >
-+       <widget class="QLabel" name="tl_cGroupBack" >
-+        <property name="text" >
-+         <string>Group heading background</string>
-+        </property>
-+       </widget>
-+      </item>
-+      <item row="9" column="0" >
-+       <widget class="QLabel" name="tl_cAnimFront" >
-+        <property name="text" >
-+         <string>Nick animation foreground</string>
-+        </property>
-+       </widget>
-+      </item>
-+      <item row="10" column="0" >
-+       <widget class="QLabel" name="tl_cAnimBack" >
-+        <property name="text" >
-+         <string>Nick animation background</string>
-+        </property>
-+       </widget>
-+      </item>
-+      <item row="11" column="0" >
-+       <widget class="QLabel" name="tl_cChatBG" >
-+        <property name="text" >
-+         <string>Chat window background</string>
-+        </property>
-+       </widget>
-+      </item>
-+      <item row="12" column="0" >
-+       <widget class="QLabel" name="tl_cChatText" >
-+        <property name="text" >
-+         <string>Chat message text</string>
-+        </property>
-+       </widget>
-+      </item>
-+      <item row="13" column="0" >
-+       <widget class="QLabel" name="tl_cChatSys" >
-+        <property name="text" >
-+         <string>Chat system message</string>
-+        </property>
-+       </widget>
-+      </item>
-+
-+
-+      <item row="0" column="1" >
-        <widget class="QToolButton" name="pb_cOnline" >
+-       <widget class="QToolButton" name="pb_cOnline" >
++      <item row="1" column="1" >
++       <widget class="QToolButton" name="pb_cProfileBack" >
          <property name="sizePolicy" >
           <sizepolicy>
-@@ -110,7 +155,7 @@
+           <hsizetype>0</hsizetype>
+@@ -110,8 +146,8 @@
          </property>
         </widget>
        </item>
 -      <item row="1" column="4" >
-+      <item row="1" column="1" >
-        <widget class="QToolButton" name="pb_cAway" >
+-       <widget class="QToolButton" name="pb_cAway" >
++      <item row="2" column="1" >
++       <widget class="QToolButton" name="pb_cGroupFore" >
          <property name="sizePolicy" >
           <sizepolicy>
-@@ -131,22 +176,71 @@
+           <hsizetype>0</hsizetype>
+@@ -131,22 +167,29 @@
          </property>
         </widget>
        </item>
 -      <item row="1" column="0" >
 -       <widget class="QLabel" name="tl_cProfileBack" >
-+      <item row="2" column="1" >
-+       <widget class="QToolButton" name="pb_cDND" >
+-        <property name="text" >
+-         <string>Account heading background</string>
++      <item row="3" column="1" >
++       <widget class="QToolButton" name="pb_cGroupBack" >
 +        <property name="sizePolicy" >
 +         <sizepolicy>
 +          <hsizetype>0</hsizetype>
@@ -881,378 +735,219 @@ diff -urN psi-0.11.orig/src/options/opt_appearance.ui psi-0.11/src/options/opt_a
 +          <width>20</width>
 +          <height>20</height>
 +         </size>
-+        </property>
-         <property name="text" >
--         <string>Account heading background</string>
-+         <string/>
          </property>
-        </widget>
-       </item>
+-       </widget>
+-      </item>
 -      <item row="3" column="0" >
 -       <widget class="QLabel" name="tl_cGroupBack" >
-+      <item row="3" column="1" >
-+       <widget class="QToolButton" name="pb_cOffline" >
-+        <property name="sizePolicy" >
-+         <sizepolicy>
-+          <hsizetype>0</hsizetype>
-+          <vsizetype>0</vsizetype>
-+          <horstretch>0</horstretch>
-+          <verstretch>0</verstretch>
-+         </sizepolicy>
-+        </property>
-+        <property name="maximumSize" >
-+         <size>
-+          <width>20</width>
-+          <height>20</height>
-+         </size>
-+        </property>
          <property name="text" >
 -         <string>Group heading background</string>
 +         <string/>
-+        </property>
-+       </widget>
-+      </item>
-+      <item row="4" column="1" >
-+       <widget class="QToolButton" name="pb_cListBack" >
-+        <property name="sizePolicy" >
-+         <sizepolicy>
-+          <hsizetype>0</hsizetype>
-+          <vsizetype>0</vsizetype>
-+          <horstretch>0</horstretch>
-+          <verstretch>0</verstretch>
-+         </sizepolicy>
-+        </property>
-+        <property name="maximumSize" >
-+         <size>
-+          <width>20</width>
-+          <height>20</height>
-+         </size>
-+        </property>
-+        <property name="text" >
-+         <string/>
          </property>
         </widget>
        </item>
-       <item row="5" column="1" >
+-      <item row="5" column="1" >
 -       <widget class="QToolButton" name="pb_cAnimBack" >
-+       <widget class="QToolButton" name="pb_cProfileFore" >
++      <item row="4" column="1" >
++       <widget class="QToolButton" name="pb_cAnimFront" >
          <property name="sizePolicy" >
           <sizepolicy>
            <hsizetype>0</hsizetype>
-@@ -166,7 +260,7 @@
+@@ -166,8 +209,8 @@
          </property>
         </widget>
        </item>
 -      <item row="1" column="1" >
-+      <item row="6" column="1" >
-        <widget class="QToolButton" name="pb_cProfileBack" >
+-       <widget class="QToolButton" name="pb_cProfileBack" >
++      <item row="5" column="1" >
++       <widget class="QToolButton" name="pb_cAnimBack" >
          <property name="sizePolicy" >
           <sizepolicy>
-@@ -187,7 +281,28 @@
+           <hsizetype>0</hsizetype>
+@@ -187,8 +230,8 @@
          </property>
         </widget>
        </item>
 -      <item row="3" column="1" >
-+      <item row="7" column="1" >
-+       <widget class="QToolButton" name="pb_cGroupFore" >
-+        <property name="sizePolicy" >
-+         <sizepolicy>
-+          <hsizetype>0</hsizetype>
-+          <vsizetype>0</vsizetype>
-+          <horstretch>0</horstretch>
-+          <verstretch>0</verstretch>
-+         </sizepolicy>
-+        </property>
-+        <property name="maximumSize" >
-+         <size>
-+          <width>20</width>
-+          <height>20</height>
-+         </size>
-+        </property>
-+        <property name="text" >
-+         <string/>
-+        </property>
-+       </widget>
-+      </item>
-+      <item row="8" column="1" >
-        <widget class="QToolButton" name="pb_cGroupBack" >
+-       <widget class="QToolButton" name="pb_cGroupBack" >
++      <item row="6" column="1" >
++       <widget class="QToolButton" name="pb_cOnline" >
          <property name="sizePolicy" >
           <sizepolicy>
-@@ -208,8 +323,8 @@
+           <hsizetype>0</hsizetype>
+@@ -208,8 +251,8 @@
          </property>
         </widget>
        </item>
 -      <item row="0" column="1" >
 -       <widget class="QToolButton" name="pb_cProfileFore" >
-+      <item row="9" column="1" >
-+       <widget class="QToolButton" name="pb_cAnimFront" >
++      <item row="7" column="1" >
++       <widget class="QToolButton" name="pb_cAway" >
          <property name="sizePolicy" >
           <sizepolicy>
            <hsizetype>0</hsizetype>
-@@ -229,8 +344,8 @@
+@@ -229,8 +272,8 @@
          </property>
         </widget>
        </item>
 -      <item row="2" column="1" >
 -       <widget class="QToolButton" name="pb_cGroupFore" >
-+      <item row="10" column="1" >
-+       <widget class="QToolButton" name="pb_cAnimBack" >
++      <item row="8" column="1" >
++       <widget class="QToolButton" name="pb_cDND" >
          <property name="sizePolicy" >
           <sizepolicy>
            <hsizetype>0</hsizetype>
-@@ -250,8 +365,8 @@
+@@ -250,8 +293,8 @@
          </property>
         </widget>
        </item>
 -      <item row="4" column="1" >
 -       <widget class="QToolButton" name="pb_cAnimFront" >
-+      <item row="11" column="1" >
-+       <widget class="QToolButton" name="pb_cChatBG" >
++      <item row="9" column="1" >
++       <widget class="QToolButton" name="pb_cOffline" >
          <property name="sizePolicy" >
           <sizepolicy>
            <hsizetype>0</hsizetype>
-@@ -271,36 +386,200 @@
+@@ -271,36 +314,91 @@
          </property>
         </widget>
        </item>
 -      <item row="4" column="0" >
 -       <widget class="QLabel" name="tl_cAnimFront" >
-+      <item row="12" column="1" >
-+       <widget class="QToolButton" name="pb_cChatText" >
-+        <property name="sizePolicy" >
-+         <sizepolicy>
-+          <hsizetype>0</hsizetype>
-+          <vsizetype>0</vsizetype>
-+          <horstretch>0</horstretch>
-+          <verstretch>0</verstretch>
-+         </sizepolicy>
++      <item row="3" column="2" >
++       <spacer>
++        <property name="orientation" >
++         <enum>Qt::Horizontal</enum>
 +        </property>
-+        <property name="maximumSize" >
++        <property name="sizeHint" >
 +         <size>
-+          <width>20</width>
++          <width>111</width>
 +          <height>20</height>
 +         </size>
 +        </property>
++       </spacer>
++      </item>
++      <item row="0" column="3" >
++       <widget class="QLabel" name="tl_cListBack" >
          <property name="text" >
 -         <string>Nick animation foreground</string>
-+         <string/>
++         <string>Contact list background</string>
          </property>
         </widget>
        </item>
 -      <item row="5" column="0" >
 -       <widget class="QLabel" name="tl_cAnimBack" >
-+      <item row="13" column="1" >
-+       <widget class="QToolButton" name="pb_cChatSys" >
-+        <property name="sizePolicy" >
-+         <sizepolicy>
-+          <hsizetype>0</hsizetype>
-+          <vsizetype>0</vsizetype>
-+          <horstretch>0</horstretch>
-+          <verstretch>0</verstretch>
-+         </sizepolicy>
-+        </property>
-+        <property name="maximumSize" >
-+         <size>
-+          <width>20</width>
-+          <height>20</height>
-+         </size>
-+        </property>
++      <item row="1" column="3" >
++       <widget class="QLabel" name="tl_cStatus" >
          <property name="text" >
 -         <string>Nick animation background</string>
-+         <string/>
++         <string>Status messages</string>
          </property>
         </widget>
        </item>
 -      <item row="0" column="0" >
 -       <widget class="QLabel" name="tl_cProfileFore" >
-+      <item row="0" column="3" >
-+       <widget class="QLabel" name="tl_cChatSpool" >
++      <item row="2" column="3" >
++       <widget class="QLabel" name="tl_cChatSys" >
          <property name="text" >
 -         <string>Account heading foreground</string>
-+         <string>Chat spooled message</string>
++         <string>System chat messages</string>
          </property>
         </widget>
        </item>
 -      <item row="2" column="0" >
 -       <widget class="QLabel" name="tl_cGroupFore" >
-+      <item row="1" column="3" >
-+       <widget class="QLabel" name="tl_cChatTo" >
++      <item row="3" column="3" >
++       <widget class="QLabel" name="tl_cChatSpool" >
          <property name="text" >
 -         <string>Group heading foreground</string>
-+         <string>Sent chat message nick</string>
-+        </property>
-+       </widget>
-+      </item>
-+      <item row="2" column="3" >
-+       <widget class="QLabel" name="tl_cChatFrom" >
-+        <property name="text" >
-+         <string>Received chat message nick</string>
-+        </property>
-+       </widget>
-+      </item>
-+      <item row="3" column="3" >
-+       <widget class="QLabel" name="tl_cGChatBG" >
-+        <property name="text" >
-+         <string>Groupchat window background</string>
-+        </property>
-+       </widget>
-+      </item>
++         <string>Spooled chat messages</string>
+         </property>
+        </widget>
+       </item>
+-      <item row="2" column="4" >
+-       <widget class="QToolButton" name="pb_cDND" >
 +      <item row="4" column="3" >
-+       <widget class="QLabel" name="tl_cGChatText" >
++       <widget class="QLabel" name="tl_cChatTo" >
 +        <property name="text" >
-+         <string>Groupchat message text</string>
++         <string>Outgoing chat message nick</string>
 +        </property>
 +       </widget>
 +      </item>
 +      <item row="5" column="3" >
-+       <widget class="QLabel" name="tl_cGChatAlert" >
++       <widget class="QLabel" name="tl_cChatFrom" >
 +        <property name="text" >
-+         <string>Groupchat alert message</string>
++         <string>Incoming chat message nick</string>
 +        </property>
 +       </widget>
 +      </item>
 +      <item row="6" column="3" >
-+       <widget class="QLabel" name="tl_cGChatSys" >
++       <widget class="QLabel" name="tl_cGChatAler" >
 +        <property name="text" >
-+         <string>Groupchat system message</string>
++         <string>Groupchat alert messages</string>
 +        </property>
 +       </widget>
 +      </item>
 +      <item row="7" column="3" >
-+       <widget class="QLabel" name="tl_cGChatSpool" >
++       <widget class="QLabel" name="tl_cGChatSys" >
 +        <property name="text" >
-+         <string>Groupchat spooled message</string>
++         <string>Groupchat system messages</string>
 +        </property>
 +       </widget>
 +      </item>
 +      <item row="8" column="3" >
++       <widget class="QLabel" name="tl_cGChatSpool" >
++        <property name="text" >
++         <string>Groupchat spooled messages</string>
++        </property>
++       </widget>
++      </item>
++      <item row="9" column="3" >
 +       <widget class="QLabel" name="tl_cGChatNick" >
 +        <property name="text" >
 +         <string>Groupchat non-colored nicks</string>
 +        </property>
 +       </widget>
 +      </item>
-+      <item row="9" column="3" >
-+       <widget class="QLabel" name="tl_cMsgBG" >
-+        <property name="text" >
-+         <string>Message window background</string>
-+        </property>
-+       </widget>
-+      </item>
-+      <item row="10" column="3" >
-+       <widget class="QLabel" name="tl_cMsgText" >
-+        <property name="text" >
-+         <string>Message text</string>
-+        </property>
-+       </widget>
-+      </item>
-+      <item row="11" column="3" >
-+       <widget class="QLabel" name="tl_cStatBG" >
-+        <property name="text" >
-+         <string>Status window background</string>
-+        </property>
-+       </widget>
-+      </item>
-+      <item row="12" column="3" >
-+       <widget class="QLabel" name="tl_cStatText" >
-+        <property name="text" >
-+         <string>Status window text</string>
-+        </property>
-+       </widget>
-+      </item>
-+      <item row="13" column="3" >
-+       <widget class="QLabel" name="tl_cStatus" >
-+        <property name="text" >
-+         <string>Status messages</string>
-+        </property>
-+       </widget>
-+      </item>
-+      <item rowspan="13" row="0" column="2" >
-+       <widget class="Line" name="line1" >
-+        <property name="frameShape" >
-+         <enum>QFrame::VLine</enum>
-+        </property>
-+        <property name="frameShadow" >
-+         <enum>QFrame::Sunken</enum>
-+        </property>
-+       </widget>
-+      </item>
 +      <item row="0" column="4" >
-+       <widget class="QToolButton" name="pb_cChatSpool" >
-+        <property name="sizePolicy" >
-+         <sizepolicy>
-+          <hsizetype>0</hsizetype>
-+          <vsizetype>0</vsizetype>
-+          <horstretch>0</horstretch>
-+          <verstretch>0</verstretch>
-+         </sizepolicy>
-+        </property>
-+        <property name="maximumSize" >
-+         <size>
-+          <width>20</width>
-+          <height>20</height>
-+         </size>
-+        </property>
-+        <property name="text" >
-+         <string/>
-+        </property>
-+       </widget>
-+      </item>
-+      <item row="1" column="4" >
-+       <widget class="QToolButton" name="pb_cChatTo" >
-+        <property name="sizePolicy" >
-+         <sizepolicy>
-+          <hsizetype>0</hsizetype>
-+          <vsizetype>0</vsizetype>
-+          <horstretch>0</horstretch>
-+          <verstretch>0</verstretch>
-+         </sizepolicy>
-+        </property>
-+        <property name="maximumSize" >
-+         <size>
-+          <width>20</width>
-+          <height>20</height>
-+         </size>
-+        </property>
-+        <property name="text" >
-+         <string/>
++       <widget class="QToolButton" name="pb_cListBack" >
+         <property name="sizePolicy" >
+          <sizepolicy>
+           <hsizetype>0</hsizetype>
+@@ -320,8 +418,8 @@
          </property>
         </widget>
        </item>
-       <item row="2" column="4" >
--       <widget class="QToolButton" name="pb_cDND" >
-+       <widget class="QToolButton" name="pb_cChatFrom" >
-         <property name="sizePolicy" >
-          <sizepolicy>
-           <hsizetype>0</hsizetype>
-@@ -321,7 +600,7 @@
-        </widget>
-       </item>
-       <item row="3" column="4" >
+-      <item row="3" column="4" >
 -       <widget class="QToolButton" name="pb_cOffline" >
-+       <widget class="QToolButton" name="pb_cGChatBG" >
++      <item row="1" column="4" >
++       <widget class="QToolButton" name="pb_cStatus" >
          <property name="sizePolicy" >
           <sizepolicy>
            <hsizetype>0</hsizetype>
-@@ -342,7 +621,7 @@
+@@ -341,8 +439,8 @@
+         </property>
         </widget>
        </item>
-       <item row="4" column="4" >
+-      <item row="4" column="4" >
 -       <widget class="QToolButton" name="pb_cListBack" >
-+       <widget class="QToolButton" name="pb_cGChatText" >
++      <item row="2" column="4" >
++       <widget class="QToolButton" name="pb_cChatSys" >
          <property name="sizePolicy" >
           <sizepolicy>
            <hsizetype>0</hsizetype>
-@@ -363,7 +642,7 @@
+@@ -362,8 +460,8 @@
+         </property>
         </widget>
        </item>
-       <item row="5" column="4" >
+-      <item row="5" column="4" >
 -       <widget class="QToolButton" name="pb_cStatus" >
-+       <widget class="QToolButton" name="pb_cGChatAlert" >
++      <item row="3" column="4" >
++       <widget class="QToolButton" name="pb_cChatSpool" >
          <property name="sizePolicy" >
           <sizepolicy>
            <hsizetype>0</hsizetype>
-@@ -383,98 +662,174 @@
+@@ -383,98 +481,132 @@
          </property>
         </widget>
        </item>
@@ -1278,8 +973,8 @@ diff -urN psi-0.11.orig/src/options/opt_appearance.ui psi-0.11/src/options/opt_a
 -       <widget class="QLabel" name="tl_fChat" >
 -        <property name="enabled" >
 -         <bool>true</bool>
-+      <item row="6" column="4" >
-+       <widget class="QToolButton" name="pb_cGChatSys" >
++      <item row="4" column="4" >
++       <widget class="QToolButton" name="pb_cChatTo" >
 +        <property name="sizePolicy" >
 +         <sizepolicy>
 +          <hsizetype>0</hsizetype>
@@ -1287,37 +982,19 @@ diff -urN psi-0.11.orig/src/options/opt_appearance.ui psi-0.11/src/options/opt_a
 +          <horstretch>0</horstretch>
 +          <verstretch>0</verstretch>
 +         </sizepolicy>
-+        </property>
+         </property>
+-        <property name="text" >
+-         <string>Chat</string>
 +        <property name="maximumSize" >
 +         <size>
 +          <width>20</width>
 +          <height>20</height>
 +         </size>
          </property>
-         <property name="text" >
--         <string>Chat</string>
-+         <string/>
-         </property>
-        </widget>
-       </item>
+-       </widget>
+-      </item>
 -      <item row="1" column="0" >
 -       <widget class="QLabel" name="tl_fMessage" >
-+      <item row="7" column="4" >
-+       <widget class="QToolButton" name="pb_cGChatSpool" >
-+        <property name="sizePolicy" >
-+         <sizepolicy>
-+          <hsizetype>0</hsizetype>
-+          <vsizetype>0</vsizetype>
-+          <horstretch>0</horstretch>
-+          <verstretch>0</verstretch>
-+         </sizepolicy>
-+        </property>
-+        <property name="maximumSize" >
-+         <size>
-+          <width>20</width>
-+          <height>20</height>
-+         </size>
-+        </property>
          <property name="text" >
 -         <string>Message</string>
 +         <string/>
@@ -1326,8 +1003,10 @@ diff -urN psi-0.11.orig/src/options/opt_appearance.ui psi-0.11/src/options/opt_a
        </item>
 -      <item row="1" column="4" >
 -       <widget class="QPushButton" name="pb_fMessage" >
-+      <item row="8" column="4" >
-+       <widget class="QToolButton" name="pb_cGChatNick" >
+-        <property name="text" >
+-         <string>Choose</string>
++      <item row="5" column="4" >
++       <widget class="QToolButton" name="pb_cChatFrom" >
 +        <property name="sizePolicy" >
 +         <sizepolicy>
 +          <hsizetype>0</hsizetype>
@@ -1335,33 +1014,13 @@ diff -urN psi-0.11.orig/src/options/opt_appearance.ui psi-0.11/src/options/opt_a
 +          <horstretch>0</horstretch>
 +          <verstretch>0</verstretch>
 +         </sizepolicy>
-+        </property>
-+        <property name="maximumSize" >
-+         <size>
-+          <width>20</width>
-+          <height>20</height>
-+         </size>
-+        </property>
-         <property name="text" >
--         <string>Choose</string>
-+         <string/>
          </property>
-        </widget>
-       </item>
+-       </widget>
+-      </item>
 -      <item row="2" column="4" >
 -       <widget class="QPushButton" name="pb_fChat" >
 -        <property name="enabled" >
 -         <bool>true</bool>
-+      <item row="9" column="4" >
-+       <widget class="QToolButton" name="pb_cMsgBG" >
-+        <property name="sizePolicy" >
-+         <sizepolicy>
-+          <hsizetype>0</hsizetype>
-+          <vsizetype>0</vsizetype>
-+          <horstretch>0</horstretch>
-+          <verstretch>0</verstretch>
-+         </sizepolicy>
-+        </property>
 +        <property name="maximumSize" >
 +         <size>
 +          <width>20</width>
@@ -1378,8 +1037,8 @@ diff -urN psi-0.11.orig/src/options/opt_appearance.ui psi-0.11/src/options/opt_a
 -       <widget class="QPushButton" name="pb_fPopup" >
 -        <property name="enabled" >
 -         <bool>true</bool>
-+      <item row="10" column="4" >
-+       <widget class="QToolButton" name="pb_cMsgText" >
++      <item row="6" column="4" >
++       <widget class="QToolButton" name="pb_cGChatAlert" >
 +        <property name="sizePolicy" >
 +         <sizepolicy>
 +          <hsizetype>0</hsizetype>
@@ -1402,8 +1061,8 @@ diff -urN psi-0.11.orig/src/options/opt_appearance.ui psi-0.11/src/options/opt_a
        </item>
 -      <item row="0" column="4" >
 -       <widget class="QPushButton" name="pb_fRoster" >
-+      <item row="11" column="4" >
-+       <widget class="QToolButton" name="pb_cStatBG" >
++      <item row="7" column="4" >
++       <widget class="QToolButton" name="pb_cGChatSys" >
 +        <property name="sizePolicy" >
 +         <sizepolicy>
 +          <hsizetype>0</hsizetype>
@@ -1426,8 +1085,8 @@ diff -urN psi-0.11.orig/src/options/opt_appearance.ui psi-0.11/src/options/opt_a
        </item>
 -      <item row="0" column="0" >
 -       <widget class="QLabel" name="tl_fRoster" >
-+      <item row="12" column="4" >
-+       <widget class="QToolButton" name="pb_cStatText" >
++      <item row="8" column="4" >
++       <widget class="QToolButton" name="pb_cGChatSpool" >
 +        <property name="sizePolicy" >
 +         <sizepolicy>
 +          <hsizetype>0</hsizetype>
@@ -1450,8 +1109,8 @@ diff -urN psi-0.11.orig/src/options/opt_appearance.ui psi-0.11/src/options/opt_a
        </item>
 -      <item row="3" column="0" >
 -       <widget class="QLabel" name="tl_fPopup" >
-+      <item row="13" column="4" >
-+       <widget class="QToolButton" name="pb_cStatus" >
++      <item row="9" column="4" >
++       <widget class="QToolButton" name="pb_cGChatNick" >
 +        <property name="sizePolicy" >
 +         <sizepolicy>
 +          <hsizetype>0</hsizetype>
@@ -1484,52 +1143,9 @@ diff -urN psi-0.11.orig/src/options/opt_appearance.ui psi-0.11/src/options/opt_a
       </layout>
      </widget>
     </item>
-@@ -482,36 +837,35 @@
-  </widget>
-  <layoutdefault spacing="6" margin="11" />
-  <pixmapfunction></pixmapfunction>
-- <customwidgets>
--  <customwidget>
--   <class>FontLabel</class>
--   <extends></extends>
--   <header>opt_appearance.h</header>
--   <container>0</container>
--   <pixmap></pixmap>
--  </customwidget>
-- </customwidgets>
-  <tabstops>
-+  <tabstop>pb_cOnline</tabstop>
-+  <tabstop>pb_cAway</tabstop>
-+  <tabstop>pb_cDND</tabstop>
-+  <tabstop>pb_cOffline</tabstop>
-+  <tabstop>pb_cListBack</tabstop>
-   <tabstop>pb_cProfileFore</tabstop>
-   <tabstop>pb_cProfileBack</tabstop>
-   <tabstop>pb_cGroupFore</tabstop>
-   <tabstop>pb_cGroupBack</tabstop>
-   <tabstop>pb_cAnimFront</tabstop>
-   <tabstop>pb_cAnimBack</tabstop>
--  <tabstop>pb_cOnline</tabstop>
--  <tabstop>pb_cAway</tabstop>
--  <tabstop>pb_cDND</tabstop>
--  <tabstop>pb_cOffline</tabstop>
--  <tabstop>pb_cListBack</tabstop>
-+  <tabstop>pb_cChatBG</tabstop>
-+  <tabstop>pb_cChatText</tabstop>
-+  <tabstop>pb_cChatSys</tabstop>
-+  <tabstop>pb_cChatSpool</tabstop>
-+  <tabstop>pb_cChatTo</tabstop>
-+  <tabstop>pb_cChatFrom</tabstop>
-+  <tabstop>pb_cGChatBG</tabstop>
-+  <tabstop>pb_cGChatText</tabstop>
-+  <tabstop>pb_cGChatAlert</tabstop>
-+  <tabstop>pb_cGChatSys</tabstop>
-+  <tabstop>pb_cGChatSpool</tabstop>
-+  <tabstop>pb_cGChatNick</tabstop>
-+  <tabstop>pb_cMsgBG</tabstop>
-+  <tabstop>pb_cMsgText</tabstop>
-+  <tabstop>pb_cStatBG</tabstop>
-+  <tabstop>pb_cStatText</tabstop>
+@@ -504,14 +636,6 @@
+   <tabstop>pb_cOffline</tabstop>
+   <tabstop>pb_cListBack</tabstop>
    <tabstop>pb_cStatus</tabstop>
 -  <tabstop>le_fRoster</tabstop>
 -  <tabstop>pb_fRoster</tabstop>
@@ -1542,68 +1158,10 @@ diff -urN psi-0.11.orig/src/options/opt_appearance.ui psi-0.11/src/options/opt_a
   </tabstops>
   <resources/>
   <connections/>
-diff -urN psi-0.11.orig/src/options/opt_chat.cpp psi-0.11/src/options/opt_chat.cpp
---- psi-0.11.orig/src/options/opt_chat.cpp	2007-10-14 16:00:53.000000000 +0200
-+++ psi-0.11/src/options/opt_chat.cpp	2008-01-27 13:55:34.000000000 +0100
-@@ -65,6 +65,10 @@
- 		tr("<P>When checked, pressing Enter in a chat window will send your message."
- 		   "  You must use Shift+Enter in order to create a newline in the chat message."
- 		   "  If unchecked, messages are sent by pressing Alt-S or Control-Enter, just as they are with regular messages.</P>"));
-+	QWhatsThis::add(d->ck_showTimeStamps,
-+		tr("<P>When checked, adds a timestamp to chat messages:</P>"
-+		"<P>[01:23:45] <MyName> Hi"
-+		"[01:23:56] <YourName> How are you?</P>"));
- 	QWhatsThis::add(d->ck_alertOpenChats,
- 		tr("Normally, Psi will not alert you when a new chat message"
- 		" is received in a chat window that is already open."
-@@ -98,6 +102,7 @@
- 	OptChatUI *d = (OptChatUI *)w;
- 
- 	opt->defaultAction   = bg_defAct->buttons().indexOf(bg_defAct->checkedButton());
-+	opt->showTimeStamps  = d->ck_showTimeStamps->isChecked();
- 	opt->alertOpenChats  = d->ck_alertOpenChats->isChecked();
- 	opt->raiseChatWindow = d->ck_raiseChatWindow->isChecked();
- 	opt->oldSmallChats 	 = opt->smallChats;
-@@ -130,6 +135,7 @@
- 	OptChatUI *d = (OptChatUI *)w;
- 
- 	bg_defAct->buttons()[opt->defaultAction]->setChecked(true);
-+	d->ck_showTimeStamps->setChecked( opt->showTimeStamps );
- 	d->ck_alertOpenChats->setChecked( opt->alertOpenChats );
- 	d->ck_raiseChatWindow->setChecked( opt->raiseChatWindow );
- 	d->ck_smallChats->setChecked( opt->smallChats );
-diff -urN psi-0.11.orig/src/options/opt_chat.ui psi-0.11/src/options/opt_chat.ui
---- psi-0.11.orig/src/options/opt_chat.ui	2007-10-14 16:00:53.000000000 +0200
-+++ psi-0.11/src/options/opt_chat.ui	2008-01-27 16:04:38.000000000 +0100
-@@ -8,8 +8,8 @@
-    <rect>
-     <x>0</x>
-     <y>0</y>
--    <width>319</width>
--    <height>375</height>
-+    <width>349</width>
-+    <height>443</height>
-    </rect>
-   </property>
-   <property name="windowTitle" >
-@@ -30,6 +30,13 @@
-     </widget>
-    </item>
-    <item>
-+    <widget class="QCheckBox" name="ck_showTimeStamps" >
-+     <property name="text" >
-+      <string>Show timestamps in chats</string>
-+     </property>
-+    </widget>
-+   </item>
-+   <item>
-     <widget class="QCheckBox" name="ck_alertOpenChats" >
-      <property name="text" >
-       <string>Alert chat messages even if chat window is open</string>
-diff -urN psi-0.11.orig/src/options/options.pri psi-0.11/src/options/options.pri
---- psi-0.11.orig/src/options/options.pri	2007-10-14 16:00:53.000000000 +0200
-+++ psi-0.11/src/options/options.pri	2008-01-26 23:26:50.000000000 +0100
-@@ -43,6 +43,7 @@
+diff -urN psi-0.12.orig/src/options/options.pri psi-0.12/src/options/options.pri
+--- psi-0.12.orig/src/options/options.pri	2008-02-11 23:24:22.000000000 +0100
++++ psi-0.12/src/options/options.pri	2008-08-09 18:34:42.000000000 +0200
+@@ -46,6 +46,7 @@
  	$$PWD/opt_events.ui \
  	$$PWD/opt_status.ui \
  	$$PWD/opt_appearance.ui \
@@ -1611,142 +1169,73 @@ diff -urN psi-0.11.orig/src/options/options.pri psi-0.11/src/options/options.pri
  	$$PWD/opt_appearance_misc.ui \
  	$$PWD/opt_sound.ui \
  	$$PWD/opt_advanced.ui \
-diff -urN psi-0.11.orig/src/psi_profiles.cpp psi-0.11/src/psi_profiles.cpp
---- psi-0.11.orig/src/psi_profiles.cpp	2008-01-26 22:03:04.000000000 +0100
-+++ psi-0.11/src/psi_profiles.cpp	2008-01-27 16:48:10.000000000 +0100
-@@ -473,6 +473,7 @@
- 	prefs.showSubjects = true;
- 	prefs.showCounter = false;
- 	prefs.chatSays = false;
-+	prefs.showTimeStamps = true;
- 	prefs.showGroupCounts = true;
- 	prefs.smallChats = false;
- 	prefs.brushedMetal = false;
-@@ -513,18 +514,33 @@
- 	prefs.sp[name] = StatusPreset(name, QObject::tr("I have gone to a far away place.  I will be back someday!"), STATUS_XA);
-  	prefs.recentStatus.clear();
+diff -urN psi-0.12.orig/src/psichatdlg.cpp psi-0.12/src/psichatdlg.cpp
+--- psi-0.12.orig/src/psichatdlg.cpp	2008-02-02 18:59:35.000000000 +0100
++++ psi-0.12/src/psichatdlg.cpp	2008-08-09 18:34:42.000000000 +0200
+@@ -420,7 +420,7 @@
+ 	QDateTime t = QDateTime::currentDateTime();
+ 	updateLastMsgTime(t);
+ 	QString timestr = chatView()->formatTimeStamp(t);
+-	QString color = "#00A000";
++	QString color = PsiOptions::instance()->getOption("options.ui.look.colors.chat.system-messages-color").toString();
  
--	prefs.color[cOnline]    = QColor("#000000");
--	prefs.color[cListBack]  = QColor("#FFFFFF");
--	prefs.color[cAway]      = QColor("#004BB4");
--	prefs.color[cDND]       = QColor("#7E0000");
--	prefs.color[cOffline]   = QColor("#646464");
--	prefs.color[cStatus]    = QColor("#808080");
--	prefs.color[cProfileFore] = QColor("#FFFFFF");
--	prefs.color[cProfileBack] = QColor("#969696");
--	prefs.color[cGroupFore] = QColor("#5A5A5A");
--	prefs.color[cGroupBack] = QColor("#F0F0F0");
--	prefs.color[cAnimFront] = QColor("#000000");
--	prefs.color[cAnimBack] 	= QColor("#969696");
-+	prefs.color[cOnline]       = QColor("#000000");
-+	prefs.color[cListBack]     = QColor("#FFFFFF");
-+	prefs.color[cAway]         = QColor("#004BB4");
-+	prefs.color[cDND]          = QColor("#7E0000");
-+	prefs.color[cOffline]      = QColor("#646464");
-+	prefs.color[cProfileFore]  = QColor("#FFFFFF");
-+	prefs.color[cProfileBack]  = QColor("#969696");
-+	prefs.color[cGroupFore]    = QColor("#5A5A5A");
-+	prefs.color[cGroupBack]    = QColor("#F0F0F0");
-+	prefs.color[cAnimFront]    = QColor("#000000");
-+	prefs.color[cAnimBack]     = QColor("#969696");
-+	prefs.color[cChatBG]       = QColor("#e8e8e8");
-+	prefs.color[cChatText]     = QColor("#000000");
-+	prefs.color[cChatSys]      = QColor("#444444");
-+	prefs.color[cChatSpool]    = QColor("#008000");
-+	prefs.color[cChatTo]       = QColor("#ff4444");
-+	prefs.color[cChatFrom]     = QColor("#4444ff");
-+	prefs.color[cGChatBG]      = QColor("#e8e8e8");
-+	prefs.color[cGChatText]    = QColor("#000000");
-+	prefs.color[cGChatAlert]   = QColor("#ff0000");
-+	prefs.color[cGChatSys]     = QColor("#444444");
-+	prefs.color[cGChatSpool]   = QColor("#008000");
-+	prefs.color[cGChatNick]    = QColor("#000000");
-+	prefs.color[cMsgBG]        = QColor("#e8e8e8");
-+	prefs.color[cMsgText]      = QColor("#000000");
-+	prefs.color[cStatBG]        = QColor("#e8e8e8");
-+	prefs.color[cStatText]      = QColor("#000000");
+ 	chatView()->appendText(QString("<font color=\"%1\">[%2]").arg(color, timestr) + QString(" *** %1</font>").arg(str));
+ }
+@@ -428,12 +428,12 @@
+ QString PsiChatDlg::colorString(bool local, ChatDlg::SpooledType spooled) const
+ {
+ 	if (spooled == ChatDlg::Spooled_OfflineStorage)
+-		return "#008000";
++		return PsiOptions::instance()->getOption("options.ui.look.colors.chat.spooled-messages-color").toString();
  
- 	prefs.font[fRoster] = QApplication::font().toString();
- 	prefs.font[fMessage] = QApplication::font().toString();
-@@ -864,6 +880,7 @@
- 			p_misc.appendChild(textTag(doc, "showSubjects", prefs.showSubjects));
- 			p_misc.appendChild(textTag(doc, "showCounter", prefs.showCounter));
- 			p_misc.appendChild(textTag(doc, "chatSays", prefs.chatSays));
-+			p_misc.appendChild(textTag(doc, "showTimeStamps", prefs.showTimeStamps));
- 			p_misc.appendChild(textTag(doc, "showGroupCounts", prefs.showGroupCounts));
- 			p_misc.appendChild(textTag(doc, "jidComplete", prefs.jidComplete));
- 			p_misc.appendChild(textTag(doc, "grabUrls", prefs.grabUrls));
-@@ -1007,6 +1024,22 @@
- 			tag.appendChild(textTag(doc, "groupback", prefs.color[cGroupBack].name() ));
- 			tag.appendChild(textTag(doc, "animfront", prefs.color[cAnimFront].name() ));
- 			tag.appendChild(textTag(doc, "animback", prefs.color[cAnimBack].name() ));
-+			tag.appendChild(textTag(doc, "chatbg", prefs.color[cChatBG].name() ));
-+			tag.appendChild(textTag(doc, "chattext", prefs.color[cChatText].name() ));
-+			tag.appendChild(textTag(doc, "chatsys", prefs.color[cChatSys].name() ));
-+			tag.appendChild(textTag(doc, "chatspool", prefs.color[cChatSpool].name() ));
-+			tag.appendChild(textTag(doc, "chatto", prefs.color[cChatTo].name() ));
-+			tag.appendChild(textTag(doc, "chatfrom", prefs.color[cChatFrom].name() ));
-+			tag.appendChild(textTag(doc, "gchatbg", prefs.color[cGChatBG].name() ));
-+			tag.appendChild(textTag(doc, "gchattext", prefs.color[cGChatText].name() ));
-+			tag.appendChild(textTag(doc, "gchatalert", prefs.color[cGChatAlert].name() ));
-+			tag.appendChild(textTag(doc, "gchatsys", prefs.color[cGChatSys].name() ));
-+			tag.appendChild(textTag(doc, "gchatspool", prefs.color[cGChatSpool].name() ));
-+			tag.appendChild(textTag(doc, "gchatnick", prefs.color[cGChatNick].name() ));
-+			tag.appendChild(textTag(doc, "msgbg", prefs.color[cMsgBG].name() ));
-+			tag.appendChild(textTag(doc, "msgtext", prefs.color[cMsgText].name() ));
-+			tag.appendChild(textTag(doc, "statbg", prefs.color[cStatBG].name() ));
-+			tag.appendChild(textTag(doc, "stattext", prefs.color[cStatText].name() ));
- 		}
+ 	if (local)
+-		return "#FF0000";
++		return PsiOptions::instance()->getOption("options.ui.look.colors.chat.outgoing-messages-color").toString();
  
- 		{
-@@ -1397,6 +1430,7 @@
- 				readBoolEntry(tag, "showGroupCounts", &prefs.showGroupCounts);
- 				readBoolEntry(tag, "showCounter", &prefs.showCounter);
- 				readBoolEntry(tag, "chatSays", &prefs.chatSays);
-+				readBoolEntry(tag, "showTimeStamps", &prefs.showTimeStamps);
- 				readBoolEntry(tag, "jidComplete", &prefs.jidComplete);
- 				readBoolEntry(tag, "grabUrls", &prefs.grabUrls);
- 				readBoolEntry(tag, "smallChats", &prefs.smallChats);
-@@ -1564,6 +1598,22 @@
- 				readColorEntry(tag, "profileback", &prefs.color[cProfileBack]);
- 				readColorEntry(tag, "animfront", &prefs.color[cAnimFront]);
- 				readColorEntry(tag, "animback", &prefs.color[cAnimBack]);
-+				readColorEntry(tag, "chatbg", &prefs.color[cChatBG]);
-+				readColorEntry(tag, "chattext", &prefs.color[cChatText]);
-+				readColorEntry(tag, "chatsys", &prefs.color[cChatSys]);
-+				readColorEntry(tag, "chatspool", &prefs.color[cChatSpool]);
-+				readColorEntry(tag, "chatto", &prefs.color[cChatTo]);
-+				readColorEntry(tag, "chatfrom", &prefs.color[cChatFrom]);
-+				readColorEntry(tag, "gchatbg", &prefs.color[cGChatBG]);
-+				readColorEntry(tag, "gchattext", &prefs.color[cGChatText]);
-+				readColorEntry(tag, "gchatalert", &prefs.color[cGChatAlert]);
-+				readColorEntry(tag, "gchatsys", &prefs.color[cGChatSys]);
-+				readColorEntry(tag, "gchatspool", &prefs.color[cGChatSpool]);
-+				readColorEntry(tag, "gchatnick", &prefs.color[cGChatNick]);
-+				readColorEntry(tag, "msgbg", &prefs.color[cMsgBG]);
-+				readColorEntry(tag, "msgtext", &prefs.color[cMsgText]);
-+				readColorEntry(tag, "statbg", &prefs.color[cStatBG]);
-+				readColorEntry(tag, "stattext", &prefs.color[cStatText]);
+-	return "#0000FF";
++	return PsiOptions::instance()->getOption("options.ui.look.colors.chat.incoming-messages-color").toString();
+ }
+ 
+ ChatView* PsiChatDlg::chatView() const
+@@ -459,7 +459,7 @@
+ 	bool doInsert = t.date() != lastMsgTime_.date();
+ 	lastMsgTime_ = t;
+ 	if (doInsert) {
+-		QString color = "#00A000";
++		QString color = PsiOptions::instance()->getOption("options.ui.look.colors.chat.system-messages-color").toString();
+ 		chatView()->appendText(QString("<font color=\"%1\">*** %2</font>").arg(color).arg(t.date().toString(Qt::ISODate)));
+ 	}
+ }
+diff -urN psi-0.12.orig/src/psi_profiles.cpp psi-0.12/src/psi_profiles.cpp
+--- psi-0.12.orig/src/psi_profiles.cpp	2008-04-24 20:06:44.000000000 +0200
++++ psi-0.12/src/psi_profiles.cpp	2008-08-09 21:55:03.000000000 +0200
+@@ -660,6 +660,14 @@
+ 	LEGOPTP.color[cGroupBack] = QColor("#F0F0F0");
+ 	LEGOPTP.color[cAnimFront] = QColor("#000000");
+ 	LEGOPTP.color[cAnimBack] 	= QColor("#969696");
++	LEGOPTP.color[cChatSys] 	= QColor("#00A000");
++	LEGOPTP.color[cChatSpool] 	= QColor("#008000");
++	LEGOPTP.color[cChatTo] 		= QColor("#FF0000");
++	LEGOPTP.color[cChatFrom] 	= QColor("#0000FF");
++	LEGOPTP.color[cGChatAlert] 	= QColor("#FF0000");
++	LEGOPTP.color[cGChatSys] 	= QColor("#00A000");
++	LEGOPTP.color[cGChatSpool] 	= QColor("#008000");
++	LEGOPTP.color[cGChatNick] 	= QColor("#000000");
+ 
+ 	LEGOPTP.font[fRoster] = QApplication::font().toString();
+ 	LEGOPTP.font[fMessage] = QApplication::font().toString();
+@@ -1231,6 +1239,14 @@
+ 				migrateColorEntry(tag, "profileback", "options.ui.look.colors.contactlist.profile.header-background");
+ 				migrateColorEntry(tag, "animfront", "options.ui.look.contactlist.status-change-animation.color1");
+ 				migrateColorEntry(tag, "animback", "options.ui.look.contactlist.status-change-animation.color2");
++				migrateColorEntry(tag, "chatsys", "options.ui.look.colors.chat.system-messages-color");
++				migrateColorEntry(tag, "chatspool", "options.ui.look.colors.chat.spooled-messages-color");
++				migrateColorEntry(tag, "chatto", "options.ui.look.colors.chat.outgoing-messages-color");
++				migrateColorEntry(tag, "chatfrom", "options.ui.look.colors.chat.incoming-messages-color");
++				migrateColorEntry(tag, "gchatalert", "options.ui.look.colors.groupchat.alert-messages-color");
++				migrateColorEntry(tag, "gchatsys", "options.ui.look.colors.groupchat.system-messages-color");
++				migrateColorEntry(tag, "gchatspool", "options.ui.look.colors.groupchat.spooled-messages-color");
++				migrateColorEntry(tag, "gchatnick", "options.ui.look.colors.groupchat.default-nick-color");
  			}
  
  			tag = findSubTag(p_lnf, "fonts", &found);
-diff -urN psi-0.11.orig/src/statusdlg.cpp psi-0.11/src/statusdlg.cpp
---- psi-0.11.orig/src/statusdlg.cpp	2007-10-14 16:00:54.000000000 +0200
-+++ psi-0.11/src/statusdlg.cpp	2008-01-27 16:51:50.000000000 +0100
-@@ -191,6 +191,16 @@
- 	hb->addStretch(1);
- 	hb->addWidget(pb2);
- 
-+	QPalette le_priority_palette = d->le_priority->palette();
-+	le_priority_palette.setColor(QColorGroup::Base, option.color[cStatBG]);
-+	le_priority_palette.setColor(QColorGroup::Text, option.color[cStatText]);
-+	d->le_priority->setPalette(le_priority_palette);
-+
-+	QPalette te_palette = d->te->palette();
-+	te_palette.setColor(QColorGroup::Base, option.color[cStatBG]);
-+	te_palette.setColor(QColorGroup::Text, option.color[cStatText]);
-+	d->te->setPalette(te_palette);
-+
- 	// set the rest up
- 	d->te->setTextFormat(Qt::PlainText);
- 	d->te->setText(d->s.status());
