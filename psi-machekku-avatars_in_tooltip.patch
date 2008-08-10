@@ -1,0 +1,100 @@
+Index: psi/src/psipopup.cpp
+===================================================================
+--- psi/src/psipopup.cpp	(revision 1061)
++++ psi/src/psipopup.cpp	(working copy)
+@@ -31,6 +31,7 @@
+ #include "psiiconset.h"
+ #include "iconlabel.h"
+ #include "psioptions.h"
++#include "avatars.h"
+ 
+ #include <qapplication.h>
+ #include <qlayout.h>
+@@ -68,7 +69,7 @@
+ 
+ 	void init(const PsiIcon *titleIcon, QString titleText, PsiAccount *_acc, PopupType type);
+ 	QString clipText(QString);
+-	QBoxLayout *createContactInfo(const PsiIcon *icon, QString text);
++	QBoxLayout *createContactInfo(const QPixmap *avatar, const PsiIcon *icon, QString text);
+ 
+ private slots:
+ 	void popupDestroyed();
+@@ -193,11 +194,21 @@
+ 	return text;
+ }
+ 
+-QBoxLayout *PsiPopup::Private::createContactInfo(const PsiIcon *icon, QString text)
++QBoxLayout *PsiPopup::Private::createContactInfo(const QPixmap *avatar, const PsiIcon *icon, QString text)
+ {
+ 	QHBoxLayout *dataBox = new QHBoxLayout();
+ 
+-	if ( icon ) {
++
++	if (avatar && !avatar->isNull()) {
++		int size = PsiOptions::instance()->getOption("options.ui.chat.avatars.size").toInt();
++		QLabel *avatarLabel = new QLabel(popup);
++		avatarLabel->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
++		avatarLabel->setPixmap(avatar->scaled(QSize(size, size), Qt::KeepAspectRatio, Qt::SmoothTransformation));
++		dataBox->addWidget(avatarLabel);
++		dataBox->addSpacing(5);
++	}
++
++	if (icon) {
+ 		IconLabel *iconLabel = new IconLabel(popup);
+ 		iconLabel->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
+ 		iconLabel->setPsiIcon(icon);
+@@ -283,14 +294,14 @@
+ 	d->init(icon, text, acc, doAlertIcon ? type : AlertNone);
+ }
+ 
+-void PsiPopup::setData(const PsiIcon *icon, QString text)
++void PsiPopup::setData(const QPixmap *avatar, const PsiIcon *icon, QString text)
+ {
+ 	if ( !d->popup ) {
+ 		deleteLater();
+ 		return;
+ 	}
+ 
+-	d->popup->addLayout( d->createContactInfo(icon, text) );
++	d->popup->addLayout( d->createContactInfo(avatar, icon, text) );
+ 
+ 	// update id
+ 	if ( icon )
+@@ -370,12 +381,14 @@
+ 		}
+ 	}
+ 
++	QPixmap avatar = d->account->avatarFactory()->getAvatar(jid);
++
+ 	// show popup
+ 	if ( d->popupType != AlertHeadline && (d->popupType != AlertFile || !PsiOptions::instance()->getOption("options.ui.file-transfer.auto-popup").toBool()) )
+-		setData(icon, contactText);
++		setData(&avatar, icon, contactText);
+ 	else if ( d->popupType == AlertHeadline ) {
+ 		QVBoxLayout *vbox = new QVBoxLayout(0);
+-		vbox->addLayout( d->createContactInfo(icon, contactText) );
++		vbox->addLayout( d->createContactInfo(&avatar, icon, contactText) );
+ 
+ 		vbox->addSpacing(5);
+ 
+Index: psi/src/psipopup.h
+===================================================================
+--- psi/src/psipopup.h	(revision 1061)
++++ psi/src/psipopup.h	(working copy)
+@@ -23,6 +23,7 @@
+ 
+ #include <QObject>
+ 
++class QPixmap;
+ class PsiCon;
+ class PsiAccount;
+ class UserListItem;
+@@ -57,7 +58,7 @@
+ 	};
+ 	PsiPopup(PopupType type, PsiAccount *acc);
+ 
+-	void setData(const PsiIcon *icon, QString text);
++	void setData(const QPixmap *avatar, const PsiIcon *icon, QString text);
+ 	void setData(const Jid &, const Resource &, const UserListItem * = 0, const PsiEvent * = 0);
+ 
+ 	void show();
