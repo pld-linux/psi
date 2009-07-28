@@ -255,7 +255,7 @@ diff -urN psi-0.12.orig/src/options/opt_appearance.cpp psi-0.12/src/options/opt_
  	restoreColor(d->pb_cStatus, PsiOptions::instance()->getOption("options.ui.look.colors.contactlist.status-messages").value<QColor>());
  }
  
-@@ -322,20 +331,6 @@
+@@ -331,26 +331,6 @@
  	parentWidget = parentDialog;
  }
  
@@ -266,7 +266,13 @@ diff -urN psi-0.12.orig/src/options/opt_appearance.cpp psi-0.12/src/options/opt_
 -	int x = (bg_font->buttons()).indexOf(button);
 -	font.fromString( le_font[x]->fontName() );
 -
+-	// ensure we don't use the new native font dialog on mac with Qt 4.5,
+-	//   since it was broken last we checked (qt task #252000)
+-#if QT_VERSION >= 0x040500
+-	QString fnt = QFontDialog::getFont(&ok, font, parentWidget, QString(), QFontDialog::DontUseNativeDialog).toString();
+-#else
 -	QString fnt = QFontDialog::getFont(&ok, font, parentWidget).toString();
+-#endif
 -	le_font[x]->setFont(fnt);
 -
 -	if(ok)
@@ -585,28 +591,28 @@ diff -urN psi-0.12.orig/src/options/opt_appearance.ui psi-0.12/src/options/opt_a
 +      <item row="0" column="0" >
 +       <widget class="QLabel" name="tl_cProfileFore" >
 +        <property name="text" >
-+         <string>Account heading foreground</string>
++         <string>Account heading foreground:</string>
 +        </property>
 +       </widget>
 +      </item>
 +      <item row="1" column="0" >
 +       <widget class="QLabel" name="tl_cProfileBack" >
 +        <property name="text" >
-+         <string>Account heading background</string>
++         <string>Account heading background:</string>
 +        </property>
 +       </widget>
 +      </item>
 +      <item row="2" column="0" >
 +       <widget class="QLabel" name="tl_cGroupFore" >
 +        <property name="text" >
-+         <string>Group heading foreground</string>
++         <string>Group heading foreground:</string>
 +        </property>
 +       </widget>
 +      </item>
 +      <item row="3" column="0" >
 +       <widget class="QLabel" name="tl_cGroupBack" >
 +        <property name="text" >
-+         <string>Group heading background</string>
++         <string>Group heading background:</string>
 +        </property>
 +       </widget>
 +      </item>
@@ -620,14 +626,14 @@ diff -urN psi-0.12.orig/src/options/opt_appearance.ui psi-0.12/src/options/opt_a
 +      <item row="5" column="0" >
 +       <widget class="QLabel" name="tl_cAnimBack" >
 +        <property name="text" >
-+         <string>Nick animation background</string>
++         <string>Nick animation background:</string>
 +        </property>
 +       </widget>
 +      </item>
 +      <item row="6" column="0" >
         <widget class="QLabel" name="tl_cOnline" >
          <property name="text" >
-          <string>Online contacts</string>
+          <string>Online contacts:</string>
          </property>
         </widget>
        </item>
@@ -635,7 +641,7 @@ diff -urN psi-0.12.orig/src/options/opt_appearance.ui psi-0.12/src/options/opt_a
 +      <item row="7" column="0" >
         <widget class="QLabel" name="TextLabel1_2" >
          <property name="text" >
-          <string>Away contacts</string>
+          <string>Away contacts:</string>
          </property>
         </widget>
        </item>
@@ -643,7 +649,7 @@ diff -urN psi-0.12.orig/src/options/opt_appearance.ui psi-0.12/src/options/opt_a
 +      <item row="8" column="0" >
         <widget class="QLabel" name="tl_cDND" >
          <property name="text" >
-          <string>DND contacts</string>
+          <string>DND contacts:</string>
          </property>
         </widget>
        </item>
@@ -651,7 +657,7 @@ diff -urN psi-0.12.orig/src/options/opt_appearance.ui psi-0.12/src/options/opt_a
 +      <item row="9" column="0" >
         <widget class="QLabel" name="tl_cOffline" >
          <property name="text" >
-          <string>Offline contacts</string>
+          <string>Offline contacts:</string>
          </property>
         </widget>
        </item>
@@ -682,14 +688,14 @@ diff -urN psi-0.12.orig/src/options/opt_appearance.ui psi-0.12/src/options/opt_a
 -      <item row="4" column="3" >
 -       <widget class="QLabel" name="tl_cListBack" >
 -        <property name="text" >
--         <string>Contact list background</string>
+-         <string>Contact list background:</string>
 -        </property>
 -       </widget>
 -      </item>
 -      <item row="5" column="3" >
 -       <widget class="QLabel" name="tl_cStatus" >
          <property name="text" >
--         <string>Status messages</string>
+-         <string>Status messages:</string>
 +         <string/>
          </property>
         </widget>
@@ -719,7 +725,7 @@ diff -urN psi-0.12.orig/src/options/opt_appearance.ui psi-0.12/src/options/opt_a
 -      <item row="1" column="0" >
 -       <widget class="QLabel" name="tl_cProfileBack" >
 -        <property name="text" >
--         <string>Account heading background</string>
+-         <string>Account heading background:</string>
 +      <item row="3" column="1" >
 +       <widget class="QToolButton" name="pb_cGroupBack" >
 +        <property name="sizePolicy" >
@@ -741,7 +747,7 @@ diff -urN psi-0.12.orig/src/options/opt_appearance.ui psi-0.12/src/options/opt_a
 -      <item row="3" column="0" >
 -       <widget class="QLabel" name="tl_cGroupBack" >
          <property name="text" >
--         <string>Group heading background</string>
+-         <string>Group heading background:</string>
 +         <string/>
          </property>
         </widget>
@@ -830,8 +836,8 @@ diff -urN psi-0.12.orig/src/options/opt_appearance.ui psi-0.12/src/options/opt_a
 +      <item row="0" column="3" >
 +       <widget class="QLabel" name="tl_cListBack" >
          <property name="text" >
--         <string>Nick animation foreground</string>
-+         <string>Contact list background</string>
+-         <string>Nick animation foreground:</string>
++         <string>Contact list background:</string>
          </property>
         </widget>
        </item>
@@ -840,8 +846,8 @@ diff -urN psi-0.12.orig/src/options/opt_appearance.ui psi-0.12/src/options/opt_a
 +      <item row="1" column="3" >
 +       <widget class="QLabel" name="tl_cStatus" >
          <property name="text" >
--         <string>Nick animation background</string>
-+         <string>Status messages</string>
+-         <string>Nick animation background:</string>
++         <string>Status messages:</string>
          </property>
         </widget>
        </item>
@@ -850,8 +856,8 @@ diff -urN psi-0.12.orig/src/options/opt_appearance.ui psi-0.12/src/options/opt_a
 +      <item row="2" column="3" >
 +       <widget class="QLabel" name="tl_cChatSys" >
          <property name="text" >
--         <string>Account heading foreground</string>
-+         <string>System chat messages</string>
+-         <string>Account heading foreground:</string>
++         <string>System chat messages:</string>
          </property>
         </widget>
        </item>
@@ -860,8 +866,8 @@ diff -urN psi-0.12.orig/src/options/opt_appearance.ui psi-0.12/src/options/opt_a
 +      <item row="3" column="3" >
 +       <widget class="QLabel" name="tl_cChatSpool" >
          <property name="text" >
--         <string>Group heading foreground</string>
-+         <string>Spooled chat messages</string>
+-         <string>Group heading foreground:</string>
++         <string>Spooled chat messages:</string>
          </property>
         </widget>
        </item>
@@ -870,42 +876,42 @@ diff -urN psi-0.12.orig/src/options/opt_appearance.ui psi-0.12/src/options/opt_a
 +      <item row="4" column="3" >
 +       <widget class="QLabel" name="tl_cChatTo" >
 +        <property name="text" >
-+         <string>Outgoing chat message nick</string>
++         <string>Outgoing chat message nick:</string>
 +        </property>
 +       </widget>
 +      </item>
 +      <item row="5" column="3" >
 +       <widget class="QLabel" name="tl_cChatFrom" >
 +        <property name="text" >
-+         <string>Incoming chat message nick</string>
++         <string>Incoming chat message nick:</string>
 +        </property>
 +       </widget>
 +      </item>
 +      <item row="6" column="3" >
 +       <widget class="QLabel" name="tl_cGChatAler" >
 +        <property name="text" >
-+         <string>Groupchat alert messages</string>
++         <string>Groupchat alert messages:</string>
 +        </property>
 +       </widget>
 +      </item>
 +      <item row="7" column="3" >
 +       <widget class="QLabel" name="tl_cGChatSys" >
 +        <property name="text" >
-+         <string>Groupchat system messages</string>
++         <string>Groupchat system messages:</string>
 +        </property>
 +       </widget>
 +      </item>
 +      <item row="8" column="3" >
 +       <widget class="QLabel" name="tl_cGChatSpool" >
 +        <property name="text" >
-+         <string>Groupchat spooled messages</string>
++         <string>Groupchat spooled messages:</string>
 +        </property>
 +       </widget>
 +      </item>
 +      <item row="9" column="3" >
 +       <widget class="QLabel" name="tl_cGChatNick" >
 +        <property name="text" >
-+         <string>Groupchat non-colored nicks</string>
++         <string>Groupchat non-colored nicks:</string>
 +        </property>
 +       </widget>
 +      </item>
@@ -984,7 +990,7 @@ diff -urN psi-0.12.orig/src/options/opt_appearance.ui psi-0.12/src/options/opt_a
 +         </sizepolicy>
          </property>
 -        <property name="text" >
--         <string>Chat</string>
+-         <string>Chat:</string>
 +        <property name="maximumSize" >
 +         <size>
 +          <width>20</width>
@@ -996,7 +1002,7 @@ diff -urN psi-0.12.orig/src/options/opt_appearance.ui psi-0.12/src/options/opt_a
 -      <item row="1" column="0" >
 -       <widget class="QLabel" name="tl_fMessage" >
          <property name="text" >
--         <string>Message</string>
+-         <string>Message:</string>
 +         <string/>
          </property>
         </widget>
@@ -1004,7 +1010,7 @@ diff -urN psi-0.12.orig/src/options/opt_appearance.ui psi-0.12/src/options/opt_a
 -      <item row="1" column="4" >
 -       <widget class="QPushButton" name="pb_fMessage" >
 -        <property name="text" >
--         <string>Choose</string>
+-         <string>Choose...</string>
 +      <item row="5" column="4" >
 +       <widget class="QToolButton" name="pb_cChatFrom" >
 +        <property name="sizePolicy" >
@@ -1028,7 +1034,7 @@ diff -urN psi-0.12.orig/src/options/opt_appearance.ui psi-0.12/src/options/opt_a
 +         </size>
          </property>
          <property name="text" >
--         <string>Choose</string>
+-         <string>Choose...</string>
 +         <string/>
          </property>
         </widget>
@@ -1054,7 +1060,7 @@ diff -urN psi-0.12.orig/src/options/opt_appearance.ui psi-0.12/src/options/opt_a
 +         </size>
          </property>
          <property name="text" >
--         <string>Choose</string>
+-         <string>Choose...</string>
 +         <string/>
          </property>
         </widget>
@@ -1078,7 +1084,7 @@ diff -urN psi-0.12.orig/src/options/opt_appearance.ui psi-0.12/src/options/opt_a
 +         </size>
 +        </property>
          <property name="text" >
--         <string>Choose</string>
+-         <string>Choose...</string>
 +         <string/>
          </property>
         </widget>
@@ -1102,7 +1108,7 @@ diff -urN psi-0.12.orig/src/options/opt_appearance.ui psi-0.12/src/options/opt_a
 +         </size>
 +        </property>
          <property name="text" >
--         <string>Roster</string>
+-         <string>Roster:</string>
 +         <string/>
          </property>
         </widget>
@@ -1126,7 +1132,7 @@ diff -urN psi-0.12.orig/src/options/opt_appearance.ui psi-0.12/src/options/opt_a
 +         </size>
 +        </property>
          <property name="text" >
--         <string>Popup</string>
+-         <string>Popup:</string>
 +         <string/>
          </property>
         </widget>
@@ -1209,21 +1215,6 @@ diff -urN psi-0.12.orig/src/psichatdlg.cpp psi-0.12/src/psichatdlg.cpp
 diff -urN psi-0.12.orig/src/psi_profiles.cpp psi-0.12/src/psi_profiles.cpp
 --- psi-0.12.orig/src/psi_profiles.cpp	2008-04-24 20:06:44.000000000 +0200
 +++ psi-0.12/src/psi_profiles.cpp	2008-08-09 21:55:03.000000000 +0200
-@@ -660,6 +660,14 @@
- 	LEGOPTP.color[cGroupBack] = QColor("#F0F0F0");
- 	LEGOPTP.color[cAnimFront] = QColor("#000000");
- 	LEGOPTP.color[cAnimBack] 	= QColor("#969696");
-+	LEGOPTP.color[cChatSys] 	= QColor("#00A000");
-+	LEGOPTP.color[cChatSpool] 	= QColor("#008000");
-+	LEGOPTP.color[cChatTo] 		= QColor("#FF0000");
-+	LEGOPTP.color[cChatFrom] 	= QColor("#0000FF");
-+	LEGOPTP.color[cGChatAlert] 	= QColor("#FF0000");
-+	LEGOPTP.color[cGChatSys] 	= QColor("#00A000");
-+	LEGOPTP.color[cGChatSpool] 	= QColor("#008000");
-+	LEGOPTP.color[cGChatNick] 	= QColor("#000000");
- 
- 	LEGOPTP.font[fRoster] = QApplication::font().toString();
- 	LEGOPTP.font[fMessage] = QApplication::font().toString();
 @@ -1231,6 +1239,14 @@
  				migrateColorEntry(tag, "profileback", "options.ui.look.colors.contactlist.profile.header-background");
  				migrateColorEntry(tag, "animfront", "options.ui.look.contactlist.status-change-animation.color1");

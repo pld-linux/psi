@@ -18,12 +18,15 @@
  		conf->addDefine(certPathString);
  
  		return true;
-@@ -1078,7 +1078,7 @@
+@@ -1142,8 +1142,8 @@
  		QFile file("src/config.h");
  		if ( file.open(QIODevice::WriteOnly | QIODevice::Text) ) {
  			QTextStream stream( &file );
+-			stream << "#define PSI_LIBDIR \"" << conf->getenv("LIBDIR") << "/psi\"" << endl;
 -			stream << "#define PSI_DATADIR \"" << conf->getenv("DATADIR") << "/psi\"" << endl;
++			stream << "#define PSI_LIBDIR \\"" << conf->getenv("LIBDIR") << "/psi\\"" << endl;
 +			stream << "#define PSI_DATADIR \\"" << conf->getenv("DATADIR") << "/psi\\"" << endl;
  		}
- 		
+ 
  		conf->addDefine("HAVE_CONFIG");
+

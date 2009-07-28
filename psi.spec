@@ -2,12 +2,12 @@ Summary:	PSI - Jabber client
 Summary(de.UTF-8):	PSI - ein Instant Messaging Client-Programm für Jabber
 Summary(pl.UTF-8):	PSI - klient Jabbera
 Name:		psi
-Version:	0.12.1
-Release:	2
+Version:	0.13
+Release:	1
 License:	GPL v2
 Group:		Applications/Communications
 Source0:	http://dl.sourceforge.net/psi/%{name}-%{version}.tar.bz2
-# Source0-md5:	da273e45daef04ffc8338708e96e9173
+# Source0-md5:	ddc1a2a35dc155ca46ad6ecaeccdf894
 Patch0:		%{name}-fix_configure_for_ksh.patch
 Patch1:		%{name}-desktop.patch
 Patch2:		%{name}-home_etc.patch
@@ -18,7 +18,6 @@ Patch6:		%{name}-empty_group-fix.patch
 Patch7:		%{name}-appearance-mod.patch
 # http://machekku.uaznia.net/xmpp/psi/patches/
 Patch8:		%{name}-machekku-avatars_in_tooltip.patch
-Patch9:		%{name}-qt4.5.patch
 URL:		http://psi-im.org/
 BuildRequires:	Qt3Support-devel
 BuildRequires:	QtCore-devel
@@ -28,8 +27,8 @@ BuildRequires:	aspell-devel
 BuildRequires:	libstdc++-devel
 BuildRequires:	openssl-devel >= 0.9.7c
 BuildRequires:	qca-devel >= 2.0.0
-BuildRequires:	qt4-build >= 4.3.3-3
-BuildRequires:	qt4-qmake >= 4.3.3-3
+BuildRequires:	qt4-build >= 4.4.0
+BuildRequires:	qt4-qmake >= 4.4.0
 #BuildRequires:	QtDBus-devel >= 4.3.3-3
 BuildRequires:	which
 BuildRequires:	xorg-lib-libX11-devel
@@ -69,7 +68,6 @@ poszukiwane w katalogu $DATADIR/certs lub ~/.psi/certs.
 %patch6 -p1
 %patch7 -p1
 %patch8 -p1
-%patch9 -p0
 
 rm -rf third-party
 

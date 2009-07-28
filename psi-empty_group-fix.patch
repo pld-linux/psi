@@ -1,5 +1,5 @@
---- psi-0.11/iris/xmpp-im/types.cpp.orig	2007-10-14 16:00:50.000000000 +0200
-+++ psi-0.11/iris/xmpp-im/types.cpp	2008-01-25 23:56:27.523786094 +0100
+--- psi-0.11/iris/src/xmpp/xmpp-im/types.cpp.orig	2007-10-14 16:00:50.000000000 +0200
++++ psi-0.11/iris/src/xmpp/xmpp-im/types.cpp	2008-01-25 23:56:27.523786094 +0100
 @@ -2618,7 +2618,7 @@
  
  bool RosterItem::addGroup(const QString &g)
@@ -16,7 +16,7 @@
 -		if(i.tagName() == "group")
 +		if(i.tagName() == "group") {
  			g += tagContent(i);
-+			g.remove(QString(""));
++			g.removeAll(QString(""));
 +		}
  	}
  	QString a = item.attribute("ask");

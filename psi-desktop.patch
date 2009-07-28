@@ -15,9 +15,4 @@
  
  # Translations
  GenericName[ca]=Client Jabber
-@@ -27,3 +27,5 @@
- Comment[pt_BR]=Comunique-se através da rede Jabber
- GenericName[sl]=Odjemalec za Jabber
- Comment[sl]=Komuniciranje prek omrežja Jabber
-+
-+# vi: encoding=utf-8
+
