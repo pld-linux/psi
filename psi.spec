@@ -85,7 +85,7 @@ rm -rf $RPM_BUILD_ROOT
 
 export QTDIR=%{_libdir}/qt4
 
-install -d $RPM_BUILD_ROOT%{_libdir}/psi
+install -d $RPM_BUILD_ROOT%{_libdir}/psi/plugins
 
 %{__make} install \
 	INSTALL_ROOT=$RPM_BUILD_ROOT
@@ -99,6 +99,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/*
 %dir %{_datadir}/psi
 %dir %{_libdir}/psi
+%dir %{_libdir}/psi/plugins
 %{_datadir}/psi/certs
 %{_datadir}/psi/iconsets
 %{_datadir}/psi/sound
