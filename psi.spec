@@ -3,11 +3,13 @@ Summary(de.UTF-8):	PSI - ein Instant Messaging Client-Programm für Jabber
 Summary(pl.UTF-8):	PSI - klient Jabbera
 Name:		psi
 Version:	0.13
-Release:	3
+Release:	4
 License:	GPL v2
 Group:		Applications/Communications
 Source0:	http://dl.sourceforge.net/psi/%{name}-%{version}.tar.bz2
 # Source0-md5:	ddc1a2a35dc155ca46ad6ecaeccdf894
+Source1:	%{name}-lang.tar.bz2
+# Source1-md5:	cf6d82f53f1f1600a49bb61ba81151bf
 Patch0:		%{name}-fix_configure_for_ksh.patch
 Patch1:		%{name}-desktop.patch
 Patch2:		%{name}-home_etc.patch
@@ -28,6 +30,7 @@ BuildRequires:	libstdc++-devel
 BuildRequires:	openssl-devel >= 0.9.7c
 BuildRequires:	qca-devel >= 2.0.0
 BuildRequires:	qt4-build >= 4.4.0
+BuildRequires:	qt4-linguist >= 4.4.0
 BuildRequires:	qt4-qmake >= 4.4.0
 #BuildRequires:	QtDBus-devel >= 4.3.3-3
 BuildRequires:	which
@@ -58,7 +61,7 @@ została wprowadzona zmiana, która powoduje że certyfikaty SSL są
 poszukiwane w katalogu $DATADIR/certs lub ~/.psi/certs.
 
 %prep
-%setup -q
+%setup -q -a 1
 %patch0 -p0
 %patch1 -p1
 %{?with_home_etc:%patch2 -p1}
@@ -80,6 +83,9 @@ rm -rf third-party
 qmake-qt4
 %{__make}
 
+cd lang
+lrelease-qt4 *.ts
+
 %install
 rm -rf $RPM_BUILD_ROOT
 
@@ -90,6 +96,8 @@ install -d $RPM_BUILD_ROOT%{_libdir}/psi/plugins
 %{__make} install \
 	INSTALL_ROOT=$RPM_BUILD_ROOT
 
+cp -f lang/*.qm $RPM_BUILD_ROOT%{_datadir}/psi/
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -98,6 +106,29 @@ rm -rf $RPM_BUILD_ROOT
 %doc INSTALL README
 %attr(755,root,root) %{_bindir}/*
 %dir %{_datadir}/psi
+%lang(ar) %{_datadir}/psi/*_ar.qm
+%lang(ca) %{_datadir}/psi/*_ca.qm
+%lang(cs) %{_datadir}/psi/*_cs.qm
+%lang(da) %{_datadir}/psi/*_da.qm
+%lang(de) %{_datadir}/psi/*_de.qm
+%lang(el) %{_datadir}/psi/*_el.qm
+%lang(eo) %{_datadir}/psi/*_eo.qm
+%lang(es) %{_datadir}/psi/*_es.qm
+%lang(fi) %{_datadir}/psi/*_fi.qm
+%lang(fr) %{_datadir}/psi/*_fr.qm
+%lang(it) %{_datadir}/psi/*_it.qm
+%lang(jp) %{_datadir}/psi/*_jp.qm
+%lang(mk) %{_datadir}/psi/*_mk.qm
+%lang(nl) %{_datadir}/psi/*_nl.qm
+%lang(pl) %{_datadir}/psi/*_pl.qm
+%lang(pt_BR) %{_datadir}/psi/*_ptbr.qm
+%lang(pt) %{_datadir}/psi/*_pt.qm
+%lang(ru) %{_datadir}/psi/*_ru.qm
+%lang(se) %{_datadir}/psi/*_se.qm
+%lang(sk) %{_datadir}/psi/*_sk.qm
+%lang(sr) %{_datadir}/psi/*_sr.qm
+%lang(uk) %{_datadir}/psi/*_uk.qm
+%lang(zh) %{_datadir}/psi/*_zh.qm
 %dir %{_libdir}/psi
 %dir %{_libdir}/psi/plugins
 %{_datadir}/psi/certs
