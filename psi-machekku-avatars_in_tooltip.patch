@@ -71,7 +71,7 @@ Index: psi/src/psipopup.cpp
 -		setData(icon, contactText);
 +		setData(&avatar, icon, contactText);
  	else if ( d->popupType == AlertHeadline ) {
- 		QVBoxLayout *vbox = new QVBoxLayout(0);
+ 		QVBoxLayout *vbox = new QVBoxLayout;
 -		vbox->addLayout( d->createContactInfo(icon, contactText) );
 +		vbox->addLayout( d->createContactInfo(&avatar, icon, contactText) );
  

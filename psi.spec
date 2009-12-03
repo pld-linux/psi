@@ -2,12 +2,12 @@ Summary:	PSI - Jabber client
 Summary(de.UTF-8):	PSI - ein Instant Messaging Client-Programm für Jabber
 Summary(pl.UTF-8):	PSI - klient Jabbera
 Name:		psi
-Version:	0.13
-Release:	4
+Version:	0.14
+Release:	1
 License:	GPL v2
 Group:		Applications/Communications
 Source0:	http://dl.sourceforge.net/psi/%{name}-%{version}.tar.bz2
-# Source0-md5:	ddc1a2a35dc155ca46ad6ecaeccdf894
+# Source0-md5:	9d7dcce3bcab53b741a712199bd986be
 Source1:	%{name}-lang.tar.bz2
 # Source1-md5:	cf6d82f53f1f1600a49bb61ba81151bf
 Patch0:		%{name}-fix_configure_for_ksh.patch
@@ -23,6 +23,7 @@ Patch8:		%{name}-machekku-avatars_in_tooltip.patch
 URL:		http://psi-im.org/
 BuildRequires:	Qt3Support-devel
 BuildRequires:	QtCore-devel
+BuildRequires:	QtDBus-devel
 BuildRequires:	QtNetwork-devel
 BuildRequires:	QtXml-devel
 BuildRequires:	aspell-devel
@@ -69,7 +70,8 @@ poszukiwane w katalogu $DATADIR/certs lub ~/.psi/certs.
 %patch4 -p1
 %patch5 -p1
 %patch6 -p1
-%patch7 -p1
+# functionality (partially) merged?
+# %patch7 -p1
 %patch8 -p1
 
 rm -rf third-party
@@ -80,7 +82,6 @@ rm -rf third-party
 	--datadir=%{_datadir} \
 	--libdir=%{_libdir}
 
-qmake-qt4
 %{__make}
 
 cd lang
