@@ -32,7 +32,6 @@ BuildRequires:	qca-devel >= 2.0.0
 BuildRequires:	qt4-build >= 4.4.0
 BuildRequires:	qt4-linguist >= 4.4.0
 BuildRequires:	qt4-qmake >= 4.4.0
-#BuildRequires:	QtDBus-devel >= 4.3.3-3
 BuildRequires:	which
 BuildRequires:	xorg-lib-libX11-devel
 BuildRequires:	xorg-lib-libXScrnSaver-devel
