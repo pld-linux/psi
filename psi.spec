@@ -6,7 +6,7 @@ Version:	0.14
 Release:	6
 License:	GPL v2
 Group:		Applications/Communications
-Source0:	http://dl.sourceforge.net/psi/%{name}-%{version}.tar.bz2
+Source0:	http://downloads.sourceforge.net/psi/%{name}-%{version}.tar.bz2
 # Source0-md5:	9d7dcce3bcab53b741a712199bd986be
 Source1:	%{name}-lang.tar.bz2
 # Source1-md5:	cf6d82f53f1f1600a49bb61ba81151bf
@@ -37,8 +37,9 @@ BuildRequires:	xorg-lib-libX11-devel
 BuildRequires:	xorg-lib-libXScrnSaver-devel
 BuildRequires:	xorg-proto-scrnsaverproto-devel
 BuildRequires:	zlib-devel
-Requires:	qt4-plugin-qca-ossl
+Requires:	gstreamer-v4l2
 Requires:	gstreamer-video4linux
+Requires:	qt4-plugin-qca-ossl
 Suggests:	gpgme >= 1.0.0
 Obsoletes:	qt-designer-psiwidgets
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
@@ -54,11 +55,11 @@ Psi ist ein Instant Messaging (IM) Client-Programm für das
 Jabber-Protokoll (XMPP), welches das Qt Toolkit nutzt.
 
 %description -l pl.UTF-8
-PSI jest komunikatorem dla otwartego systemu wiadomości Jabber.
-Został stworzony w oparciu o bibliotekę Qt. PSI wspiera połączenia
-szyfrowane SSL. W stosunku do domyślnego zachowania komunikatora
-została wprowadzona zmiana, która powoduje że certyfikaty SSL są
-poszukiwane w katalogu $DATADIR/certs lub ~/.psi/certs.
+PSI jest komunikatorem dla otwartego systemu wiadomości Jabber. Został
+stworzony w oparciu o bibliotekę Qt. PSI wspiera połączenia szyfrowane
+SSL. W stosunku do domyślnego zachowania komunikatora została
+wprowadzona zmiana, która powoduje że certyfikaty SSL są poszukiwane w
+katalogu $DATADIR/certs lub ~/.psi/certs.
 
 %prep
 %setup -q -a 1
