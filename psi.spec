@@ -1,3 +1,22 @@
+#
+# TODO: script to automate source package creation
+#
+# NOTE (how to create the package):
+#
+# git clone git://git.psi-im.org/psi.git
+# cd psi
+# git submodule init
+# git submodule update
+# git pull
+# git submodule update
+# svn co http://psi-dev.googlecode.com/svn/trunk/patches/
+# cat *.diff | patch -p1
+# pkgrel=`svnversion "patches"`
+# cd src
+# sed "s/\(.xxx\)/.${pkgrel}/" -i "applicationinfo.cpp"
+# cd ..
+# svn co --force http://psi-dev.googlecode.com/svn/trunk/iconsets/ iconsets
+#
 
 %define		ver	0.15
 %define		rev	3748
