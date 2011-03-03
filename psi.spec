@@ -1,14 +1,19 @@
+
+%define		ver	0.15
+%define		rev	3748
+%define		rel	0.%{rev}.1
+
 Summary:	PSI - Jabber client
 Summary(de.UTF-8):	PSI - ein Instant Messaging Client-Programm für Jabber
 Summary(pl.UTF-8):	PSI - klient Jabbera
 Name:		psi
-Version:	0.14
-Release:	7
-License:	GPL v2
+Version:	%{ver}.%{rev}
+Release:	%{rel}
+License:	GPL v2+ / LGPL v2.1+
 Group:		Applications/Communications
-Source0:	http://downloads.sourceforge.net/psi/%{name}-%{version}.tar.bz2
-# Source0-md5:	9d7dcce3bcab53b741a712199bd986be
-Source1:	%{name}-lang.tar.bz2
+Source0:	%{name}-%{version}.tar.gz
+# Source0-md5:	9884316663fc01e5c7d81dc5c5660f83
+#Source1:	%{name}-lang.tar.bz2
 # Source1-md5:	cf6d82f53f1f1600a49bb61ba81151bf
 Patch0:		%{name}-fix_configure_for_ksh.patch
 Patch1:		%{name}-desktop.patch
@@ -62,15 +67,16 @@ wprowadzona zmiana, która powoduje że certyfikaty SSL są poszukiwane w
 katalogu $DATADIR/certs lub ~/.psi/certs.
 
 %prep
-%setup -q -a 1
-%patch0 -p0
-%patch1 -p1
-%{?with_home_etc:%patch2 -p1}
-%patch3 -p1
-%patch4 -p1
-%patch5 -p1
-%patch6 -p1
-%patch7 -p1
+#%%setup -q -a 1
+%setup -q
+#%%patch0 -p0
+#%%patch1 -p1
+#%%{?with_home_etc:%patch2 -p1}
+#%%patch3 -p1
+#%%patch4 -p1
+#%%patch5 -p1
+#%%patch6 -p1
+#%%patch7 -p1
 
 rm -rf third-party
 
@@ -83,8 +89,8 @@ rm -rf third-party
 
 %{__make}
 
-cd lang
-lrelease-qt4 *.ts
+#cd lang
+#lrelease-qt4 *.ts
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -103,9 +109,10 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc INSTALL README
-%attr(755,root,root) %{_bindir}/*
+%doc README
+#%%attr(755,root,root) %{_bindir}/*
 %dir %{_datadir}/psi
+%if 0
 %lang(ar) %{_datadir}/psi/*_ar.qm
 %lang(ca) %{_datadir}/psi/*_ca.qm
 %lang(cs) %{_datadir}/psi/*_cs.qm
@@ -129,6 +136,7 @@ rm -rf $RPM_BUILD_ROOT
 %lang(sr) %{_datadir}/psi/*_sr.qm
 %lang(uk) %{_datadir}/psi/*_uk.qm
 %lang(zh) %{_datadir}/psi/*_zh.qm
+%endif
 %dir %{_libdir}/psi
 %dir %{_libdir}/psi/plugins
 %{_datadir}/psi/certs
