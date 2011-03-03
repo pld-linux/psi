@@ -13,8 +13,10 @@ License:	GPL v2+ / LGPL v2.1+
 Group:		Applications/Communications
 Source0:	%{name}-%{version}.tar.gz
 # Source0-md5:	9884316663fc01e5c7d81dc5c5660f83
+%if 0
 #Source1:	%{name}-lang.tar.bz2
 # Source1-md5:	cf6d82f53f1f1600a49bb61ba81151bf
+%endif
 Patch0:		%{name}-fix_configure_for_ksh.patch
 Patch1:		%{name}-desktop.patch
 Patch2:		%{name}-home_etc.patch
