@@ -125,7 +125,7 @@ install -d $RPM_BUILD_ROOT%{_libdir}/psi/plugins
 %{__make} install \
 	INSTALL_ROOT=$RPM_BUILD_ROOT
 
-cp -f lang/*.qm $RPM_BUILD_ROOT%{_datadir}/psi/
+#cp -f lang/*.qm $RPM_BUILD_ROOT%{_datadir}/psi/
 
 %clean
 rm -rf $RPM_BUILD_ROOT
