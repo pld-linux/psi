@@ -21,10 +21,8 @@ License:	GPL v2+ / LGPL v2.1+
 Group:		Applications/Communications
 Source0:	%{name}-%{version}.tar.xz
 # Source0-md5:	27cabb1201d72c609f962e0c9ddb7ef5
-%if 0
-#Source1:	%{name}-lang.tar.bz2
+Source1:	%{name}-lang.tar.bz2
 # Source1-md5:	cf6d82f53f1f1600a49bb61ba81151bf
-%endif
 Source2:	generate-tarball.sh
 Patch0:		%{name}-fix_configure_for_ksh.patch
 Patch1:		%{name}-desktop.patch
@@ -80,8 +78,7 @@ wprowadzona zmiana, która powoduje że certyfikaty SSL są poszukiwane w
 katalogu $DATADIR/certs lub ~/.psi/certs.
 
 %prep
-#%%setup -q -a 1
-%setup -q
+%setup -q -a 1
 #%%patch0 -p0
 #%%patch1 -p1
 #%%{?with_home_etc:%patch2 -p1}
@@ -102,8 +99,8 @@ rm -rf third-party
 
 %{__make}
 
-#cd lang
-#lrelease-qt4 *.ts
+cd lang
+lrelease-qt4 *.ts
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -115,7 +112,7 @@ install -d $RPM_BUILD_ROOT%{_libdir}/psi/plugins
 %{__make} install \
 	INSTALL_ROOT=$RPM_BUILD_ROOT
 
-#cp -f lang/*.qm $RPM_BUILD_ROOT%{_datadir}/psi/
+cp -f lang/*.qm $RPM_BUILD_ROOT%{_datadir}/psi/
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -125,7 +122,6 @@ rm -rf $RPM_BUILD_ROOT
 %doc README
 %attr(755,root,root) %{_bindir}/psi-plus
 %dir %{_datadir}/psi
-%if 0
 %lang(ar) %{_datadir}/psi/*_ar.qm
 %lang(ca) %{_datadir}/psi/*_ca.qm
 %lang(cs) %{_datadir}/psi/*_cs.qm
@@ -149,7 +145,6 @@ rm -rf $RPM_BUILD_ROOT
 %lang(sr) %{_datadir}/psi/*_sr.qm
 %lang(uk) %{_datadir}/psi/*_uk.qm
 %lang(zh) %{_datadir}/psi/*_zh.qm
-%endif
 %dir %{_libdir}/psi
 %dir %{_libdir}/psi/plugins
 %{_datadir}/psi/certs
