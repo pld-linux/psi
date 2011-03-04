@@ -1,6 +1,5 @@
 #
 # TODO: - check BRs
-#	- check patches
 #
 # NOTE:
 #
