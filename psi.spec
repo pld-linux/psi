@@ -33,7 +33,7 @@ Patch5:		%{name}-icon_buttons_big_return-mod.patch
 Patch6:		%{name}-empty_group-fix.patch
 # http://machekku.uaznia.net/xmpp/psi/patches/
 Patch7:		%{name}-machekku-avatars_in_tooltip.patch
-URL:		http://psi-im.org/
+URL:		http://code.google.com/p/psi-dev/
 BuildRequires:	Qt3Support-devel
 BuildRequires:	QtCore-devel
 BuildRequires:	QtDBus-devel
@@ -66,6 +66,8 @@ based on the Qt library. It supports SSL encrypted connections. The
 default behaviour for SSL was changed so that it looks for SSL
 certificates in $DATADIR/certs or in ~/.psi/certs.
 
+Psi+ is a development branch of Psi IM Jabber client.
+
 %description -l de.UTF-8
 Psi ist ein Instant Messaging (IM) Client-Programm für das
 Jabber-Protokoll (XMPP), welches das Qt Toolkit nutzt.
@@ -74,8 +76,10 @@ Jabber-Protokoll (XMPP), welches das Qt Toolkit nutzt.
 PSI jest komunikatorem dla otwartego systemu wiadomości Jabber. Został
 stworzony w oparciu o bibliotekę Qt. PSI wspiera połączenia szyfrowane
 SSL. W stosunku do domyślnego zachowania komunikatora została
-wprowadzona zmiana, która powoduje że certyfikaty SSL są poszukiwane w
-katalogu $DATADIR/certs lub ~/.psi/certs.
+wprowadzona zmiana, która powoduje, że certyfikaty SSL są poszukiwane
+w katalogu $DATADIR/certs lub ~/.psi/certs.
+
+Psi+ jest rozwojową gałęzią komunikatora Psi IM Jabber.
 
 %prep
 %setup -q -a 1
