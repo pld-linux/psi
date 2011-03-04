@@ -1,29 +1,15 @@
 #
 # TODO: script to automate source package creation
 #
-# NOTE (how to create the package):
+# NOTE:
 #
-# git clone git://git.psi-im.org/psi.git
-# cd psi
-# git submodule init
-# git submodule update
-# git pull
-# git submodule update
-# svn co http://psi-dev.googlecode.com/svn/trunk/patches/
-# cat *.diff | patch -p1
-# pkgrel=`svnversion "patches"`
-# cd src
-# sed "s/\(.xxx\)/.${pkgrel}/" -i "applicationinfo.cpp"
-# cd ..
-# svn co --force http://psi-dev.googlecode.com/svn/trunk/iconsets/ iconsets
-# cd ..
-# mv psi psi-0.15.${pkgrel}
-# tar -pczf psi-0.15.${pkgrel}.tar.gz psi-0.15.${pkgrel}.tar.gz
-
+# To generate source package use generate-tarball.sh script included to this spec as SourceX.
+# Requires: git-core, subversion and sed >= 4.0
+#
 %define		ver	0.15
 %define		rev	3748
 %define		rel	0.%{rev}.1
-
+#
 Summary:	PSI - Jabber client
 Summary(de.UTF-8):	PSI - ein Instant Messaging Client-Programm für Jabber
 Summary(pl.UTF-8):	PSI - klient Jabbera
@@ -32,12 +18,13 @@ Version:	%{ver}.%{rev}
 Release:	%{rel}
 License:	GPL v2+ / LGPL v2.1+
 Group:		Applications/Communications
-Source0:	%{name}-%{version}.tar.gz
-# Source0-md5:	9884316663fc01e5c7d81dc5c5660f83
+Source0:	%{name}-%{version}.tar.xz
+# Source0-md5:	95396cd64f34181b6a28f7cea33f8fca
 %if 0
 #Source1:	%{name}-lang.tar.bz2
 # Source1-md5:	cf6d82f53f1f1600a49bb61ba81151bf
 %endif
+Source2:	generate-tarball.sh
 Patch0:		%{name}-fix_configure_for_ksh.patch
 Patch1:		%{name}-desktop.patch
 Patch2:		%{name}-home_etc.patch
@@ -60,10 +47,12 @@ BuildRequires:	qca-devel >= 2.0.0
 BuildRequires:	qt4-build >= 4.4.0
 BuildRequires:	qt4-linguist >= 4.4.0
 BuildRequires:	qt4-qmake >= 4.4.0
+BuildRequires:	tar >= 1:1.22
 BuildRequires:	which
 BuildRequires:	xorg-lib-libX11-devel
 BuildRequires:	xorg-lib-libXScrnSaver-devel
 BuildRequires:	xorg-proto-scrnsaverproto-devel
+BuildRequires:	xz >= 1:4.999.7
 BuildRequires:	zlib-devel
 Requires:	gstreamer-v4l2
 Requires:	gstreamer-video4linux
