@@ -25,14 +25,11 @@ Source1:	%{name}-lang.tar.bz2
 # Source1-md5:	cf6d82f53f1f1600a49bb61ba81151bf
 Source2:	generate-tarball.sh
 Patch0:		%{name}-fix_configure_for_ksh.patch
-Patch1:		%{name}-desktop.patch
-Patch2:		%{name}-home_etc.patch
-Patch3:		%{name}-customos.patch
-Patch4:		%{name}-no_online_offline_status.patch
-Patch5:		%{name}-icon_buttons_big_return-mod.patch
-Patch6:		%{name}-empty_group-fix.patch
-# http://machekku.uaznia.net/xmpp/psi/patches/
-Patch7:		%{name}-machekku-avatars_in_tooltip.patch
+Patch1:		%{name}-home_etc.patch
+Patch2:		%{name}-customos.patch
+Patch3:		%{name}-no_online_offline_status.patch
+Patch4:		%{name}-icon_buttons_big_return-mod.patch
+Patch5:		%{name}-empty_group-fix.patch
 URL:		http://code.google.com/p/psi-dev/
 BuildRequires:	Qt3Support-devel
 BuildRequires:	QtCore-devel
@@ -83,14 +80,12 @@ Psi+ jest rozwojową gałęzią komunikatora Psi IM Jabber.
 
 %prep
 %setup -q -a 1
-#%%patch0 -p0
-#%%patch1 -p1
-#%%{?with_home_etc:%patch2 -p1}
+%patch0 -p0
+#%%{?with_home_etc:%patch1 -p1}
+%patch2 -p1
 #%%patch3 -p1
-#%%patch4 -p1
-#%%patch5 -p1
-#%%patch6 -p1
-#%%patch7 -p1
+%patch4 -p1
+%patch5 -p1
 
 rm -rf third-party
 
