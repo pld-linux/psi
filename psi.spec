@@ -1,5 +1,6 @@
 #
-# TODO: script to automate source package creation
+# TODO: - check BRs
+#	- check patches
 #
 # NOTE:
 #
@@ -7,7 +8,7 @@
 # Requires: git-core, subversion and sed >= 4.0
 #
 %define		ver	0.15
-%define		rev	3748
+%define		rev	3749
 %define		rel	0.%{rev}.1
 #
 Summary:	PSI - Jabber client
@@ -19,7 +20,7 @@ Release:	%{rel}
 License:	GPL v2+ / LGPL v2.1+
 Group:		Applications/Communications
 Source0:	%{name}-%{version}.tar.xz
-# Source0-md5:	95396cd64f34181b6a28f7cea33f8fca
+# Source0-md5:	27cabb1201d72c609f962e0c9ddb7ef5
 %if 0
 #Source1:	%{name}-lang.tar.bz2
 # Source1-md5:	cf6d82f53f1f1600a49bb61ba81151bf
