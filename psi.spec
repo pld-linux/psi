@@ -29,7 +29,7 @@ Patch2:		%{name}-customos.patch
 Patch3:		%{name}-no_online_offline_status.patch
 Patch4:		%{name}-icon_buttons_big_return-mod.patch
 Patch5:		%{name}-empty_group-fix.patch
-URL:		http://code.google.com/p/psi-dev/
+URL:		http://psi-plus.com/
 BuildRequires:	Qt3Support-devel
 BuildRequires:	QtCore-devel
 BuildRequires:	QtDBus-devel
