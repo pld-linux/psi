@@ -3,7 +3,7 @@ Summary(de.UTF-8):	PSI - ein Instant Messaging Client-Programm für Jabber
 Summary(pl.UTF-8):	PSI - klient Jabbera
 Name:		psi
 Version:	0.14
-Release:	7
+Release:	8
 License:	GPL v2
 Group:		Applications/Communications
 Source0:	http://downloads.sourceforge.net/psi/%{name}-%{version}.tar.bz2
@@ -38,7 +38,6 @@ BuildRequires:	xorg-lib-libXScrnSaver-devel
 BuildRequires:	xorg-proto-scrnsaverproto-devel
 BuildRequires:	zlib-devel
 Requires:	gstreamer-v4l2
-Requires:	gstreamer-video4linux
 Requires:	qt4-plugin-qca-ossl
 Suggests:	gpgme >= 1.0.0
 Obsoletes:	qt-designer-psiwidgets
