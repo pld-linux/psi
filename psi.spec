@@ -2,23 +2,15 @@ Summary:	PSI - Jabber client
 Summary(de.UTF-8):	PSI - ein Instant Messaging Client-Programm für Jabber
 Summary(pl.UTF-8):	PSI - klient Jabbera
 Name:		psi
-Version:	0.14
-Release:	8
+Version:	0.15
+Release:	0.1
 License:	GPL v2
 Group:		Applications/Communications
-Source0:	http://downloads.sourceforge.net/psi/%{name}-%{version}.tar.bz2
-# Source0-md5:	9d7dcce3bcab53b741a712199bd986be
+# Source0:	http://downloads.sourceforge.net/psi/%{name}-%{version}.tar.bz2
+Source0:	http://downloads.sourceforge.net/project/psi/Development%20Snapshots/0.15-rc1/psi-0.15-rc1.tar.bz2
+# Source0-md5:	b9320c2bc0ab980bf0db5bca278c6ab3
 Source1:	%{name}-lang.tar.bz2
 # Source1-md5:	cf6d82f53f1f1600a49bb61ba81151bf
-Patch0:		%{name}-fix_configure_for_ksh.patch
-Patch1:		%{name}-desktop.patch
-Patch2:		%{name}-home_etc.patch
-Patch3:		%{name}-customos.patch
-Patch4:		%{name}-no_online_offline_status.patch
-Patch5:		%{name}-icon_buttons_big_return-mod.patch
-Patch6:		%{name}-empty_group-fix.patch
-# http://machekku.uaznia.net/xmpp/psi/patches/
-Patch7:		%{name}-machekku-avatars_in_tooltip.patch
 URL:		http://psi-im.org/
 BuildRequires:	Qt3Support-devel
 BuildRequires:	QtCore-devel
@@ -61,17 +53,7 @@ wprowadzona zmiana, która powoduje że certyfikaty SSL są poszukiwane w
 katalogu $DATADIR/certs lub ~/.psi/certs.
 
 %prep
-%setup -q -a 1
-%patch0 -p0
-%patch1 -p1
-%{?with_home_etc:%patch2 -p1}
-%patch3 -p1
-%patch4 -p1
-%patch5 -p1
-%patch6 -p1
-%patch7 -p1
-
-rm -rf third-party
+%setup -q -a 1 -n %{name}-%{version}-rc1
 
 %build
 ./configure \
