@@ -3,12 +3,11 @@ Summary(de.UTF-8):	PSI - ein Instant Messaging Client-Programm für Jabber
 Summary(pl.UTF-8):	PSI - klient Jabbera
 Name:		psi
 Version:	0.15
-Release:	0.1
+Release:	1
 License:	GPL v2
 Group:		Applications/Communications
-# Source0:	http://downloads.sourceforge.net/psi/%{name}-%{version}.tar.bz2
-Source0:	http://downloads.sourceforge.net/project/psi/Development%20Snapshots/0.15-rc1/psi-0.15-rc1.tar.bz2
-# Source0-md5:	b9320c2bc0ab980bf0db5bca278c6ab3
+Source0:	http://downloads.sourceforge.net/psi/%{name}-%{version}.tar.bz2
+# Source0-md5:	aea15f17cf93e7cea52f305523f761be
 Source1:	%{name}-lang.tar.bz2
 # Source1-md5:	cf6d82f53f1f1600a49bb61ba81151bf
 URL:		http://psi-im.org/
@@ -53,7 +52,7 @@ wprowadzona zmiana, która powoduje że certyfikaty SSL są poszukiwane w
 katalogu $DATADIR/certs lub ~/.psi/certs.
 
 %prep
-%setup -q -a 1 -n %{name}-%{version}-rc1
+%setup -q -a 1
 
 %build
 ./configure \
